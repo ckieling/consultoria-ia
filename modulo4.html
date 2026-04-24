@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecossistema Anthropic — Módulo 4 · Cursinho de IA</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  --bg:        #FFF8F0;
+  --white:     #FFFFFF;
+  --ink:       #1A1A2E;
+  --border:    3px solid #1A1A2E;
+  --shadow:    8px 8px 0px #1A1A2E;
+  --shadow-s:  4px 4px 0px #1A1A2E;
+  --pink:      #E91E8C;
+  --pink-bg:   #FFF0F7;
+  --coral:     #FF6B6B;
+  --coral-bg:  #FFF0F0;
+  --teal:      #4ECDC4;
+  --teal-bg:   #E8FAF9;
+  --yellow:    #FFD93D;
+  --yellow-bg: #FFFBE6;
+  --purple:    #6C5CE7;
+  --purple-bg: #F0EDFF;
+  --green:     #2ECC71;
+  --green-bg:  #E8FAF0;
+  --blue:      #3498DB;
+  --blue-bg:   #EBF5FB;
+  --orange:    #FF8C42;
+  --orange-bg: #FFF0E6;
+  --muted:     #5A5A7A;
+  --muted2:    #8888AA;
+  --sans:      'Plus Jakarta Sans', sans-serif;
+  --display:   'Space Grotesk', sans-serif;
+  --mono:      'JetBrains Mono', monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.7;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:4px;}
+
+/* NAV */
+header{
+  position:sticky;top:0;z-index:200;
+  background:var(--pink);
+  border-bottom:var(--border);
+  padding:14px 5%;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.brand{font-family:var(--display);font-weight:700;font-size:1rem;display:flex;align-items:center;gap:.6rem;color:white;}
+.brand-dot{width:28px;height:28px;border-radius:6px;background:white;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.6rem;color:var(--pink);font-weight:700;}
+.topnav{display:flex;gap:0;list-style:none;}
+.topnav a{font-size:.73rem;font-weight:700;color:white;text-decoration:none;padding:.3rem .85rem;border-left:2px solid rgba(255,255,255,.4);transition:background .15s;}
+.topnav a:hover{background:rgba(255,255,255,.15);}
+#prog{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--pink),var(--purple),var(--blue));z-index:999;transition:width .15s;}
+
+/* HERO */
+.hero{display:grid;grid-template-columns:1.3fr .75fr;border-bottom:var(--border);padding:70px 5%;gap:36px;}
+.hero-card{background:var(--white);border:var(--border);padding:44px;box-shadow:var(--shadow);transform:rotate(-0.7deg);}
+.eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--pink);margin-bottom:1.1rem;display:flex;align-items:center;gap:.5rem;}
+.eyebrow::before{content:'▶';font-size:.55rem;}
+h1{font-family:var(--display);font-size:clamp(2.2rem,4.5vw,3.8rem);line-height:1.08;margin:14px 0 18px;font-weight:700;}
+h1 span{color:var(--pink);}
+.hero-desc{font-size:.98rem;color:var(--muted);max-width:500px;line-height:1.82;margin-bottom:1.6rem;}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;}
+.chip{border:2px solid var(--ink);border-radius:20px;padding:.28rem .85rem;font-size:.75rem;font-weight:700;}
+.chip.pk{background:var(--pink);color:white;}
+.chip.p{background:var(--purple);color:white;}
+.chip.t{background:var(--teal);}
+.chip.y{background:var(--yellow);}
+.chip.g{background:var(--green);}
+.chip.b{background:var(--blue);color:white;}
+.chip.o{background:var(--orange);}
+/* toc */
+.toc-card{background:var(--ink);border:var(--border);padding:30px;color:white;box-shadow:var(--shadow);transform:rotate(.7deg);}
+.toc-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;opacity:.4;display:block;margin-bottom:.9rem;}
+.toc-item{display:flex;align-items:center;gap:.9rem;padding:.65rem 0;border-bottom:1px solid rgba(255,255,255,.1);cursor:pointer;transition:opacity .15s;}
+.toc-item:hover{opacity:.65;}
+.toc-item:last-child{border-bottom:none;}
+.toc-num{font-family:var(--mono);font-size:.6rem;opacity:.35;min-width:1.4rem;}
+.toc-text{font-size:.82rem;font-weight:600;}
+
+/* SECTION */
+.sec{max-width:1000px;margin:80px auto;padding:0 20px;}
+.sec-label{font-family:var(--mono);color:var(--pink);font-weight:700;text-transform:uppercase;font-size:.7rem;letter-spacing:.12em;}
+h2.sec-title{font-family:var(--display);font-size:clamp(1.8rem,3.5vw,2.8rem);margin:10px 0 6px;font-weight:700;}
+.sec-lead{font-size:1rem;color:var(--muted);margin:0 0 36px;padding-left:18px;border-left:5px solid var(--pink);max-width:700px;line-height:1.82;}
+
+/* CARDS */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.card{background:var(--white);border:var(--border);padding:26px;box-shadow:var(--shadow);border-radius:14px;transition:transform .2s,box-shadow .2s;}
+.card:hover{transform:translate(-3px,-3px);box-shadow:11px 11px 0 var(--ink);}
+.card-num{font-family:var(--mono);font-size:.6rem;color:var(--muted2);letter-spacing:.1em;display:block;margin-bottom:.3rem;}
+.card-name{font-family:var(--display);font-size:1.05rem;font-weight:700;margin-bottom:10px;display:block;}
+.card p{font-size:.86rem;color:var(--muted);line-height:1.78;margin-bottom:.7rem;}
+.card p:last-child{margin-bottom:0;}
+.card p strong{color:var(--ink);}
+
+/* CALLOUT */
+.call{display:flex;gap:1rem;padding:16px 20px;margin:18px 0;border:2px solid var(--ink);border-radius:10px;}
+.call.pk{background:var(--pink-bg);}
+.call.y{background:var(--yellow-bg);}
+.call.t{background:var(--teal-bg);}
+.call.c{background:var(--coral-bg);}
+.call.g{background:var(--green-bg);}
+.call.p{background:var(--purple-bg);}
+.call.b{background:var(--blue-bg);}
+.call.o{background:var(--orange-bg);}
+.call-ico{font-size:1rem;flex-shrink:0;padding-top:.05rem;}
+.call-title{font-family:var(--mono);font-size:.61rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;display:block;margin-bottom:.3rem;}
+.call.pk .call-title{color:var(--pink);}
+.call.y  .call-title{color:#b8860b;}
+.call.t  .call-title{color:#1a8a82;}
+.call.c  .call-title{color:var(--coral);}
+.call.g  .call-title{color:#1a7a40;}
+.call.p  .call-title{color:var(--purple);}
+.call.b  .call-title{color:var(--blue);}
+.call.o  .call-title{color:var(--orange);}
+.call p{font-size:.86rem;color:var(--muted);line-height:1.72;margin:0;}
+.call p strong{color:var(--ink);}
+
+/* CODE BLOCKS */
+.code-block{background:var(--ink);border:var(--border);border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:var(--shadow-s);}
+.code-header{background:#252535;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.1);}
+.code-label{font-family:var(--mono);font-size:.62rem;color:rgba(255,255,255,.45);letter-spacing:.1em;text-transform:uppercase;}
+.code-tag{font-family:var(--mono);font-size:.65rem;padding:.18rem .55rem;border-radius:4px;font-weight:600;}
+.code-tag.good{background:var(--green);color:white;}
+.code-tag.warn{background:var(--yellow);}
+.code-tag.tip{background:var(--pink);color:white;}
+.code-tag.neutral{background:rgba(255,255,255,.15);color:rgba(255,255,255,.7);}
+pre{padding:18px 20px;font-family:var(--mono);font-size:.79rem;color:#e8e6f0;line-height:1.7;white-space:pre-wrap;word-break:break-word;}
+.hl-k{color:#4ECDC4;}
+.hl-s{color:#FFD93D;}
+.hl-c{color:rgba(255,255,255,.32);font-style:italic;}
+.hl-p{color:#E91E8C;}
+.hl-g{color:#2ECC71;}
+.hl-r{color:#FF6B6B;}
+.hl-o{color:#FF8C42;}
+
+/* MODEL TIER CARDS */
+.model-tier{border:var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:20px;}
+.mt-header{padding:20px 24px;border-bottom:var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.mt-name{font-family:var(--display);font-size:1.2rem;font-weight:700;}
+.mt-price{font-family:var(--mono);font-size:.85rem;font-weight:600;}
+.mt-body{background:var(--white);display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:2px solid var(--ink);}
+.mt-body:last-child{border-bottom:none;}
+.mt-cell{padding:16px 18px;border-right:2px solid var(--ink);font-size:.84rem;color:var(--muted);}
+.mt-cell:last-child{border-right:none;}
+.mt-cell strong{color:var(--ink);display:block;font-size:.76rem;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.3rem;}
+.mt-tags{display:flex;flex-wrap:wrap;gap:.3rem;padding:14px 18px;background:var(--bg);border-top:1.5px solid var(--border);}
+.tag{font-family:var(--mono);font-size:.58rem;letter-spacing:.07em;text-transform:uppercase;padding:.16rem .48rem;border-radius:4px;border:1.5px solid var(--ink);font-weight:600;}
+.tag.pk{background:var(--pink);color:white;}
+.tag.t{background:var(--teal);}
+.tag.y{background:var(--yellow);}
+.tag.p{background:var(--purple);color:white;}
+.tag.g{background:var(--green);color:white;}
+.tag.b{background:var(--blue);color:white;}
+.tag.o{background:var(--orange);color:white;}
+.tag.w{background:var(--white);}
+
+/* PRICING TABLE */
+.table-wrap{border:var(--border);box-shadow:var(--shadow);border-radius:14px;overflow:hidden;background:var(--white);margin:20px 0;}
+table.tbl{width:100%;border-collapse:collapse;font-size:.83rem;}
+table.tbl thead th{background:var(--ink);color:white;padding:12px 15px;text-align:left;font-family:var(--display);font-weight:700;font-size:.79rem;white-space:nowrap;}
+table.tbl thead th:not(:first-child){text-align:center;}
+table.tbl tbody td{padding:12px 15px;border-bottom:1.5px solid #e8e4de;color:var(--muted);vertical-align:middle;}
+table.tbl tbody td:not(:first-child){text-align:center;}
+table.tbl tbody td strong{color:var(--ink);}
+table.tbl tbody tr:last-child td{border-bottom:none;}
+table.tbl tbody tr:hover td{background:var(--pink-bg);}
+.yes{color:#16a34a;font-weight:800;}
+.no{color:#dc2626;opacity:.7;}
+.part{color:#b8860b;font-weight:700;}
+
+/* COST CALCULATOR VISUAL */
+.calc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0;}
+.calc-card{background:var(--white);border:var(--border);border-radius:12px;padding:18px 20px;box-shadow:var(--shadow-s);text-align:center;}
+.calc-label{font-family:var(--mono);font-size:.62rem;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.4rem;}
+.calc-num{font-family:var(--display);font-size:1.6rem;font-weight:700;display:block;margin-bottom:.2rem;}
+.calc-desc{font-size:.77rem;color:var(--muted);line-height:1.6;}
+
+/* FEATURE SECTIONS */
+.feature-block{background:var(--white);border:var(--border);border-radius:16px;padding:28px 32px;box-shadow:var(--shadow);margin-bottom:24px;}
+.feature-block h3{font-family:var(--display);font-size:1.15rem;font-weight:700;margin-bottom:.5rem;}
+.feature-block .sub{font-family:var(--mono);font-size:.63rem;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:1rem;display:block;}
+.feature-block p{font-size:.87rem;color:var(--muted);line-height:1.8;margin-bottom:.8rem;}
+.feature-block p:last-child{margin-bottom:0;}
+.feature-block p strong{color:var(--ink);}
+
+/* FLOW DIAGRAM */
+.flow{display:flex;align-items:stretch;gap:0;border:var(--border);border-radius:12px;overflow:hidden;background:var(--white);box-shadow:var(--shadow-s);margin:16px 0;}
+.flow-step{flex:1;padding:16px 14px;border-right:2px solid var(--ink);text-align:center;}
+.flow-step:last-child{border-right:none;}
+.fs-num{font-family:var(--mono);font-size:.58rem;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.4rem;}
+.fs-icon{font-size:1.4rem;display:block;margin-bottom:.4rem;}
+.fs-name{font-family:var(--display);font-size:.8rem;font-weight:700;display:block;margin-bottom:.25rem;}
+.fs-desc{font-size:.74rem;color:var(--muted);line-height:1.55;}
+
+/* ARCHITECTURE DIAGRAM */
+.arch{border:var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);margin:20px 0;}
+.arch-row{display:grid;grid-template-columns:160px 1fr;border-bottom:2px solid var(--ink);}
+.arch-row:last-child{border-bottom:none;}
+.arch-label{padding:14px 16px;border-right:2px solid var(--ink);font-family:var(--display);font-weight:700;font-size:.82rem;display:flex;align-items:center;}
+.arch-content{padding:14px 18px;background:var(--white);font-size:.83rem;color:var(--muted);line-height:1.72;}
+.arch-content strong{color:var(--ink);}
+.arch-content code{font-family:var(--mono);font-size:.77rem;background:var(--bg);border:1.5px solid var(--ink);padding:.1rem .35rem;border-radius:4px;color:var(--pink);}
+
+/* SCENARIOS */
+.scenario{background:var(--white);border:var(--border);padding:24px;border-radius:14px;display:flex;gap:16px;box-shadow:var(--shadow);margin-bottom:16px;transition:transform .2s;}
+.scenario:hover{transform:translate(-2px,-2px);}
+.sc-icon{font-size:1.8rem;background:var(--bg);padding:12px;border-radius:10px;border:2px solid var(--ink);flex-shrink:0;box-shadow:var(--shadow-s);}
+.sc-role{font-family:var(--mono);font-weight:700;color:var(--pink);font-size:.67rem;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.3rem;}
+.sc-title{font-family:var(--display);font-weight:700;font-size:.9rem;margin-bottom:.35rem;display:block;}
+.sc-desc{font-size:.82rem;color:var(--muted);line-height:1.72;margin-bottom:.45rem;}
+.sc-chips{display:flex;flex-wrap:wrap;gap:.3rem;}
+.sc-chip{background:var(--bg);border:1.5px solid var(--ink);border-radius:6px;padding:.16rem .6rem;font-size:.71rem;font-weight:600;}
+
+/* GLOSSARY */
+.glossary{background:var(--white);border:var(--border);box-shadow:var(--shadow);border-radius:14px;overflow:hidden;}
+.gr{display:grid;grid-template-columns:190px 1fr;border-bottom:2px solid var(--ink);}
+.gr:last-child{border-bottom:none;}
+.gr:hover{background:var(--pink-bg);}
+.gt{padding:16px 18px;background:#f0f0f7;border-right:2px solid var(--ink);font-family:var(--display);font-weight:700;font-size:.87rem;}
+.gt small{display:block;font-family:var(--mono);font-size:.58rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:.2rem;font-weight:400;}
+.gd{padding:16px 20px;font-size:.85rem;color:var(--muted);line-height:1.75;}
+.gd strong{color:var(--ink);}
+
+/* DIVIDER */
+.divider{border:none;border-top:var(--border);max-width:1000px;margin:0 auto 80px;}
+
+/* NEXT */
+.next-box{background:var(--ink);border:var(--border);padding:50px;border-radius:24px;box-shadow:var(--shadow);text-align:center;}
+.next-box h2{font-family:var(--display);font-size:clamp(1.8rem,4vw,3rem);margin:12px 0 16px;color:white;}
+.next-box p{max-width:500px;margin:0 auto 28px;font-size:.97rem;color:rgba(255,255,255,.65);}
+.next-btn{display:inline-block;background:var(--pink);color:white;padding:14px 36px;border:var(--border);font-family:var(--display);font-weight:700;text-decoration:none;box-shadow:var(--shadow-s);transition:transform .15s;font-size:.95rem;}
+.next-btn:hover{transform:translate(-2px,-2px);}
+
+/* RESPONSIVE */
+@media(max-width:820px){
+  .hero,.grid-2,.grid-3,.calc-grid{grid-template-columns:1fr;}
+  .hero-card{transform:none;}.toc-card{display:none;}
+  .mt-body{grid-template-columns:1fr;}
+  .mt-cell{border-right:none;border-bottom:1.5px solid var(--ink);}
+  .flow{flex-direction:column;}
+  .flow-step{border-right:none;border-bottom:2px solid var(--ink);}
+  .flow-step:last-child{border-bottom:none;}
+  .arch-row,.gr{grid-template-columns:1fr;}
+  .arch-label,.gt{border-right:none;border-bottom:2px solid var(--ink);}
+  .sec{padding:0 15px;margin:50px auto;}
+  .topnav{display:none;}
+}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<header>
+  <div class="brand">
+    <div class="brand-dot">IA</div>
+    IA CONSULTORIA ⚡ Módulo 04
+  </div>
+  <ul class="topnav">
+    <li><a href="#visao">Visão geral</a></li>
+    <li><a href="#modelos">Modelos</a></li>
+    <li><a href="#api">API & Preços</a></li>
+    <li><a href="#otimizacao">Otimização</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#claudecode">Claude Code</a></li>
+    <li><a href="#extended">Extended Thinking</a></li>
+    <li><a href="#cenarios">Cenários</a></li>
+    <li><a href="#glossario">Glossário</a></li>
+  </ul>
+</header>
+
+<!-- ════ HERO ════ -->
+<div class="hero">
+  <div class="hero-card">
+    <div class="eyebrow">Módulo 04 de 08 · Atualizado Abril 2026</div>
+    <h1>Ecossistema<br><span>Anthropic</span></h1>
+    <p class="hero-desc">API, modelos, preços reais por token, estratégias de otimização de custo, Projects como ferramenta de trabalho, Claude Code em profundidade e Extended Thinking. Tudo que um consultor e desenvolvedor precisa saber sobre o stack da Anthropic.</p>
+    <div class="chips">
+      <span class="chip pk">API</span>
+      <span class="chip p">Modelos Claude 4</span>
+      <span class="chip t">Precificação</span>
+      <span class="chip y">Prompt Cache</span>
+      <span class="chip g">Projects</span>
+      <span class="chip b">Claude Code</span>
+      <span class="chip o">Extended Thinking</span>
+    </div>
+  </div>
+  <div class="toc-card">
+    <span class="toc-label">Conteúdo deste módulo</span>
+    <div class="toc-item" onclick="go('visao')"><span class="toc-num">1</span><span class="toc-text">Visão geral — o stack da Anthropic em 2026</span></div>
+    <div class="toc-item" onclick="go('modelos')"><span class="toc-num">2</span><span class="toc-text">Família Claude 4 — Haiku, Sonnet, Opus em detalhe</span></div>
+    <div class="toc-item" onclick="go('api')"><span class="toc-num">3</span><span class="toc-text">API — como funciona, preços e autenticação</span></div>
+    <div class="toc-item" onclick="go('otimizacao')"><span class="toc-num">4</span><span class="toc-text">Estratégias de otimização de custo</span></div>
+    <div class="toc-item" onclick="go('projects')"><span class="toc-num">5</span><span class="toc-text">Projects — contexto persistente para trabalho real</span></div>
+    <div class="toc-item" onclick="go('claudecode')"><span class="toc-num">6</span><span class="toc-text">Claude Code — o agente de engenharia de software</span></div>
+    <div class="toc-item" onclick="go('extended')"><span class="toc-num">7</span><span class="toc-text">Extended Thinking — raciocínio profundo sob demanda</span></div>
+    <div class="toc-item" onclick="go('cenarios')"><span class="toc-num">8</span><span class="toc-text">Cenários práticos — escolhendo o produto certo</span></div>
+    <div class="toc-item" onclick="go('glossario')"><span class="toc-num">9</span><span class="toc-text">Glossário do Módulo 4</span></div>
+  </div>
+</div>
+
+<!-- ════ 1. VISÃO GERAL ════ -->
+<section class="sec" id="visao">
+  <span class="sec-label">Seção 1</span>
+  <h2 class="sec-title">O Stack da Anthropic em 2026</h2>
+  <p class="sec-lead">A Anthropic não é só o Claude do chat. É um ecossistema de produtos, APIs e ferramentas que cobrem desde o usuário final até o desenvolvedor que constrói sistemas complexos. Entender cada camada é o que permite recomendar e arquitetar soluções adequadas.</p>
+
+  <div class="call pk" style="max-width:100%;margin-bottom:28px;">
+    <span class="call-ico">📈</span>
+    <div>
+      <span class="call-title">A Anthropic em números — Abril 2026</span>
+      <p>Em fevereiro de 2026, a Anthropic fechou um <strong>Series G de US$30 bilhões</strong> a uma valuation de <strong>US$380 bilhões</strong> — a segunda maior rodada privada da história da tecnologia. A receita anualizada chegou a <strong>US$14 bilhões</strong>, crescendo de US$3bi em meados de 2025. Claude Code sozinho atingiu US$2,5bi em receita anualizada em fevereiro de 2026. Investidores estratégicos: AWS, Google, Microsoft e Nvidia.</p>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <span class="card-num">Camada 1 — Produto</span>
+      <span class="card-name">Claude.ai</span>
+      <p>Interface de chat para usuários finais. Web, iOS, Android e desktop. Onde a maioria das pessoas experimenta Claude pela primeira vez. Planos: Gratuito, Pro (US$20), Max (US$100–200), Team (US$25/usuário), Enterprise (preço customizado).</p>
+    </div>
+    <div class="card">
+      <span class="card-num">Camada 2 — Desenvolvimento</span>
+      <span class="card-name">API + Claude Code</span>
+      <p>A API é o acesso programático aos modelos — onde desenvolvedores constroem aplicações, automações e agentes. Claude Code é o agente de terminal para engenharia de software. Ambos são pay-as-you-go baseado em tokens.</p>
+    </div>
+    <div class="card">
+      <span class="card-num">Camada 3 — Plataforma</span>
+      <span class="card-name">Anthropic Platform</span>
+      <p>Conjunto de APIs composicionais para construir agentes em escala: Files API, Batch API, Model Context Protocol (MCP), tool use, computer use e capacidades de extended thinking. Mais contexto nos Módulos 7 e 8.</p>
+    </div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:32px 0 12px;">Como os produtos se relacionam</h3>
+  <div class="flow">
+    <div class="flow-step"><span class="fs-num">Usuário final</span><span class="fs-icon">💬</span><span class="fs-name">Claude.ai</span><span class="fs-desc">Chat, Projects, Artefatos, MCP visual, Research</span></div>
+    <div class="flow-step"><span class="fs-num">Desenvolvedor</span><span class="fs-icon">⌨️</span><span class="fs-name">Claude Code</span><span class="fs-desc">Terminal, codebase completa, testes, deploys</span></div>
+    <div class="flow-step"><span class="fs-num">Engenheiro de sistemas</span><span class="fs-icon">🔌</span><span class="fs-name">API REST</span><span class="fs-desc">Chamadas programáticas, batch, streaming, tools</span></div>
+    <div class="flow-step"><span class="fs-num">Arquiteto / CTO</span><span class="fs-icon">🏗️</span><span class="fs-name">Plataforma</span><span class="fs-desc">Agentes, MCP servers, Files API, multi-agent</span></div>
+  </div>
+
+  <div class="call y" style="max-width:100%;margin-top:8px;">
+    <span class="call-ico">⚠️</span>
+    <div>
+      <span class="call-title">Separação importante</span>
+      <p>Ter uma assinatura do Claude.ai Pro <strong>não</strong> dá créditos na API. São produtos separados com cobranças separadas. A API é paga por token via cartão de crédito, independente do plano de chat. Para desenvolvimento e integração de sistemas, você precisa de uma conta na <strong>Anthropic Platform</strong> (platform.anthropic.com), não só do claude.ai.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 2. MODELOS ════ -->
+<section class="sec" id="modelos">
+  <span class="sec-label">Seção 2</span>
+  <h2 class="sec-title">Família Claude 4 — Modelos em Detalhe</h2>
+  <p class="sec-lead">Em abril de 2026, a Anthropic lançou o Claude Opus 4.7, mas mantém três tiers principais para produção. Entender as diferenças técnicas — não só o preço — é o que permite fazer routing inteligente e economizar até 80% nos custos de API.</p>
+
+  <!-- OPUS 4.7 -->
+  <div class="model-tier">
+    <div class="mt-header" style="background:var(--pink-bg);">
+      <div>
+        <span class="mt-name">Claude Opus 4.7</span>
+        <div style="font-family:var(--mono);font-size:.62rem;color:var(--muted);margin-top:.2rem;">claude-opus-4-7 · Lançado Abril 2026 · Novo tokenizador</div>
+      </div>
+      <span class="mt-price" style="color:var(--pink);">$5 / $25 por MTok · input / output</span>
+    </div>
+    <div class="mt-body">
+      <div class="mt-cell"><strong>Contexto</strong>1M tokens (flat rate, sem surcharge)</div>
+      <div class="mt-cell"><strong>Output máximo</strong>128K tokens</div>
+      <div class="mt-cell"><strong>Tokenizador</strong>Novo — pode usar até 35% mais tokens que Opus 4.6 no mesmo texto</div>
+    </div>
+    <div class="mt-body">
+      <div class="mt-cell"><strong>Ponto forte</strong>Coding, agentes de longa duração, raciocínio arquitetural complexo</div>
+      <div class="mt-cell"><strong>Extended Thinking</strong>Suportado — tokens cobrados como output padrão</div>
+      <div class="mt-cell"><strong>Fast Mode</strong>6× o preço padrão ($30/$150) para workloads latência-críticas</div>
+    </div>
+    <div class="mt-tags">
+      <span class="tag pk">Flagship</span><span class="tag p">1M contexto</span><span class="tag b">128K output</span><span class="tag g">SWE-bench líder</span><span class="tag y">Novo tokenizador</span>
+    </div>
+  </div>
+
+  <!-- OPUS 4.6 -->
+  <div class="model-tier">
+    <div class="mt-header" style="background:var(--purple-bg);">
+      <div>
+        <span class="mt-name">Claude Opus 4.6</span>
+        <div style="font-family:var(--mono);font-size:.62rem;color:var(--muted);margin-top:.2rem;">claude-opus-4-6 · Ainda recomendado para deployments estáveis</div>
+      </div>
+      <span class="mt-price" style="color:var(--purple);">$5 / $25 por MTok · mesmo preço do 4.7</span>
+    </div>
+    <div class="mt-body">
+      <div class="mt-cell"><strong>Contexto</strong>1M tokens (flat rate)</div>
+      <div class="mt-cell"><strong>Output máximo</strong>128K tokens</div>
+      <div class="mt-cell"><strong>Tokenizador</strong>Anterior — tokenização mais previsível para deployments existentes</div>
+    </div>
+    <div class="mt-body">
+      <div class="mt-cell"><strong>Quando preferir ao 4.7</strong>Deployments pinados que não podem arriscar variação de custo de tokenização</div>
+      <div class="mt-cell"><strong>SWE-bench Verified</strong>80,9% — resolução autônoma de bugs reais em repositórios open-source</div>
+      <div class="mt-cell"><strong>Fast Mode</strong>Suportado ($30/$150)</div>
+    </div>
+    <div class="mt-tags">
+      <span class="tag p">Produção estável</span><span class="tag p">1M contexto</span><span class="tag g">80,9% SWE-bench</span>
+    </div>
+  </div>
+
+  <!-- SONNET 4.6 -->
+  <div class="model-tier">
+    <div class="mt-header" style="background:var(--teal-bg);">
+      <div>
+        <span class="mt-name">Claude Sonnet 4.6</span>
+        <div style="font-family:var(--mono);font-size:.62rem;color:var(--muted);margin-top:.2rem;">claude-sonnet-4-6 · Recomendado padrão para a maioria dos casos</div>
+      </div>
+      <span class="mt-price" style="color:#1a8a82;">$3 / $15 por MTok · 40% mais barato que Opus</span>
+    </div>
+    <div class="mt-body">
+      <div class="mt-cell"><strong>Contexto</strong>1M tokens (flat rate)</div>
+      <div class="mt-cell"><strong>Output máximo</strong>128K tokens</div>
+      <div class="mt-cell"><strong>Extended Thinking</strong>Suportado — "Adaptive Thinking" otimiza automaticamente uso de tokens de raciocínio</div>
+    </div>
+    <div class="mt-body">
+      <div class="mt-cell"><strong>Melhor para</strong>Uso diário geral, coding, análise, automações, RAG, chat corporativo</div>
+      <div class="mt-cell"><strong>Velocidade</strong>Mais rápido que Opus — melhor para workloads interativos</div>
+      <div class="mt-cell"><strong>Custo real</strong>Com caching: efetivamente $0.30/MTok em inputs repetidos (90% off)</div>
+    </div>
+    <div class="mt-tags">
+      <span class="tag t">Recomendado</span><span class="tag p">1M contexto</span><span class="tag y">Melhor custo-benefício</span><span class="tag g">Adaptive Thinking</span>
+    </div>
+  </div>
+
+  <!-- HAIKU 4.5 -->
+  <div class="model-tier">
+    <div class="mt-header" style="background:var(--green-bg);">
+      <div>
+        <span class="mt-name">Claude Haiku 4.5</span>
+        <div style="font-family:var(--mono);font-size:.62rem;color:var(--muted);margin-top:.2rem;">claude-haiku-4-5-20251001 · Para alto volume e latência mínima</div>
+      </div>
+      <span class="mt-price" style="color:#1a7a40;">$1 / $5 por MTok · 5× mais barato que Opus</span>
+    </div>
+    <div class="mt-body">
+      <div class="mt-cell"><strong>Contexto</strong>200K tokens</div>
+      <div class="mt-cell"><strong>Output máximo</strong>64K tokens</div>
+      <div class="mt-cell"><strong>Extended Thinking</strong>Suportado</div>
+    </div>
+    <div class="mt-body">
+      <div class="mt-cell"><strong>Melhor para</strong>Triagem, classificação, extração de dados, respostas curtas, automações simples em alto volume</div>
+      <div class="mt-cell"><strong>Velocidade</strong>O mais rápido da família — resposta quase instantânea em tarefas simples</div>
+      <div class="mt-cell"><strong>Com Batch API</strong>Cai para $0.50/$2.50 — o mais barato de toda a linha</div>
+    </div>
+    <div class="mt-tags">
+      <span class="tag g">Alto volume</span><span class="tag t">Mais rápido</span><span class="tag y">Batch: $0.50/$2.50</span>
+    </div>
+  </div>
+
+  <div class="call pk" style="max-width:100%;">
+    <span class="call-ico">🗂️</span>
+    <div>
+      <span class="call-title">Depreciações importantes — Abril 2026</span>
+      <p>Claude Haiku 3 foi depreciado em <strong>19 de abril de 2026</strong>. Se você tem workloads nele, migre para Haiku 4.5 ($1/$5 — 4× mais caro, mas dramaticamente mais capaz: 64K output, extended thinking, qualidade superior). Sonnet 3.7 também está depreciado. Opus 4.1 ($15/$75) ainda ativo mas obsoleto — migrar para Opus 4.6 ($5/$25) é uma redução de 67% de custo com ganho de capacidade.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 3. API ════ -->
+<section class="sec" id="api">
+  <span class="sec-label">Seção 3</span>
+  <h2 class="sec-title">API — Como Funciona, Preços e Autenticação</h2>
+  <p class="sec-lead">A API da Anthropic segue o padrão REST com autenticação por chave. O modelo de precificação é por token — o que exige entender bem o que é cobrado para não ter surpresas na fatura.</p>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:0 0 12px;">Sua primeira chamada à API</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Chamada básica à API — Python</span>
+      <span class="code-tag good">✓ Produção</span>
+    </div>
+    <pre><span class="hl-k">import</span> anthropic
+
+<span class="hl-c"># Inicialize o cliente — a API key vem da variável de ambiente</span>
+<span class="hl-c"># export ANTHROPIC_API_KEY="sk-ant-..."</span>
+client = anthropic.Anthropic()
+
+message = client.messages.create(
+    <span class="hl-k">model</span>=<span class="hl-s">"claude-sonnet-4-6"</span>,
+    <span class="hl-k">max_tokens</span>=<span class="hl-o">1024</span>,
+    <span class="hl-k">system</span>=<span class="hl-s">"Você é um analista financeiro especializado em varejo."</span>,
+    <span class="hl-k">messages</span>=[
+        {<span class="hl-s">"role"</span>: <span class="hl-s">"user"</span>, <span class="hl-s">"content"</span>: <span class="hl-s">"Analise o DRE abaixo e identifique os 3 maiores riscos."</span>}
+    ]
+)
+
+<span class="hl-k">print</span>(message.content[<span class="hl-o">0</span>].text)
+
+<span class="hl-c"># Verificando o uso de tokens</span>
+<span class="hl-k">print</span>(<span class="hl-s">f"Input: {message.usage.input_tokens} tokens"</span>)
+<span class="hl-k">print</span>(<span class="hl-s">f"Output: {message.usage.output_tokens} tokens"</span>)</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Mesma chamada — JavaScript / Node.js</span>
+      <span class="code-tag neutral">Node.js</span>
+    </div>
+    <pre><span class="hl-k">import</span> Anthropic <span class="hl-k">from</span> <span class="hl-s">'@anthropic-ai/sdk'</span>;
+
+<span class="hl-k">const</span> client = <span class="hl-k">new</span> Anthropic();
+<span class="hl-c">// API key lida automaticamente de ANTHROPIC_API_KEY</span>
+
+<span class="hl-k">const</span> message = <span class="hl-k">await</span> client.messages.create({
+  model: <span class="hl-s">'claude-sonnet-4-6'</span>,
+  max_tokens: <span class="hl-o">1024</span>,
+  system: <span class="hl-s">'Você é um analista financeiro especializado em varejo.'</span>,
+  messages: [
+    { role: <span class="hl-s">'user'</span>, content: <span class="hl-s">'Analise o DRE abaixo...'</span> }
+  ]
+});
+
+console.log(message.content[<span class="hl-o">0</span>].text);</pre>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:28px 0 12px;">Tabela de preços completa — Abril 2026</h3>
+
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Modelo</th>
+          <th>Input (MTok)</th>
+          <th>Output (MTok)</th>
+          <th>Cache Write</th>
+          <th>Cache Hit</th>
+          <th>Batch (−50%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Opus 4.7</strong> <span style="font-family:var(--mono);font-size:.65rem;color:var(--pink);">NOVO</span></td>
+          <td>$5.00</td><td>$25.00</td><td>$6.25</td><td>$0.50</td><td>$2.50 / $12.50</td>
+        </tr>
+        <tr>
+          <td><strong>Opus 4.6</strong></td>
+          <td>$5.00</td><td>$25.00</td><td>$6.25</td><td>$0.50</td><td>$2.50 / $12.50</td>
+        </tr>
+        <tr style="background:rgba(78,205,196,.04);">
+          <td><strong>Sonnet 4.6</strong> <span style="font-family:var(--mono);font-size:.65rem;color:#1a8a82;">RECOMENDADO</span></td>
+          <td>$3.00</td><td>$15.00</td><td>$3.75</td><td>$0.30</td><td>$1.50 / $7.50</td>
+        </tr>
+        <tr>
+          <td><strong>Haiku 4.5</strong></td>
+          <td>$1.00</td><td>$5.00</td><td>$1.25</td><td>$0.10</td><td>$0.50 / $2.50</td>
+        </tr>
+        <tr style="color:var(--muted2);">
+          <td><strong>Opus 4.1</strong> <span style="font-family:var(--mono);font-size:.65rem;color:var(--coral);">OBSOLETO</span></td>
+          <td>$15.00</td><td>$75.00</td><td>—</td><td>—</td><td>—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="call y" style="max-width:100%;margin-top:4px;">
+    <span class="call-ico">💡</span>
+    <div>
+      <span class="call-title">Output custa 5× mais que input — sempre</span>
+      <p>Em todos os modelos Claude, <strong>output = 5× o preço de input</strong>. Isso tem implicação direta de design: aplicações que geram muito texto de saída (geração de relatórios, código, documentação) têm custo dominado pelo output. Para essas aplicações, limitar o max_tokens e usar instruções de concisão reduz custo diretamente.</p>
+    </div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:28px 0 12px;">Exemplos de custo real — cenários típicos</h3>
+
+  <div class="calc-grid">
+    <div class="calc-card">
+      <span class="calc-label">Chatbot corporativo — Sonnet 4.6</span>
+      <span class="calc-num" style="color:var(--teal);">~$50/mês</span>
+      <p class="calc-desc">5M tokens input + 2M output. Com prompt caching (1M write + 3M hits): custo real com cache ativo. Para tráfego moderado de empresa de médio porte.</p>
+    </div>
+    <div class="calc-card">
+      <span class="calc-label">Pipeline de análise fiscal — Haiku 4.5 Batch</span>
+      <span class="calc-num" style="color:var(--green);">~$17/mês</span>
+      <p class="calc-desc">20M input + 10M output processados overnight via Batch API. Haiku 4.5 Batch = $0.50/$2.50. Para classificação e extração em alto volume.</p>
+    </div>
+    <div class="calc-card">
+      <span class="calc-label">Agente de coding — Opus 4.6 com cache</span>
+      <span class="calc-num" style="color:var(--pink);">~$80/mês</span>
+      <p class="calc-desc">10M input + 4M output com caching de codebase (2M write + 5M hits). Migrar de Opus 4.1 ($220+/mês) para 4.6 é redução de 63% no mesmo workload.</p>
+    </div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:28px 0 12px;">Parâmetros importantes da API</h3>
+  <div class="arch">
+    <div class="arch-row">
+      <div class="arch-label" style="background:var(--pink-bg);">model</div>
+      <div class="arch-content">ID do modelo. Use sempre o model string oficial: <code>claude-sonnet-4-6</code>, <code>claude-opus-4-7</code>, <code>claude-haiku-4-5-20251001</code>. Nunca use nomes abreviados — podem ser resolvidos para modelos inesperados.</div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label" style="background:var(--yellow-bg);">max_tokens</div>
+      <div class="arch-content">Limite máximo de tokens no output. <strong>Controle de custo direto</strong>: se você não precisa de respostas longas, baixar esse valor reduz a fatura. O modelo para ao atingir o limite — não trunca, encerra. Para textos longos: Opus/Sonnet 4.6 suportam 128K output.</div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label" style="background:var(--teal-bg);">temperature</div>
+      <div class="arch-content">Entre 0 e 1. Default: 1. Para tarefas de análise, extração e código: use 0–0.3. Para criação e brainstorming: 0.7–1. Para classificação crítica: 0 (determinístico).</div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label" style="background:var(--green-bg);">stream</div>
+      <div class="arch-content">Boolean. Quando <code>true</code>, retorna tokens em tempo real (Server-Sent Events). Melhora a experiência percebida em UIs interativas — o usuário vê a resposta sendo gerada. Não muda o custo.</div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label" style="background:var(--purple-bg);">tools</div>
+      <div class="arch-content">Array de definições de ferramentas disponíveis para o modelo. O modelo pode chamar ferramentas como busca na web, execução de código, consultas a APIs externas. Ferramentas client-side são cobradas como tokens normais. Server-side (ex: web search) cobram $10 / 1.000 buscas adicionalmente.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 4. OTIMIZAÇÃO ════ -->
+<section class="sec" id="otimizacao">
+  <span class="sec-label">Seção 4 — Reduzindo custos em até 95%</span>
+  <h2 class="sec-title">Estratégias de Otimização de Custo</h2>
+  <p class="sec-lead">Uma organização que implementa as três estratégias abaixo — Prompt Cache, Batch API e Model Routing — pode reduzir o custo de API em 80–95% em relação a uma implementação ingênua. Em escala, isso representa diferença de dezenas de milhares de dólares por mês.</p>
+
+  <!-- PROMPT CACHING -->
+  <div class="feature-block">
+    <h3>⚡ Estratégia 1: Prompt Cache — 90% de desconto no input repetido</h3>
+    <span class="sub">Economia real: até 90% dos custos de input em workloads com sistema prompt fixo</span>
+    <p>O Prompt Cache armazena porções do prompt que não mudam entre chamadas — tipicamente o system prompt, documentos de referência e exemplos few-shot. Em chamadas subsequentes, esses blocos são lidos do cache por <strong>10% do custo de input normal</strong> (90% de desconto).</p>
+    <p><strong>TTL (Time-To-Live):</strong> 5 minutos por padrão. Cache de 1 hora disponível (a 2× o preço de cache write). Para um chatbot com system prompt de 5K tokens rodando 1.000 conversas/dia, o cache paga o custo de write depois da segunda conversa de cada sessão.</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">Ativando Prompt Cache — modo automático</span>
+        <span class="code-tag good">✓ Mais simples</span>
+      </div>
+      <pre>message = client.messages.create(
+    model=<span class="hl-s">"claude-sonnet-4-6"</span>,
+    max_tokens=<span class="hl-o">1024</span>,
+    <span class="hl-c"># cache_control no nível do request — automático</span>
+    system=[{
+        <span class="hl-s">"type"</span>: <span class="hl-s">"text"</span>,
+        <span class="hl-s">"text"</span>: <span class="hl-s">"[SEU SYSTEM PROMPT LONGO AQUI]"</span>,
+        <span class="hl-s">"cache_control"</span>: {<span class="hl-s">"type"</span>: <span class="hl-s">"ephemeral"</span>}
+    }],
+    messages=[
+        {<span class="hl-s">"role"</span>: <span class="hl-s">"user"</span>, <span class="hl-s">"content"</span>: mensagem_do_usuario}
+    ]
+)</pre>
+    </div>
+    <div class="call t" style="border:none;padding:8px 0;">
+      <span class="call-ico">📊</span>
+      <div><p><strong>Exemplo real:</strong> system prompt de 10K tokens com 500 chamadas/dia. Sem cache: 500 × 10K = 5M tokens/dia. Com cache (write 1× + hits 499×): write 10K + hits 4.99M × 0.1 = 509K tokens equivalentes. <strong>Economia: 90%.</strong></p></div>
+    </div>
+  </div>
+
+  <!-- BATCH API -->
+  <div class="feature-block">
+    <h3>🔄 Estratégia 2: Batch API — 50% de desconto em processamento assíncrono</h3>
+    <span class="sub">Economia real: 50% flat em todos os tokens de qualquer modelo</span>
+    <p>A Batch API processa requisições de forma assíncrona, com resultados entregues em até 24 horas. Em troca de abrir mão do processamento em tempo real, você obtém <strong>50% de desconto em todos os tokens</strong> de input e output, em qualquer modelo.</p>
+    <p><strong>Casos de uso ideais:</strong> processamento noturno de documentos, análise de grandes volumes de dados históricos, geração de conteúdo em lote, avaliações de modelos, re-processamento de bases de dados. Qualquer pipeline que não precisa de resposta imediata.</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">Submetendo um batch de 1.000 análises</span>
+        <span class="code-tag good">50% mais barato</span>
+      </div>
+      <pre><span class="hl-c"># Preparando os requests em formato JSONL</span>
+requests = []
+<span class="hl-k">for</span> i, documento <span class="hl-k">in</span> enumerate(lista_de_documentos):
+    requests.append({
+        <span class="hl-s">"custom_id"</span>: <span class="hl-s">f"doc_{i}"</span>,
+        <span class="hl-s">"params"</span>: {
+            <span class="hl-s">"model"</span>: <span class="hl-s">"claude-haiku-4-5-20251001"</span>,
+            <span class="hl-s">"max_tokens"</span>: <span class="hl-o">256</span>,
+            <span class="hl-s">"messages"</span>: [{
+                <span class="hl-s">"role"</span>: <span class="hl-s">"user"</span>,
+                <span class="hl-s">"content"</span>: <span class="hl-s">f"Classifique esse documento: {documento}"</span>
+            }]
+        }
+    })
+
+<span class="hl-c"># Submetendo o batch</span>
+batch = client.messages.batches.create(requests=requests)
+<span class="hl-k">print</span>(<span class="hl-s">f"Batch criado: {batch.id}"</span>)
+
+<span class="hl-c"># Verificando status e coletando resultados (depois de horas)</span>
+results = client.messages.batches.results(batch.id)</pre>
+    </div>
+  </div>
+
+  <!-- MODEL ROUTING -->
+  <div class="feature-block">
+    <h3>🎯 Estratégia 3: Model Routing — usar o modelo certo para cada tarefa</h3>
+    <span class="sub">Economia real: 50–70% em workloads mistos com routing inteligente</span>
+    <p>A estratégia de maior impacto a longo prazo. Em vez de usar Opus ou Sonnet para tudo, você roteia cada subtarefa para o modelo mais barato que atinge a qualidade necessária.</p>
+    <p><strong>Distribuição típica em sistemas de produção:</strong> 70% Haiku (triagem, classificação, extração simples) + 20% Sonnet (análise, geração de texto, coding padrão) + 10% Opus (raciocínio arquitetural, análises críticas, coding complexo). Em comparação com 100% Sonnet, essa distribuição reduz custo em mais de 50% com qualidade equivalente.</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-label">Router simples — classificação de complexidade</span>
+        <span class="code-tag tip">Avançado</span>
+      </div>
+      <pre><span class="hl-k">def</span> escolher_modelo(prompt: str, tipo_tarefa: str) -> str:
+    <span class="hl-c"># Tarefas simples → Haiku (5× mais barato)</span>
+    <span class="hl-k">if</span> tipo_tarefa <span class="hl-k">in</span> [<span class="hl-s">"classificacao"</span>, <span class="hl-s">"extracao"</span>, <span class="hl-s">"triagem"</span>]:
+        <span class="hl-k">return</span> <span class="hl-s">"claude-haiku-4-5-20251001"</span>
+
+    <span class="hl-c"># Estimativa grosseira de complexidade por tamanho</span>
+    tokens_estimados = len(prompt.split()) * <span class="hl-o">1.3</span>
+
+    <span class="hl-c"># Contexto longo ou raciocínio complexo → Opus</span>
+    <span class="hl-k">if</span> tokens_estimados > <span class="hl-o">50000</span> <span class="hl-k">or</span> tipo_tarefa == <span class="hl-s">"arquitetura"</span>:
+        <span class="hl-k">return</span> <span class="hl-s">"claude-opus-4-6"</span>
+
+    <span class="hl-c"># Padrão: Sonnet para o resto</span>
+    <span class="hl-k">return</span> <span class="hl-s">"claude-sonnet-4-6"</span></pre>
+    </div>
+  </div>
+
+  <div class="call g" style="max-width:100%;">
+    <span class="call-ico">🏆</span>
+    <div>
+      <span class="call-title">As três estratégias combinadas</span>
+      <p>Uma equipe de engenharia que combina <strong>Prompt Cache (−90% input repetido) + Batch API (−50% em pipelines assíncronos) + Model Routing (70/20/10 split)</strong> pode chegar a um custo efetivo próximo ao de Haiku com qualidade de Sonnet para a maioria das tarefas. Em produção com alto volume, a diferença entre implementar ou não essas estratégias pode chegar a <strong>US$50k–200k/ano</strong> para organizações de médio porte.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 5. PROJECTS ════ -->
+<section class="sec" id="projects">
+  <span class="sec-label">Seção 5</span>
+  <h2 class="sec-title">Projects — Contexto Persistente para Trabalho Real</h2>
+  <p class="sec-lead">Projects é o recurso do Claude.ai que transforma conversas isoladas em um espaço de trabalho contínuo. Você carrega documentos, define instruções e o Claude mantém esse contexto em todas as conversas dentro do projeto — indefinidamente.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <span class="card-name">O que um Project contém</span>
+      <p><strong>Instruções do projeto:</strong> equivalente a um system prompt permanente. Define o papel, o tom, as regras e o contexto da organização para todas as conversas daquele projeto.</p>
+      <p><strong>Arquivos e documentos:</strong> PDFs, Word, planilhas, código, textos — carregados uma vez, disponíveis sempre. Limite: 200K tokens por arquivo, até vários arquivos por projeto.</p>
+      <p><strong>Histórico de conversas:</strong> todas as conversas dentro do projeto ficam acessíveis. O modelo não "esquece" o que foi discutido em sessões anteriores do projeto.</p>
+    </div>
+    <div class="card">
+      <span class="card-name">Casos de uso de alto impacto</span>
+      <p><strong>Assistente jurídico interno:</strong> carregue toda a legislação relevante + jurisprudência do setor + contratos modelo. O time consulta em linguagem natural.</p>
+      <p><strong>Especialista de produto:</strong> carregue especificações técnicas, backlog, histórico de decisões. Cada conversa tem contexto completo do produto.</p>
+      <p><strong>Analista de mercado:</strong> carregue relatórios setoriais, dados de concorrentes, histórico de análises. Novo relatório sempre tem contexto de todos os anteriores.</p>
+      <p><strong>Suporte técnico de legado:</strong> carregue documentação do sistema COBOL, manuais, histórico de bugs. Devs novos consultam sem precisar de onboarding manual.</p>
+    </div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:28px 0 12px;">Configurando um Project de alta qualidade</h3>
+  <div class="arch">
+    <div class="arch-row">
+      <div class="arch-label" style="background:var(--pink-bg);">Instruções do projeto</div>
+      <div class="arch-content">Escreva como um system prompt completo (veja Módulo 3): papel, contexto da empresa, comportamento esperado, formato de resposta padrão. Inclua restrições relevantes para o domínio. Exemplo para projeto fiscal: <code>Você é um especialista tributário focado no regime de tributação da empresa X. Baseie-se sempre nos documentos carregados antes de responder. Sinalize com [VERIFICAR] quando não encontrar a informação nos documentos.</code></div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label" style="background:var(--yellow-bg);">Arquivos — o que carregar</div>
+      <div class="arch-content">Priorize <strong>documentos de referência estáveis</strong> que serão consultados frequentemente: manuais, políticas, legislação, especificações técnicas, glossários internos. Documentos que mudam com frequência são melhor colados diretamente em cada conversa. Organize arquivos com nomes descritivos — o modelo usa o nome do arquivo como contexto.</div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label" style="background:var(--teal-bg);">Estrutura de projetos</div>
+      <div class="arch-content">Uma boa prática: <strong>um Project por domínio ou equipe</strong>, não um por pessoa. Projeto "Fiscal Q1 2026", "Contratos Fornecedores", "Dev — Sistema COBOL". Isso permite que múltiplas pessoas usem o mesmo contexto e que o histórico seja coletivo, não individual.</div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label" style="background:var(--green-bg);">Memória vs. contexto</div>
+      <div class="arch-content">Projects ≠ memória. A <strong>memória</strong> do Claude captura preferências e fatos sobre o usuário entre sessões (como nome, cargo, preferências de formato). O <strong>Project</strong> carrega contexto documental e histórico de conversas. Ambos complementam — memória personaliza, Project especializa.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 6. CLAUDE CODE ════ -->
+<section class="sec" id="claudecode">
+  <span class="sec-label">Seção 6</span>
+  <h2 class="sec-title">Claude Code — O Agente de Engenharia de Software</h2>
+  <p class="sec-lead">Claude Code não é um autocomplete de IDE. É um agente que lê sua codebase inteira, entende a arquitetura, escreve código, roda testes, interpreta erros e itera — tudo do terminal, com você supervisionando os diffs. É a ferramenta que redefiniu o ritmo de desenvolvimento em 2025–2026.</p>
+
+  <div class="call pk" style="max-width:100%;margin-bottom:28px;">
+    <span class="call-ico">🚀</span>
+    <div>
+      <span class="call-title">O que torna Claude Code diferente de GitHub Copilot</span>
+      <p><strong>Copilot</strong> opera linha por linha — sugere completions enquanto você digita. É um assistente de código. <strong>Claude Code</strong> lê <em>toda</em> a codebase, entende dependências entre arquivos, pode executar comandos no terminal, rodar a suíte de testes completa e criar um plano de mudanças que abrange múltiplos arquivos simultaneamente. É um agente de engenharia, não um assistente de IDE.</p>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <span class="card-name">O que Claude Code faz</span>
+      <p><strong>Lê e navega a codebase:</strong> entende a estrutura do projeto, imports, dependências, padrões de código e histórico de commits via git log.</p>
+      <p><strong>Escreve e modifica código:</strong> propõe mudanças em múltiplos arquivos com diffs para revisão linha a linha. Você aprova cada mudança antes de aplicar.</p>
+      <p><strong>Executa no terminal:</strong> roda testes, instala dependências, executa scripts, interpreta erros e itera automaticamente.</p>
+      <p><strong>Explica e documenta:</strong> gera documentação, explica trechos complexos, cria READMEs e changelogs automaticamente.</p>
+    </div>
+    <div class="card">
+      <span class="card-name">Instalação e primeiros passos</span>
+      <p><strong>Requisito:</strong> Node.js 18+. Plano Pro ou Max no claude.ai.</p>
+      <div class="code-block" style="margin:.6rem 0;">
+        <pre style="padding:12px 14px;font-size:.75rem;"><span class="hl-c"># Instalar globalmente</span>
+npm install -g @anthropic-ai/claude-code
+
+<span class="hl-c"># Navegar até seu projeto</span>
+cd /caminho/do/seu/projeto
+
+<span class="hl-c"># Iniciar uma sessão</span>
+claude
+
+<span class="hl-c"># Claude lê o projeto e fica pronto</span>
+<span class="hl-g">&gt; Olá! Li 847 arquivos do projeto.</span>
+<span class="hl-g">&gt; O que você quer fazer?</span></pre>
+      </div>
+      <p><strong>Remote session:</strong> escaneie o QR code exibido no terminal para controlar a sessão pelo celular — útil para monitorar tarefas longas.</p>
+    </div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:28px 0 12px;">Fluxo típico de trabalho com Claude Code</h3>
+  <div class="flow">
+    <div class="flow-step"><span class="fs-num">1</span><span class="fs-icon">📂</span><span class="fs-name">Leitura</span><span class="fs-desc">Claude mapeia a estrutura do projeto, lê arquivos relevantes, entende o contexto</span></div>
+    <div class="flow-step"><span class="fs-num">2</span><span class="fs-icon">💬</span><span class="fs-name">Instrução</span><span class="fs-desc">Você descreve a tarefa em linguagem natural. Sem necessidade de especificar arquivos.</span></div>
+    <div class="flow-step"><span class="fs-num">3</span><span class="fs-icon">🔍</span><span class="fs-name">Plano</span><span class="fs-desc">Claude apresenta o plano: quais arquivos vai tocar e por quê. Você pode refinar antes de executar.</span></div>
+    <div class="flow-step"><span class="fs-num">4</span><span class="fs-icon">✏️</span><span class="fs-name">Diffs</span><span class="fs-desc">Mudanças propostas em diff colorido, arquivo por arquivo. Você aprova, rejeita ou pede ajuste.</span></div>
+    <div class="flow-step"><span class="fs-num">5</span><span class="fs-icon">🧪</span><span class="fs-name">Testes</span><span class="fs-desc">Claude roda a suíte de testes, interpreta falhas e corrige automaticamente até passar.</span></div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:28px 0 12px;">Casos de uso mais impactantes</h3>
+  <div class="grid-2">
+    <div class="card">
+      <span class="card-name">Modernização de sistemas legados (COBOL)</span>
+      <p>Claude Code entende COBOL — especialmente se você fornecer contexto do sistema nas instruções. Casos de uso reais: <strong>análise de lógica de negócio</strong> em programas COBOL para documentação; <strong>geração de wrappers Python/Java</strong> que expõem funcionalidades COBOL via API REST; <strong>identificação de dead code</strong> e variáveis não utilizadas; <strong>refatoração incremental</strong> de módulos específicos com testes de regressão.</p>
+      <div class="call o" style="margin-top:8px;border:none;padding:8px 0;">
+        <span class="call-ico">💡</span>
+        <div><p>Dica: carregue a documentação do sistema e o dicionário de dados no início da sessão — Claude usa esse contexto para gerar código mais preciso e com as convenções certas.</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <span class="card-name">CLAUDE.md — o "manual do projeto"</span>
+      <p>Crie um arquivo <code>CLAUDE.md</code> na raiz do repositório. Claude Code lê esse arquivo automaticamente ao iniciar uma sessão — é seu system prompt para o projeto. Inclua:</p>
+      <p><strong>Arquitetura:</strong> visão geral dos módulos e suas responsabilidades.<br>
+      <strong>Convenções:</strong> naming conventions, padrões de código, estrutura de commits.<br>
+      <strong>Comandos:</strong> como rodar testes, como fazer deploy, comandos de ambiente.<br>
+      <strong>Restrições:</strong> arquivos que não devem ser modificados, dependências críticas.<br>
+      <strong>Contexto de negócio:</strong> o que o sistema faz e para quem.</p>
+    </div>
+  </div>
+
+  <div class="call y" style="max-width:100%;">
+    <span class="call-ico">⚠️</span>
+    <div>
+      <span class="call-title">Boas práticas de segurança com Claude Code</span>
+      <p>Claude Code tem acesso real ao seu sistema de arquivos e pode executar comandos no terminal. Boas práticas: sempre revise os diffs antes de aprovar; use <code>--no-auto-commit</code> para impedir commits automáticos; crie um branch separado para sessões de Claude Code (<code>feature/claude-refactor-X</code>); nunca rode em ambientes de produção diretamente. Para operações sensíveis (deploy, migrações de banco), peça ao Claude para descrever o plano e execute você mesmo.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 7. EXTENDED THINKING ════ -->
+<section class="sec" id="extended">
+  <span class="sec-label">Seção 7</span>
+  <h2 class="sec-title">Extended Thinking — Raciocínio Profundo sob Demanda</h2>
+  <p class="sec-lead">Extended Thinking é a capacidade de Claude de gerar uma cadeia de raciocínio interna antes de responder — explorando múltiplos ângulos, verificando premissas e se corrigindo antes de entregar a resposta final. É o equivalente a dar mais tempo de reflexão para um problema difícil.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <span class="card-name">Como funciona tecnicamente</span>
+      <p>Quando Extended Thinking está ativo, Claude gera blocos de "pensamento" (thinking tokens) que não são exibidos ao usuário por padrão. Esses tokens exploram o problema, testam hipóteses, calculam sub-resultados e verificam a coerência antes de produzir a resposta visível.</p>
+      <p><strong>Custo:</strong> os thinking tokens são cobrados como <em>output tokens padrão</em> do modelo — não há surcharge adicional. O custo extra é simplesmente os tokens de raciocínio intermediário.</p>
+      <p><strong>Token budget:</strong> você define um budget mínimo de 1.024 tokens de raciocínio. Quanto mais complexo o problema, mais o modelo usa do budget. Para problemas simples, o modelo usa poucos tokens de pensamento — Adaptive Thinking (Sonnet 4.6) otimiza isso automaticamente.</p>
+    </div>
+    <div class="card">
+      <span class="card-name">Quando usar (e quando não usar)</span>
+      <p><strong>Use Extended Thinking para:</strong> decisões estratégicas multi-critério, problemas matemáticos ou lógicos complexos, análise de arquitetura de sistemas, revisão de código crítico, diagnóstico de bugs difíceis, análise jurídica ou tributária de alta complexidade.</p>
+      <p><strong>Não use para:</strong> tarefas simples (adiciona custo sem benefício), respostas rápidas em chatbots (adiciona latência), classificações e extrações estruturadas (zero-shot é suficiente).</p>
+      <p><strong>Nunca combine com:</strong> instruções de Chain-of-Thought no prompt (redundante — o modelo já está pensando). Deixe o Extended Thinking trabalhar sozinho.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Ativando Extended Thinking via API</span>
+      <span class="code-tag tip">Problemas complexos</span>
+    </div>
+    <pre>response = client.messages.create(
+    model=<span class="hl-s">"claude-opus-4-6"</span>,  <span class="hl-c"># ou sonnet-4-6</span>
+    max_tokens=<span class="hl-o">16000</span>,
+    thinking={
+        <span class="hl-s">"type"</span>: <span class="hl-s">"enabled"</span>,
+        <span class="hl-s">"budget_tokens"</span>: <span class="hl-o">10000</span>  <span class="hl-c"># mínimo: 1024</span>
+    },
+    messages=[{
+        <span class="hl-s">"role"</span>: <span class="hl-s">"user"</span>,
+        <span class="hl-s">"content"</span>: <span class="hl-s">"""
+Analisando os dados financeiros e operacionais abaixo,
+recomende se devemos expandir para SP ou consolidar em CWB.
+Considere: ROI, risco operacional, capacidade de equipe e timing de mercado.
+[DADOS]
+"""</span>
+    }]
+)
+
+<span class="hl-c"># A resposta inclui thinking blocks + response block</span>
+<span class="hl-k">for</span> block <span class="hl-k">in</span> response.content:
+    <span class="hl-k">if</span> block.type == <span class="hl-s">"thinking"</span>:
+        <span class="hl-k">print</span>(<span class="hl-s">f"[Raciocínio interno: {len(block.thinking)} chars]"</span>)
+    <span class="hl-k">elif</span> block.type == <span class="hl-s">"text"</span>:
+        <span class="hl-k">print</span>(block.text)  <span class="hl-c"># Resposta final</span></pre>
+  </div>
+
+  <div class="call pk" style="max-width:100%;">
+    <span class="call-ico">💡</span>
+    <div>
+      <span class="call-title">Adaptive Thinking — a versão inteligente para Sonnet 4.6</span>
+      <p>O Sonnet 4.6 tem <strong>Adaptive Thinking</strong>: ele avalia automaticamente a complexidade de cada solicitação e decide quanto raciocínio intermediário é necessário. Para perguntas simples, usa poucos ou nenhum thinking token. Para problemas complexos, usa mais. Isso torna Extended Thinking prático para deployments onde nem toda mensagem é complexa — você paga apenas pelo raciocínio que realmente foi necessário.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 8. CENÁRIOS ════ -->
+<section class="sec" id="cenarios">
+  <span class="sec-label">Seção 8</span>
+  <h2 class="sec-title">Cenários Práticos — Escolhendo o Produto Certo</h2>
+  <p class="sec-lead">A escolha entre Claude.ai, a API, Claude Code e as diferentes opções de modelo depende do perfil do usuário, do tipo de tarefa e da escala. Aqui estão os cenários mais comuns com recomendações diretas.</p>
+
+  <div class="scenario">
+    <div class="sc-icon">👩‍💼</div>
+    <div>
+      <span class="sc-role">Gestora de operações — sem código</span>
+      <span class="sc-title">Análise semanal de KPIs + geração de relatório executivo</span>
+      <p class="sc-desc">Crie um Project no Claude.ai com as instruções de análise, o template de relatório e o histórico de metas da empresa. Toda semana, cole os dados brutos numa nova conversa dentro do projeto. Claude mantém contexto de todas as análises anteriores, identifica tendências e gera o relatório no formato esperado. Sem API, sem código — 100% via interface.</p>
+      <div class="sc-chips"><span class="sc-chip">Claude.ai Pro</span><span class="sc-chip">Projects</span><span class="sc-chip">Sonnet 4.6</span></div>
+    </div>
+  </div>
+
+  <div class="scenario">
+    <div class="sc-icon">👨‍💻</div>
+    <div>
+      <span class="sc-role">Desenvolvedor — modernização de legado</span>
+      <span class="sc-title">Refatoração incremental de módulos COBOL com geração de testes</span>
+      <p class="sc-desc">Configure um CLAUDE.md com a arquitetura do sistema, dicionário de dados e padrões de código. Use Claude Code para analisar um módulo por vez: primeiro peça um relatório de entendimento, depois proponha a refatoração em Python, depois gere testes de regressão comparando outputs do COBOL e Python. Aprove cada diff individualmente. Custo estimado: US$40–80/mês para sessões intensas no plano Pro.</p>
+      <div class="sc-chips"><span class="sc-chip">Claude Code (Pro)</span><span class="sc-chip">CLAUDE.md</span><span class="sc-chip">Opus 4.6</span></div>
+    </div>
+  </div>
+
+  <div class="scenario">
+    <div class="sc-icon">🏗️</div>
+    <div>
+      <span class="sc-role">Arquiteto de soluções — construindo produto</span>
+      <span class="sc-title">Assistente de atendimento ao cliente via API com RAG em documentação interna</span>
+      <p class="sc-desc">Use a API com Sonnet 4.6 + Prompt Cache no system prompt (documentação do produto carregada via Files API). Routing: Haiku para triagem e intenção, Sonnet para respostas elaboradas. Batch API para relatórios de análise de tickets overnight. Com essas otimizações: custo estimado de US$30–80/mês para 10k interações/dia, versus US$300+ sem otimização.</p>
+      <div class="sc-chips"><span class="sc-chip">API Anthropic</span><span class="sc-chip">Sonnet 4.6 + Haiku 4.5</span><span class="sc-chip">Prompt Cache</span><span class="sc-chip">Batch API</span></div>
+    </div>
+  </div>
+
+  <div class="scenario">
+    <div class="sc-icon">🔬</div>
+    <div>
+      <span class="sc-role">Analista estratégico — decisão de alto impacto</span>
+      <span class="sc-title">Análise de viabilidade de aquisição com múltiplos critérios e dados financeiros extensos</span>
+      <p class="sc-desc">Use Claude.ai com Opus 4.6 e Extended Thinking ativado (disponível na interface Pro). Carregue todos os documentos financeiros, relatórios de due diligence e dados de mercado no Project. Estruture a análise em prompt chaining: primeiro contexto financeiro → análise de risco → comparação com alternativas → recomendação final. Extended Thinking garante que premissas sejam verificadas antes da conclusão.</p>
+      <div class="sc-chips"><span class="sc-chip">Claude.ai Pro ou Max</span><span class="sc-chip">Opus 4.6</span><span class="sc-chip">Extended Thinking</span><span class="sc-chip">Projects</span></div>
+    </div>
+  </div>
+
+  <div class="scenario">
+    <div class="sc-icon">🏢</div>
+    <div>
+      <span class="sc-role">CTO / Diretor de TI — implantação corporativa</span>
+      <span class="sc-title">Deploy de assistentes especializados para múltiplas equipes da empresa</span>
+      <p class="sc-desc">Plano Team (US$25/usuário/mês) para equipes de 5–50 pessoas com Projects compartilhados por departamento. Para escala maior ou requisitos de compliance: Enterprise com SSO, audit logging, data residency em US-only (1.1× premium) e SLA garantido. Para desenvolvedores do time: adicionar Claude Code Premium ($150/assento/mês) para os engenheiros que vão usar mais intensamente.</p>
+      <div class="sc-chips"><span class="sc-chip">Claude.ai Team</span><span class="sc-chip">Claude Code Premium</span><span class="sc-chip">API Corporativa</span></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 9. GLOSSÁRIO ════ -->
+<section class="sec" id="glossario">
+  <span class="sec-label">Seção 9 — Referência</span>
+  <h2 class="sec-title">Glossário do Módulo 4</h2>
+  <p class="sec-lead">Termos técnicos e conceitos introduzidos neste módulo sobre o ecossistema Anthropic.</p>
+
+  <div class="glossary">
+    <div class="gr"><div class="gt">MTok<small>Unidade de preço</small></div><div class="gd">Milhão de tokens. Unidade padrão de precificação da API da Anthropic. Sonnet 4.6 custa $3/MTok de input e $15/MTok de output. Uma conversa típica de suporte ao cliente usa ~2K tokens input + 500 output — ou seja, cerca de $0.006 + $0.0075 = ~US$0.01 por interação.</div></div>
+    <div class="gr"><div class="gt">Prompt Cache<small>Otimização</small></div><div class="gd">Recurso que armazena porções estáticas do prompt (system prompt, documentos, exemplos) e as reutiliza em chamadas subsequentes por <strong>10% do preço normal de input</strong>. Cache write: 1.25× o preço base (custo único). Cache hit: 0.1× (90% de desconto). TTL padrão: 5 minutos. Cache de 1 hora disponível por 2× o write.</div></div>
+    <div class="gr"><div class="gt">Batch API<small>Processamento</small></div><div class="gd">Submissão de múltiplas requisições para processamento assíncrono. Resultados em até 24 horas. Desconto fixo de <strong>50% em todos os tokens</strong> de qualquer modelo. Ideal para pipelines que não precisam de resposta em tempo real: análise de documentos, geração de conteúdo em volume, avaliações de modelos.</div></div>
+    <div class="gr"><div class="gt">Model Routing<small>Estratégia</small></div><div class="gd">Prática de direcionar cada tipo de tarefa para o modelo mais barato que atinge a qualidade necessária. Distribuição típica: Haiku (triagem/extração), Sonnet (uso geral), Opus (raciocínio complexo). Uma distribuição 70/20/10 (Haiku/Sonnet/Opus) pode reduzir custos em 50%+ vs. usar apenas Sonnet.</div></div>
+    <div class="gr"><div class="gt">Extended Thinking<small>Capacidade</small></div><div class="gd">Modo onde Claude gera raciocínio interno (thinking tokens) antes da resposta final. Melhora dramaticamente problemas complexos. Tokens de raciocínio são cobrados como output padrão. Budget mínimo: 1.024 tokens. <strong>Não combine com Chain-of-Thought no prompt</strong> — redundante.</div></div>
+    <div class="gr"><div class="gt">Adaptive Thinking<small>Capacidade</small></div><div class="gd">Versão inteligente do Extended Thinking disponível no Sonnet 4.6. O modelo avalia automaticamente a complexidade de cada solicitação e decide quanto raciocínio intermediário é necessário. Para problemas simples, usa poucos thinking tokens. Otimiza custo automaticamente.</div></div>
+    <div class="gr"><div class="gt">Fast Mode<small>Parâmetro</small></div><div class="gd">Modo de inferência de baixa latência disponível para Opus 4.6 e 4.7. Custa <strong>6× o preço padrão</strong> ($30/$150 por MTok). Para workloads onde a latência é crítica e custo não é restrição primária — ex: trading, respostas de emergência, UX de tempo real de alta criticidade.</div></div>
+    <div class="gr"><div class="gt">CLAUDE.md<small>Arquivo de configuração</small></div><div class="gd">Arquivo de texto na raiz de um repositório que Claude Code lê automaticamente ao iniciar. Equivalente a um system prompt para o projeto — define arquitetura, convenções, comandos, restrições e contexto de negócio. Quanto mais rico o CLAUDE.md, melhor o agente entende o projeto desde a primeira mensagem.</div></div>
+    <div class="gr"><div class="gt">Files API<small>Infraestrutura</small></div><div class="gd">API da Anthropic para upload e gerenciamento de arquivos que são referenciados em múltiplas chamadas. Permite carregar documentos grandes uma vez e referenciá-los por ID em várias requisições — sem re-enviar o conteúdo a cada chamada. Integra com Prompt Cache para máxima eficiência.</div></div>
+    <div class="gr"><div class="gt">Model String<small>Identificador</small></div><div class="gd">O identificador exato do modelo na API. Sempre use o model string completo: <code>claude-sonnet-4-6</code>, <code>claude-opus-4-7</code>, <code>claude-haiku-4-5-20251001</code>. Nunca use aliases abreviados — podem ser mapeados para modelos inesperados quando modelos novos são lançados.</div></div>
+    <div class="gr"><div class="gt">Streaming<small>Modo de resposta</small></div><div class="gd">Quando <code>stream=true</code> na API, os tokens são retornados em tempo real via Server-Sent Events (SSE) à medida que são gerados. Melhora a experiência percebida em UIs interativas — o usuário vê a resposta sendo "digitada". Não altera o custo por token.</div></div>
+    <div class="gr"><div class="gt">inference_geo<small>Parâmetro</small></div><div class="gd">Parâmetro que força processamento exclusivamente em servidores nos EUA (US-only inference). Usado para conformidade com políticas de data residency. Adiciona <strong>1.1× (10%) em todos os tokens</strong> de Opus 4.6+ . Para a maioria das empresas brasileiras, o routing global padrão é suficiente e mais barato.</div></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ PRÓXIMO ════ -->
+<section class="sec">
+  <div class="next-box">
+    <span class="sec-label" style="color:rgba(255,255,255,.4);">E AGORA?</span>
+    <h2>Módulo 5: Estado da IA em 2026</h2>
+    <p>Um mapa do momento atual: onde estamos na curva de desenvolvimento, o que mudou nos últimos 18 meses, quais capacidades emergiram, o que ainda não funciona — e o que vem por aí.</p>
+    <a href="#" class="next-btn">CONTINUAR PARA O MÓDULO 5 →</a>
+  </div>
+</section>
+
+<script>
+function go(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+window.addEventListener('scroll',()=>{
+  const h=document.body.scrollHeight-window.innerHeight;
+  document.getElementById('prog').style.width=(window.scrollY/h*100)+'%';
+});
+</script>
+</body>
+</html>

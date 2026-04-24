@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Engineering — Módulo 3 · Cursinho de IA</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  --bg:       #FFF8F0;
+  --white:    #FFFFFF;
+  --ink:      #1A1A2E;
+  --border:   3px solid #1A1A2E;
+  --shadow:   8px 8px 0px #1A1A2E;
+  --shadow-s: 4px 4px 0px #1A1A2E;
+  --orange:   #FF8C42;
+  --orange-bg:#FFF0E6;
+  --coral:    #FF6B6B;
+  --coral-bg: #FFF0F0;
+  --teal:     #4ECDC4;
+  --teal-bg:  #E8FAF9;
+  --yellow:   #FFD93D;
+  --yellow-bg:#FFFBE6;
+  --purple:   #6C5CE7;
+  --purple-bg:#F0EDFF;
+  --green:    #2ECC71;
+  --green-bg: #E8FAF0;
+  --blue:     #3498DB;
+  --blue-bg:  #EBF5FB;
+  --muted:    #5A5A7A;
+  --muted2:   #8888AA;
+  --sans:     'Plus Jakarta Sans', sans-serif;
+  --display:  'Space Grotesk', sans-serif;
+  --mono:     'JetBrains Mono', monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.7;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:4px;}
+
+/* NAV */
+header{
+  position:sticky;top:0;z-index:200;
+  background:var(--orange);
+  border-bottom:var(--border);
+  padding:14px 5%;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.brand{font-family:var(--display);font-weight:700;font-size:1rem;display:flex;align-items:center;gap:.6rem;}
+.brand-dot{width:28px;height:28px;border-radius:6px;background:var(--ink);border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.6rem;color:white;font-weight:600;}
+.topnav{display:flex;gap:0;list-style:none;}
+.topnav a{font-size:.74rem;font-weight:700;color:var(--ink);text-decoration:none;padding:.3rem .85rem;border-left:2px solid var(--ink);transition:background .15s;}
+.topnav a:hover{background:rgba(0,0,0,.08);}
+#prog{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--orange),var(--coral),var(--purple));z-index:999;transition:width .15s;}
+
+/* HERO */
+.hero{display:grid;grid-template-columns:1.3fr .75fr;border-bottom:var(--border);padding:70px 5%;gap:36px;}
+.hero-card{background:var(--white);border:var(--border);padding:44px;box-shadow:var(--shadow);transform:rotate(-0.7deg);}
+.eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--orange);margin-bottom:1.1rem;display:flex;align-items:center;gap:.5rem;}
+.eyebrow::before{content:'▶';font-size:.55rem;}
+h1{font-family:var(--display);font-size:clamp(2.2rem,4.5vw,3.8rem);line-height:1.08;margin:14px 0 18px;font-weight:700;}
+h1 span{color:var(--orange);}
+.hero-desc{font-size:.98rem;color:var(--muted);max-width:500px;line-height:1.82;margin-bottom:1.6rem;font-weight:400;}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;}
+.chip{background:var(--orange);border:2px solid var(--ink);border-radius:20px;padding:.28rem .85rem;font-size:.75rem;font-weight:700;}
+.chip.p{background:var(--purple);color:white;}
+.chip.t{background:var(--teal);}
+.chip.y{background:var(--yellow);}
+.chip.c{background:var(--coral);color:white;}
+.chip.g{background:var(--green);}
+.chip.b{background:var(--blue);color:white;}
+/* toc */
+.toc-card{background:var(--ink);border:var(--border);padding:30px;color:white;box-shadow:var(--shadow);transform:rotate(.7deg);}
+.toc-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;opacity:.4;display:block;margin-bottom:.9rem;}
+.toc-item{display:flex;align-items:center;gap:.9rem;padding:.65rem 0;border-bottom:1px solid rgba(255,255,255,.1);cursor:pointer;transition:opacity .15s;}
+.toc-item:hover{opacity:.65;}
+.toc-item:last-child{border-bottom:none;}
+.toc-num{font-family:var(--mono);font-size:.6rem;opacity:.35;min-width:1.4rem;}
+.toc-text{font-size:.82rem;font-weight:600;}
+
+/* SECTION */
+.sec{max-width:1000px;margin:80px auto;padding:0 20px;}
+.sec-label{font-family:var(--mono);color:var(--orange);font-weight:700;text-transform:uppercase;font-size:.7rem;letter-spacing:.12em;}
+h2.sec-title{font-family:var(--display);font-size:clamp(1.8rem,3.5vw,2.8rem);margin:10px 0 6px;font-weight:700;}
+.sec-lead{font-size:1rem;color:var(--muted);margin:0 0 36px;padding-left:18px;border-left:5px solid var(--orange);max-width:700px;line-height:1.82;font-weight:400;}
+
+/* ANATOMY CARD — big hero concept */
+.anatomy{
+  background:var(--white);border:var(--border);
+  box-shadow:var(--shadow);border-radius:16px;
+  padding:32px;margin:0 0 32px;
+}
+.anatomy h3{font-family:var(--display);font-size:1.1rem;font-weight:700;margin-bottom:20px;}
+.anatomy-parts{display:flex;flex-direction:column;gap:0;border:2px solid var(--ink);border-radius:10px;overflow:hidden;}
+.ap{display:grid;grid-template-columns:160px 1fr;border-bottom:2px solid var(--ink);}
+.ap:last-child{border-bottom:none;}
+.ap-label{
+  padding:16px 18px;
+  display:flex;align-items:center;
+  font-family:var(--display);font-weight:700;font-size:.88rem;
+  border-right:2px solid var(--ink);
+}
+.ap-content{
+  padding:16px 20px;
+  font-size:.86rem;color:var(--muted);line-height:1.75;
+}
+.ap-content code{
+  font-family:var(--mono);font-size:.8rem;
+  background:var(--bg);border:1.5px solid var(--ink);
+  padding:.1rem .4rem;border-radius:4px;
+  color:var(--orange);
+}
+.ap-content strong{color:var(--ink);}
+
+/* CODE BLOCKS */
+.code-block{
+  background:var(--ink);border:var(--border);
+  border-radius:12px;overflow:hidden;
+  margin:16px 0;box-shadow:var(--shadow-s);
+}
+.code-header{
+  background:#252535;
+  padding:10px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+.code-label{font-family:var(--mono);font-size:.62rem;color:rgba(255,255,255,.45);letter-spacing:.1em;text-transform:uppercase;}
+.code-tag{font-family:var(--mono);font-size:.65rem;padding:.18rem .55rem;border-radius:4px;font-weight:600;}
+.code-tag.bad{background:var(--coral);color:white;}
+.code-tag.good{background:var(--green);color:white;}
+.code-tag.tip{background:var(--orange);color:white;}
+.code-tag.neutral{background:rgba(255,255,255,.15);color:rgba(255,255,255,.7);}
+pre{
+  padding:18px 20px;
+  font-family:var(--mono);font-size:.8rem;
+  color:#e8e6f0;line-height:1.7;
+  white-space:pre-wrap;word-break:break-word;
+  overflow-x:auto;
+}
+.hl-key{color:var(--teal);}
+.hl-val{color:var(--yellow);}
+.hl-tag{color:var(--orange);}
+.hl-comment{color:rgba(255,255,255,.35);font-style:italic;}
+.hl-good{color:var(--green);}
+.hl-bad{color:var(--coral);}
+
+/* TECHNIQUE CARDS */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.card{background:var(--white);border:var(--border);padding:26px;box-shadow:var(--shadow);border-radius:14px;transition:transform .2s,box-shadow .2s;}
+.card:hover{transform:translate(-3px,-3px);box-shadow:11px 11px 0 var(--ink);}
+.card-num{font-family:var(--mono);font-size:.6rem;color:var(--muted2);letter-spacing:.1em;display:block;margin-bottom:.3rem;}
+.card-name{font-family:var(--display);font-size:1.05rem;font-weight:700;margin-bottom:8px;display:block;}
+.card p{font-size:.86rem;color:var(--muted);line-height:1.78;margin-bottom:.7rem;}
+.card p:last-child{margin-bottom:0;}
+.card-when{
+  background:var(--yellow-bg);border:1.5px solid var(--ink);
+  border-radius:6px;padding:8px 12px;
+  font-size:.79rem;font-weight:600;
+  margin-top:.5rem;
+}
+.card-when::before{content:'⏰ Quando usar: ';}
+.card-avoid{
+  background:var(--coral-bg);border:1.5px solid var(--ink);
+  border-radius:6px;padding:8px 12px;
+  font-size:.79rem;font-weight:600;
+  margin-top:.4rem;
+}
+.card-avoid::before{content:'⚠️ Evitar quando: ';}
+
+/* CALLOUT */
+.call{display:flex;gap:1rem;padding:16px 20px;margin:18px 0;border:2px solid var(--ink);border-radius:10px;}
+.call.o{background:var(--orange-bg);}
+.call.y{background:var(--yellow-bg);}
+.call.t{background:var(--teal-bg);}
+.call.c{background:var(--coral-bg);}
+.call.g{background:var(--green-bg);}
+.call.p{background:var(--purple-bg);}
+.call.b{background:var(--blue-bg);}
+.call-ico{font-size:1rem;flex-shrink:0;padding-top:.05rem;}
+.call-title{font-family:var(--mono);font-size:.61rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;display:block;margin-bottom:.3rem;}
+.call.o .call-title{color:var(--orange);}
+.call.y .call-title{color:#b8860b;}
+.call.t .call-title{color:#1a8a82;}
+.call.c .call-title{color:var(--coral);}
+.call.g .call-title{color:#1a7a40;}
+.call.p .call-title{color:var(--purple);}
+.call.b .call-title{color:var(--blue);}
+.call p{font-size:.86rem;color:var(--muted);line-height:1.72;margin:0;}
+.call p strong{color:var(--ink);}
+
+/* BEFORE / AFTER COMPARISON */
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;}
+.ba-panel{border:var(--border);border-radius:12px;overflow:hidden;}
+.ba-header{padding:10px 16px;font-family:var(--display);font-weight:700;font-size:.82rem;border-bottom:var(--border);}
+.ba-panel.bad .ba-header{background:var(--coral-bg);}
+.ba-panel.good .ba-header{background:var(--green-bg);}
+.ba-body{padding:16px 18px;font-size:.83rem;color:var(--muted);line-height:1.75;background:var(--white);}
+.ba-body strong{color:var(--ink);}
+.ba-body em{color:var(--orange);font-style:normal;font-weight:600;}
+
+/* STRUCTURE DIAGRAM */
+.struct-diagram{
+  border:var(--border);border-radius:14px;
+  overflow:hidden;box-shadow:var(--shadow);
+  margin:24px 0;
+}
+.sd-row{
+  display:grid;grid-template-columns:140px 1fr;
+  border-bottom:2px solid var(--ink);
+}
+.sd-row:last-child{border-bottom:none;}
+.sd-label{
+  padding:14px 16px;border-right:2px solid var(--ink);
+  font-family:var(--display);font-weight:700;font-size:.82rem;
+  display:flex;align-items:center;
+}
+.sd-content{padding:14px 18px;background:var(--white);font-size:.83rem;color:var(--muted);line-height:1.72;}
+.sd-content code{font-family:var(--mono);font-size:.78rem;color:var(--orange);}
+
+/* SCENARIO SECTION */
+.scenario-sec{margin-bottom:40px;}
+.scenario-sec h3{font-family:var(--display);font-size:1.1rem;font-weight:700;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--ink);}
+.sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.sc-card{background:var(--white);border:var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-s);transition:transform .2s;}
+.sc-card:hover{transform:translate(-2px,-2px);}
+.sc-card-header{padding:10px 14px;border-bottom:2px solid var(--ink);display:flex;align-items:center;gap:.6rem;}
+.sc-card-role{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;}
+.sc-card-body{padding:14px 16px;}
+.sc-before{font-size:.79rem;color:var(--coral);margin-bottom:6px;padding:6px 10px;background:var(--coral-bg);border-radius:4px;border-left:3px solid var(--coral);}
+.sc-before::before{content:'✗ Prompt fraco: ';font-weight:700;}
+.sc-after{font-size:.79rem;color:#1a7a40;padding:6px 10px;background:var(--green-bg);border-radius:4px;border-left:3px solid var(--green);}
+.sc-after::before{content:'✓ Prompt eficaz: ';font-weight:700;}
+.sc-why{font-size:.77rem;color:var(--muted);margin-top:8px;font-style:italic;}
+
+/* PROMPT LIBRARY */
+.lib-section{margin-bottom:32px;}
+.lib-section h3{font-family:var(--display);font-size:1rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:.6rem;}
+.lib-section h3 .lib-icon{font-size:1.1rem;}
+
+/* TABLE */
+.table-wrap{border:var(--border);box-shadow:var(--shadow);border-radius:14px;overflow:hidden;background:var(--white);}
+table.tbl{width:100%;border-collapse:collapse;font-size:.83rem;}
+table.tbl thead th{background:var(--ink);color:white;padding:12px 15px;text-align:left;font-family:var(--display);font-weight:700;font-size:.79rem;}
+table.tbl tbody td{padding:12px 15px;border-bottom:1.5px solid #e8e4de;color:var(--muted);vertical-align:top;}
+table.tbl tbody td:first-child{font-weight:600;color:var(--ink);}
+table.tbl tbody tr:last-child td{border-bottom:none;}
+table.tbl tbody tr:hover td{background:var(--orange-bg);}
+
+/* GLOSSARY */
+.glossary{background:var(--white);border:var(--border);box-shadow:var(--shadow);border-radius:14px;overflow:hidden;}
+.gr{display:grid;grid-template-columns:190px 1fr;border-bottom:2px solid var(--ink);}
+.gr:last-child{border-bottom:none;}
+.gr:hover{background:var(--orange-bg);}
+.gt{padding:16px 18px;background:#f0f0f7;border-right:2px solid var(--ink);font-family:var(--display);font-weight:700;font-size:.87rem;}
+.gt small{display:block;font-family:var(--mono);font-size:.58rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:.2rem;font-weight:400;}
+.gd{padding:16px 20px;font-size:.85rem;color:var(--muted);line-height:1.75;}
+.gd strong{color:var(--ink);}
+
+/* DIVIDER */
+.divider{border:none;border-top:var(--border);max-width:1000px;margin:0 auto 80px;padding:0 20px;}
+
+/* NEXT */
+.next-box{background:var(--purple);color:white;border:var(--border);padding:50px;border-radius:24px;box-shadow:var(--shadow);text-align:center;}
+.next-box h2{font-family:var(--display);font-size:clamp(1.8rem,4vw,3rem);margin:12px 0 16px;color:white;}
+.next-box p{max-width:500px;margin:0 auto 28px;font-size:.97rem;opacity:.8;}
+.next-btn{display:inline-block;background:var(--yellow);color:var(--ink);padding:14px 36px;border:var(--border);font-family:var(--display);font-weight:700;text-decoration:none;box-shadow:var(--shadow-s);transition:transform .15s;font-size:.95rem;}
+.next-btn:hover{transform:translate(-2px,-2px);}
+
+/* RESPONSIVE */
+@media(max-width:820px){
+  .hero{grid-template-columns:1fr;}.hero-card{transform:none;}.toc-card{display:none;}
+  .grid-2,.grid-3,.ba,.sc-grid{grid-template-columns:1fr;}
+  .anatomy-parts .ap,.struct-diagram .sd-row{grid-template-columns:1fr;}
+  .ap-label,.sd-label{border-right:none;border-bottom:2px solid var(--ink);}
+  .sec{padding:0 15px;margin:50px auto;}
+  .topnav{display:none;}
+  .gr{grid-template-columns:1fr;}
+  .gt{border-right:none;border-bottom:2px solid var(--ink);}
+}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<header>
+  <div class="brand"><div class="brand-dot">IA</div>IA CONSULTORIA ⚡ Módulo 03</div>
+  <ul class="topnav">
+    <li><a href="#fundamentos">Fundamentos</a></li>
+    <li><a href="#anatomia">Anatomia</a></li>
+    <li><a href="#tecnicas">Técnicas</a></li>
+    <li><a href="#system">System Prompt</a></li>
+    <li><a href="#erros">Erros comuns</a></li>
+    <li><a href="#porarea">Por área</a></li>
+    <li><a href="#biblioteca">Biblioteca</a></li>
+    <li><a href="#glossario">Glossário</a></li>
+  </ul>
+</header>
+
+<!-- ════ HERO ════ -->
+<div class="hero">
+  <div class="hero-card">
+    <div class="eyebrow">Módulo 03 de 08 · Atualizado Abril 2026</div>
+    <h1>Prompt<br><span>Engineering</span></h1>
+    <p class="hero-desc">A arte e a ciência de extrair o máximo dos modelos de IA. Quem domina prompts multiplica a produtividade — quem não domina culpa a ferramenta. Este módulo transforma você de usuário em operador consciente.</p>
+    <div class="chips">
+      <span class="chip">Zero-shot</span>
+      <span class="chip t">Few-shot</span>
+      <span class="chip y">Chain-of-Thought</span>
+      <span class="chip p">System Prompt</span>
+      <span class="chip c">Técnicas avançadas</span>
+      <span class="chip g">Biblioteca de prompts</span>
+    </div>
+  </div>
+  <div class="toc-card">
+    <span class="toc-label">Conteúdo deste módulo</span>
+    <div class="toc-item" onclick="go('fundamentos')"><span class="toc-num">1</span><span class="toc-text">Por que prompts importam — e o que os modelos esperam</span></div>
+    <div class="toc-item" onclick="go('anatomia')"><span class="toc-num">2</span><span class="toc-text">Anatomia de um prompt eficaz</span></div>
+    <div class="toc-item" onclick="go('tecnicas')"><span class="toc-num">3</span><span class="toc-text">As 6 principais técnicas de prompting</span></div>
+    <div class="toc-item" onclick="go('system')"><span class="toc-num">4</span><span class="toc-text">System Prompts — configurando o comportamento</span></div>
+    <div class="toc-item" onclick="go('erros')"><span class="toc-num">5</span><span class="toc-text">Os 8 erros mais comuns — e como corrigi-los</span></div>
+    <div class="toc-item" onclick="go('porarea')"><span class="toc-num">6</span><span class="toc-text">Prompts por área profissional — antes e depois</span></div>
+    <div class="toc-item" onclick="go('biblioteca')"><span class="toc-num">7</span><span class="toc-text">Biblioteca de templates prontos para usar</span></div>
+    <div class="toc-item" onclick="go('glossario')"><span class="toc-num">8</span><span class="toc-text">Glossário do Módulo 3</span></div>
+  </div>
+</div>
+
+<!-- ════ 1. FUNDAMENTOS ════ -->
+<section class="sec" id="fundamentos">
+  <span class="sec-label">Seção 1</span>
+  <h2 class="sec-title">Por Que Prompts Importam</h2>
+  <p class="sec-lead">Em 2026, a diferença entre "tentei IA e não gostei" e "IA economiza 8 horas do meu trabalho semanal" é quase sempre a qualidade do prompt — não a qualidade do modelo. Um bom prompt pode multiplicar a eficácia de um modelo básico. Um prompt ruim desperdiça até o modelo mais poderoso.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <span class="card-name">O modelo não lê sua mente</span>
+      <p>Lembre do Módulo 2: o modelo gera tokens com base em probabilidade estatística. Ele não "sabe" o que você quer — ele infere a partir do que você escreveu. Quanto mais preciso e estruturado for o input, mais a distribuição de probabilidade dos primeiros tokens se alinha com o que você espera — e os tokens seguintes constroem em cima disso.</p>
+      <p><strong>O modelo é como um contratado extremamente capaz e literal:</strong> ele faz exatamente o que você pediu, não o que você quis dizer.</p>
+    </div>
+    <div class="card">
+      <span class="card-name">O impacto quantificado</span>
+      <p>Pesquisas de 2025–2026 mostram: prompts com few-shot (exemplos) melhoram consistência em <strong>40–60%</strong> em tarefas estruturadas. Chain-of-thought melhora acurácia em problemas complexos em até <strong>19 pontos percentuais</strong> no benchmark MMLU-Pro. Empresas com práticas fortes de prompt engineering reportam redução de custo de IA em <strong>40%</strong> e aumento de produtividade de <strong>3× a 5×</strong>.</p>
+      <p>Prompt engineering é a nova planilha Excel — não é uma carreira isolada, é uma habilidade essencial para qualquer profissional do conhecimento em 2026.</p>
+    </div>
+  </div>
+
+  <div class="call o" style="margin-top:16px;max-width:100%;">
+    <span class="call-ico">🧠</span>
+    <div><span class="call-title">A metáfora mais precisa de 2026</span><p>Andrej Karpathy (ex-OpenAI) colocou assim em 2025: <strong>o LLM é o processador (CPU), a janela de contexto é a memória RAM, e você é o sistema operacional</strong> — carregando exatamente o código e os dados certos para cada tarefa. Prompt engineering é ser um bom SO: eficiente, organizado, e que entende as capacidades e limitações do hardware.</p></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 2. ANATOMIA ════ -->
+<section class="sec" id="anatomia">
+  <span class="sec-label">Seção 2</span>
+  <h2 class="sec-title">Anatomia de um Prompt Eficaz</h2>
+  <p class="sec-lead">Todo prompt bem construído tem componentes identificáveis. Você não precisa usar todos em todos os casos — mas saber o que cada parte faz permite montar e diagnosticar prompts com precisão.</p>
+
+  <div class="anatomy">
+    <h3>Os 6 componentes de um prompt completo</h3>
+    <div class="anatomy-parts">
+      <div class="ap">
+        <div class="ap-label" style="background:#FFF0E6;">🎭 Papel / Persona</div>
+        <div class="ap-content"><strong>Define quem o modelo deve ser</strong> nessa conversa. Molda o tom, o vocabulário e o nível técnico. <br>Exemplo: <code>Você é um analista tributário sênior especializado em empresas do setor varejista.</code><br>Funciona bem para tarefas abertas e criativas. Tem efeito menor em tarefas factuais e de classificação.</div>
+      </div>
+      <div class="ap">
+        <div class="ap-label" style="background:#FFF3C0;">🎯 Tarefa / Instrução</div>
+        <div class="ap-content"><strong>O que você quer que o modelo faça</strong> — o núcleo do prompt. Deve ser específico, ativo e inequívoco. Use verbos de ação: analise, liste, compare, resuma, gere, classifique.<br>Exemplo: <code>Analise o contrato abaixo e identifique todas as cláusulas de penalidade, organizadas por categoria.</code></div>
+      </div>
+      <div class="ap">
+        <div class="ap-label" style="background:#E8FAF9;">📋 Contexto</div>
+        <div class="ap-content"><strong>Informações que o modelo precisa para executar bem</strong> — o que você sabe que ele não sabe. Empresa, setor, público-alvo, restrições, objetivo maior, histórico relevante.<br>Exemplo: <code>O contrato é com um fornecedor de logística para distribuição em 5 estados. Nossa empresa é do setor alimentício e precisamos de conformidade com ANVISA.</code></div>
+      </div>
+      <div class="ap">
+        <div class="ap-label" style="background:#F0EDFF;">💡 Exemplos (Few-shot)</div>
+        <div class="ap-content"><strong>Demonstrações de input → output esperado</strong>. São a técnica de maior ROI disponível. 2–5 exemplos diversos aumentam consistência em 40–60% em tarefas estruturadas.<br>Exemplo: <code>Exemplo de análise de cláusula: [Texto] → [Categoria: Multa por atraso | Valor: 2% a.m. | Limite: 20%]</code></div>
+      </div>
+      <div class="ap">
+        <div class="ap-label" style="background:#E8FAF0;">📐 Formato de saída</div>
+        <div class="ap-content"><strong>Especifique como você quer receber a resposta</strong>. Sem isso, o modelo escolhe — e pode escolher errado. Seja explícito sobre estrutura, comprimento, linguagem e elementos visuais.<br>Exemplo: <code>Responda em tabela com colunas: Cláusula | Categoria | Risco | Recomendação. Máximo de 3 linhas por item. Português formal.</code></div>
+      </div>
+      <div class="ap">
+        <div class="ap-label" style="background:#EBF5FB;">🚧 Restrições / Tom</div>
+        <div class="ap-content"><strong>O que o modelo deve ou não deve fazer</strong> nesse contexto. Evite linguagem agressiva ("NUNCA", "JAMAIS") — modelos modernos respondem melhor a instruções calmas e diretas.<br>Exemplo: <code>Use linguagem técnica mas acessível a diretores sem formação jurídica. Não use jargão sem explicação. Seja objetivo — evite preâmbulos.</code></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="call y" style="max-width:100%;">
+    <span class="call-ico">💡</span>
+    <div><span class="call-title">Regra prática</span><p>Você não precisa dos 6 componentes em todo prompt. Comece com <strong>Tarefa + Contexto</strong>. Adicione Formato quando o output precisar ser previsível. Adicione Exemplos quando a consistência importar. Adicione Papel quando o tom precisar ser específico. Adicione Restrições apenas quando houver comportamentos a evitar — não como padrão.</p></div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:32px 0 12px;">XML tags — a estrutura que o Claude entende melhor</h3>
+  <p style="font-size:.89rem;color:var(--muted);max-width:700px;margin-bottom:16px;line-height:1.8;">Claude foi treinado com tags XML nos dados de treinamento. Usá-las para separar partes do prompt melhora mensuravelmente a qualidade do output — especialmente em prompts longos com múltiplas seções.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Prompt estruturado com XML (Claude)</span>
+      <span class="code-tag good">✓ Recomendado</span>
+    </div>
+    <pre><span class="hl-tag">&lt;papel&gt;</span>
+Você é um analista de crédito sênior com 15 anos de experiência no setor varejista.
+<span class="hl-tag">&lt;/papel&gt;</span>
+
+<span class="hl-tag">&lt;tarefa&gt;</span>
+Analise o perfil de crédito do cliente abaixo e classifique o risco em: Baixo, Médio ou Alto.
+Justifique a classificação em até 3 frases.
+<span class="hl-tag">&lt;/tarefa&gt;</span>
+
+<span class="hl-tag">&lt;exemplos&gt;</span>
+<span class="hl-tag">&lt;exemplo&gt;</span>
+Input: Renda R$8.000, sem dívidas ativas, histórico de 5 anos sem atrasos.
+Output: Risco Baixo. Perfil estável com histórico limpo e renda adequada.
+<span class="hl-tag">&lt;/exemplo&gt;</span>
+<span class="hl-tag">&lt;exemplo&gt;</span>
+Input: Renda R$3.200, 2 parcelas em atraso nos últimos 12 meses, SPC negativo.
+Output: Risco Alto. Negativação ativa e histórico recente de atrasos indicam inadimplência.
+<span class="hl-tag">&lt;/exemplo&gt;</span>
+<span class="hl-tag">&lt;/exemplos&gt;</span>
+
+<span class="hl-tag">&lt;cliente&gt;</span>
+Renda R$5.500, 1 parcela em atraso há 45 dias, sem negativação, emprego estável há 3 anos.
+<span class="hl-tag">&lt;/cliente&gt;</span>
+
+<span class="hl-tag">&lt;formato&gt;</span>
+Classificação: [Baixo/Médio/Alto]
+Justificativa: [3 frases máximo]
+<span class="hl-tag">&lt;/formato&gt;</span></pre>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 3. TÉCNICAS ════ -->
+<section class="sec" id="tecnicas">
+  <span class="sec-label">Seção 3</span>
+  <h2 class="sec-title">As 6 Principais Técnicas de Prompting</h2>
+  <p class="sec-lead">Cada técnica foi desenvolvida para resolver um problema específico. Entender quando aplicar cada uma é o que separa o uso casual do uso estratégico de IA.</p>
+
+  <!-- TÉCNICA 1: ZERO-SHOT -->
+  <div class="card" style="margin-bottom:20px;">
+    <span class="card-num">Técnica 01</span>
+    <span class="card-name">Zero-Shot — Instrução direta sem exemplos</span>
+    <p>Você simplesmente descreve a tarefa e o modelo a executa com o conhecimento que já tem do treinamento. Funciona para tarefas comuns e bem conhecidas onde o modelo já viu padrões suficientes.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">Exemplo zero-shot</span><span class="code-tag neutral">zero-shot</span></div>
+      <pre>Resuma o seguinte e-mail em 3 pontos principais, em linguagem objetiva:</pre>
+    </div>
+    <div class="card-when">resumos, traduções, explicações de conceitos conhecidos, formatações simples.</div>
+    <div class="card-avoid">tarefas com formato específico, análises estruturadas, quando a consistência é crítica.</div>
+  </div>
+
+  <!-- TÉCNICA 2: FEW-SHOT -->
+  <div class="card" style="margin-bottom:20px;">
+    <span class="card-num">Técnica 02</span>
+    <span class="card-name">Few-Shot — Aprender pelo exemplo</span>
+    <p>Você fornece de 2 a 5 exemplos do padrão input → output desejado. O modelo "aprende" o padrão temporariamente (dentro do contexto) e o aplica à nova entrada. É a técnica de maior ROI disponível. A pesquisa de 2022 de Min et al. descobriu algo surpreendente: <strong>a diversidade dos exemplos importa mais do que exemplos perfeitos</strong> — até exemplos com labels incorretos melhoram o resultado em relação ao zero-shot.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">Exemplo few-shot — classificação de chamados</span><span class="code-tag good">✓ Alta consistência</span></div>
+      <pre><span class="hl-comment"># Classifique o chamado de suporte na categoria correta.</span>
+
+<span class="hl-tag">Exemplo 1:</span>
+Chamado: "O sistema trava ao abrir o módulo de faturamento."
+Categoria: Bug técnico
+
+<span class="hl-tag">Exemplo 2:</span>
+Chamado: "Preciso exportar relatório em PDF mas não encontro o botão."
+Categoria: Dúvida de uso
+
+<span class="hl-tag">Exemplo 3:</span>
+Chamado: "Quero adicionar um novo usuário administrador."
+Categoria: Solicitação de acesso
+
+<span class="hl-tag">Novo chamado:</span>
+"O cálculo do ICMS está retornando valor diferente do esperado."
+Categoria:</pre>
+    </div>
+    <div class="card-when">classificações, extrações estruturadas, análises com formato específico, tarefas repetitivas com padrão consistente.</div>
+  </div>
+
+  <!-- TÉCNICA 3: CHAIN-OF-THOUGHT -->
+  <div class="card" style="margin-bottom:20px;">
+    <span class="card-num">Técnica 03</span>
+    <span class="card-name">Chain-of-Thought — Pensar em voz alta</span>
+    <p>Você instrui o modelo a mostrar o raciocínio intermediário antes de dar a resposta final. Isso melhora dramaticamente problemas que exigem múltiplos passos — porque cada passo intermediário correto aumenta a probabilidade dos próximos tokens seguirem o raciocínio certo.</p>
+    <p><strong>Zero-shot CoT:</strong> simplesmente adicione <em>"Pense passo a passo antes de responder."</em> Melhora acurácia mesmo sem exemplos.</p>
+    <p><strong>Atenção:</strong> <em>não</em> use CoT com modelos de raciocínio estendido (Claude Extended Thinking, o-series da OpenAI) — eles já fazem isso internamente. Pedir "pense passo a passo" para um modelo que já está pensando é como dizer a alguém que já está andando para começar a andar.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">Chain-of-Thought — análise de viabilidade</span><span class="code-tag good">✓ Problemas complexos</span></div>
+      <pre>Analise se devemos terceirizar nosso call center ou manter interno.
+Considere: custo atual de R$280k/mês com equipe de 30 pessoas, NPS de 72,
+cotação de parceiro externo em R$195k/mês.
+
+<span class="hl-good">Raciocine passo a passo antes de concluir:</span>
+<span class="hl-comment">1. Primeiro, calcule o impacto financeiro anual de cada cenário.</span>
+<span class="hl-comment">2. Depois, avalie os riscos não-financeiros (qualidade, controle, transição).</span>
+<span class="hl-comment">3. Por fim, dê uma recomendação clara com justificativa.</span></pre>
+    </div>
+    <div class="card-when">análises financeiras, decisões estratégicas, problemas matemáticos, diagnósticos técnicos, comparações complexas.</div>
+  </div>
+
+  <!-- TÉCNICA 4: ROLE PROMPTING -->
+  <div class="card" style="margin-bottom:20px;">
+    <span class="card-num">Técnica 04</span>
+    <span class="card-name">Role Prompting — Atribuir uma persona</span>
+    <p>Você atribui ao modelo uma identidade, área de expertise ou estilo. Isso molda o vocabulário, o nível técnico e a abordagem. Funciona bem para tarefas abertas, criativas e de domínio especializado. Tem efeito menor em classificações e tarefas factuais.</p>
+    <div class="ba">
+      <div class="ba-panel bad">
+        <div class="ba-header">✗ Sem persona — genérico</div>
+        <div class="ba-body">Escreva um e-mail para o cliente informando o atraso.</div>
+      </div>
+      <div class="ba-panel good">
+        <div class="ba-header">✓ Com persona — direcionado</div>
+        <div class="ba-body">Você é um gerente de relacionamento de banco privado, conhecido pela comunicação empática e objetiva. Escreva um e-mail para um cliente pessoa jurídica do segmento industrial informando que a aprovação do crédito de R$2M atrasará 10 dias úteis por pendência documental.</div>
+      </div>
+    </div>
+    <div class="card-when">comunicações externas, conteúdo de marca, consultoria especializada, análises setoriais, copywriting.</div>
+  </div>
+
+  <!-- TÉCNICA 5: PROMPT CHAINING -->
+  <div class="card" style="margin-bottom:20px;">
+    <span class="card-num">Técnica 05</span>
+    <span class="card-name">Prompt Chaining — Dividir para conquistar</span>
+    <p>Tarefas complexas são quebradas em etapas menores, onde o output de um prompt vira o input do próximo. Em vez de pedir tudo de uma vez, você orquestra uma sequência. Isso reduz erros, permite revisão em cada etapa e produz outputs de muito maior qualidade.</p>
+    <div class="struct-diagram">
+      <div class="sd-row"><div class="sd-label" style="background:var(--orange-bg);">Prompt 1</div><div class="sd-content">Pesquise e liste os 5 principais concorrentes da empresa X no mercado brasileiro de logística. Para cada um, indique: posicionamento, faixa de preço e diferencial.</div></div>
+      <div class="sd-row"><div class="sd-label" style="background:var(--yellow-bg);">Prompt 2</div><div class="sd-content">Com base na lista de concorrentes acima, identifique as 3 lacunas de mercado que nenhum deles endereça adequadamente.</div></div>
+      <div class="sd-row"><div class="sd-label" style="background:var(--teal-bg);">Prompt 3</div><div class="sd-content">Para cada lacuna identificada, proponha uma oportunidade de posicionamento para a empresa X, com argumento de vendas e cliente ideal.</div></div>
+      <div class="sd-row"><div class="sd-label" style="background:var(--green-bg);">Prompt 4</div><div class="sd-content">Transforme as 3 oportunidades em um slide executivo de uma página: título, contexto, proposta de valor, próximos passos.</div></div>
+    </div>
+    <div class="card-when">pesquisas complexas, criação de conteúdo longo, análises estratégicas, pipelines de automação, qualquer tarefa que exige múltiplos passos interdependentes.</div>
+  </div>
+
+  <!-- TÉCNICA 6: TREE-OF-THOUGHT / SELF-CONSISTENCY -->
+  <div class="card" style="margin-bottom:20px;">
+    <span class="card-num">Técnica 06</span>
+    <span class="card-name">Tree-of-Thought & Self-Consistency — Explorar múltiplos caminhos</span>
+    <p><strong>Tree-of-Thought (ToT):</strong> em vez de um único raciocínio linear, você pede ao modelo para gerar múltiplos caminhos de solução em paralelo e depois escolher o melhor. Excelente para problemas com múltiplas abordagens válidas.</p>
+    <p><strong>Self-Consistency:</strong> você faz a mesma pergunta várias vezes (com temperatura ligeiramente mais alta) e usa a resposta que aparece com mais frequência. Reduz variabilidade em problemas onde a resposta correta é única mas o caminho pode variar.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">Tree-of-Thought — decisão estratégica</span><span class="code-tag tip">Avançado</span></div>
+      <pre>Problema: Devemos abrir uma filial em São Paulo ou fortalecer a operação em Curitiba?
+
+<span class="hl-good">Gere 3 perspectivas diferentes sobre esta decisão:</span>
+<span class="hl-comment">- Perspectiva financeira (ROI, payback, risco)</span>
+<span class="hl-comment">- Perspectiva de mercado (crescimento, concorrência, timing)</span>
+<span class="hl-comment">- Perspectiva operacional (recursos, complexidade, capacidade)</span>
+
+<span class="hl-good">Depois, sintetize qual perspectiva deve ter maior peso neste momento e por quê.</span></pre>
+    </div>
+    <div class="card-when">decisões estratégicas sem resposta óbvia, problemas de negócio com múltiplos stakeholders, análises que precisam de diversidade de perspectivas.</div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 4. SYSTEM PROMPT ════ -->
+<section class="sec" id="system">
+  <span class="sec-label">Seção 4</span>
+  <h2 class="sec-title">System Prompts — Configurando o Comportamento</h2>
+  <p class="sec-lead">O system prompt é a instrução de nível mais alto — ela define a persona, as regras e o contexto permanente antes de qualquer mensagem do usuário. É o que separa um chatbot genérico de um assistente corporativo especializado.</p>
+
+  <div class="grid-2" style="margin-bottom:24px;">
+    <div class="card">
+      <span class="card-name">O que vai no system prompt</span>
+      <p><strong>Papel e expertise:</strong> quem é o assistente, em que domínio atua, qual o nível de especialização.</p>
+      <p><strong>Regras permanentes:</strong> o que sempre fazer, o que nunca fazer, como lidar com casos ambíguos.</p>
+      <p><strong>Contexto da organização:</strong> nome da empresa, setor, clientes típicos, tom de comunicação.</p>
+      <p><strong>Formato padrão:</strong> estrutura de resposta esperada na maioria dos casos.</p>
+    </div>
+    <div class="card">
+      <span class="card-name">O que NÃO vai no system prompt</span>
+      <p>O conteúdo variável que muda a cada interação — documentos a analisar, perguntas específicas, dados do usuário. Isso vai no prompt do usuário.</p>
+      <p><strong>Dica de performance:</strong> coloque instruções estáticas no system prompt (elas ficam no início do contexto). Coloque dados variáveis no prompt do usuário. Isso otimiza o uso do cache de prompt da API — podendo reduzir custo em até 90% e latência em até 85% para sistemas de alto volume.</p>
+    </div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:0 0 12px;">Exemplo: System prompt de assistente de RH corporativo</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">System prompt completo — Assistente de RH</span>
+      <span class="code-tag good">✓ Produção</span>
+    </div>
+    <pre><span class="hl-tag">&lt;identidade&gt;</span>
+Você é o RH Assistant da Empresa Alfa, um assistente especializado em políticas de
+recursos humanos, benefícios e desenvolvimento de pessoas. Seu nome é "Alf".
+<span class="hl-tag">&lt;/identidade&gt;</span>
+
+<span class="hl-tag">&lt;contexto&gt;</span>
+A Empresa Alfa é uma distribuidora de alimentos com 800 colaboradores em 4 estados.
+Opera com regime CLT. Convenção coletiva da categoria alimentícia.
+Benefícios: plano de saúde Unimed, vale-refeição R$45/dia, PLR semestral.
+<span class="hl-tag">&lt;/contexto&gt;</span>
+
+<span class="hl-tag">&lt;comportamento&gt;</span>
+- Responda de forma clara, objetiva e sem jargão técnico desnecessário
+- Se a pergunta envolver legislação específica ou situação individual complexa,
+  sempre recomende consulta com o time de RH humano antes de tomar decisões
+- Nunca forneça valores exatos de salários ou informações de terceiros
+- Baseie-se nas políticas internas documentadas; se não souber, diga claramente
+<span class="hl-tag">&lt;/comportamento&gt;</span>
+
+<span class="hl-tag">&lt;formato&gt;</span>
+- Respostas curtas para dúvidas simples (até 3 parágrafos)
+- Para processos: use numeração passo a passo
+- Sempre finalize com: "Posso ajudar com mais alguma dúvida sobre benefícios ou RH?"
+<span class="hl-tag">&lt;/formato&gt;</span></pre>
+  </div>
+
+  <div class="call t" style="margin-top:16px;max-width:100%;">
+    <span class="call-ico">🔧</span>
+    <div><span class="call-title">Diferença entre system prompt e prompt de usuário</span><p>O <strong>system prompt</strong> define o "quem" e o "como" — é fixo para aquela aplicação. O <strong>prompt do usuário</strong> define o "o quê" — varia a cada interação. Para o Claude especificamente: use XML tags no system prompt para estruturar seções (<code>&lt;identidade&gt;</code>, <code>&lt;comportamento&gt;</code>, etc.). Isso melhora mensuravelmente a aderência às instruções em comparação com texto simples.</p></div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:28px 0 12px;">Especificidades por modelo</h3>
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead><tr><th>Modelo</th><th>Melhor prática de system prompt</th><th>Observação importante</th></tr></thead>
+      <tbody>
+        <tr><td>Claude (Anthropic)</td><td>Use XML tags para estruturar seções. Linguagem calma e direta — evite maiúsculas e exclamações.</td><td>Evite "VOCÊ DEVE", "NUNCA JAMAIS" — overtrigger e piora resultados. "NUNCA" sozinho funciona melhor que "NUNCA JAMAIS".</td></tr>
+        <tr><td>GPT-5 (OpenAI)</td><td>Markdown funciona bem. Instruções no system prompt + reforço no primeiro turno do usuário.</td><td>GPT-5 é um roteador — dizer "pense com cuidado" pode literalmente acionar o modo de raciocínio mais pesado.</td></tr>
+        <tr><td>Gemini (Google)</td><td>Instructions em linguagem natural clara. Beneficia de exemplos de saída esperada no system.</td><td>Excelente em tarefas multimodais via system prompt — pode receber imagens de referência como exemplos.</td></tr>
+        <tr><td>Llama 4 (Meta)</td><td>Seguir o template de chat instruct do modelo. Papel bem definido melhora muito a qualidade.</td><td>Open-source — você tem controle total sobre o system prompt em deployment local.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 5. ERROS COMUNS ════ -->
+<section class="sec" id="erros">
+  <span class="sec-label">Seção 5</span>
+  <h2 class="sec-title">Os 8 Erros Mais Comuns — e Como Corrigi-los</h2>
+  <p class="sec-lead">Depois de analisar milhares de interações com LLMs, os mesmos padrões de erro aparecem repetidamente. Reconhecê-los é o primeiro passo para eliminá-los.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <span class="card-num">Erro 01</span>
+      <span class="card-name">Pedir demais em um único prompt</span>
+      <p>Tentar fazer análise de mercado + criação de slides + estratégia de precificação + e-mail para stakeholders em uma instrução. O modelo divide atenção e entrega tudo mediocremente.</p>
+      <div class="ba">
+        <div class="ba-panel bad"><div class="ba-header">✗</div><div class="ba-body">Analise nosso mercado, identifique concorrentes, crie uma estratégia de diferenciação, monte um pitch e escreva um e-mail para o CEO.</div></div>
+        <div class="ba-panel good"><div class="ba-header">✓</div><div class="ba-body">Use <em>Prompt Chaining</em>: 4 prompts separados em sequência, cada um focado em uma entrega específica.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <span class="card-num">Erro 02</span>
+      <span class="card-name">Ser vago sobre o formato de saída</span>
+      <p>Sem especificar o formato, o modelo escolhe — e raramente escolhe o que você precisa. Se você vai copiar o output para um relatório, especifique exatamente como precisa.</p>
+      <div class="ba">
+        <div class="ba-panel bad"><div class="ba-header">✗</div><div class="ba-body">Resuma os pontos principais da reunião.</div></div>
+        <div class="ba-panel good"><div class="ba-header">✓</div><div class="ba-body">Resuma a reunião em 3 seções: (1) Decisões tomadas, (2) Ações com responsável e prazo, (3) Próxima reunião. Máximo 5 bullets por seção. Formato tabela para as ações.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <span class="card-num">Erro 03</span>
+      <span class="card-name">Pedir para "não fazer X" sem dizer o que fazer</span>
+      <p>Negações aumentam probabilidade do comportamento mencionado. "Não seja muito técnico" faz o modelo pensar em linguagem técnica. "Não inclua jargão" é pior que "use linguagem para executivos sem formação técnica".</p>
+      <div class="ba">
+        <div class="ba-panel bad"><div class="ba-header">✗</div><div class="ba-body">Não use linguagem muito técnica, não inclua termos de programação, não faça muito longo.</div></div>
+        <div class="ba-panel good"><div class="ba-header">✓</div><div class="ba-body">Use linguagem acessível para gestores de área. Máximo 200 palavras. Foco em impacto de negócio, não em detalhes técnicos.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <span class="card-num">Erro 04</span>
+      <span class="card-name">Linguagem agressiva e exagerada</span>
+      <p>Modelos modernos (especialmente Claude 4.6) respondem <em>pior</em> a instruções em maiúsculas, exclamações excessivas e linguagem imperativa agressiva. Paradoxalmente, "NUNCA FAÇA ISSO" funciona menos do que "Evite fazer isso".</p>
+      <div class="ba">
+        <div class="ba-panel bad"><div class="ba-header">✗</div><div class="ba-body">NUNCA JAMAIS invente informações! É CRÍTICO que você seja ABSOLUTAMENTE preciso! SEMPRE cite fontes!</div></div>
+        <div class="ba-panel good"><div class="ba-header">✓</div><div class="ba-body">Baseie-se apenas nas informações fornecidas. Se não tiver certeza de algo, diga explicitamente "não tenho essa informação" em vez de inferir.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <span class="card-num">Erro 05</span>
+      <span class="card-name">Não incluir contexto da empresa/setor</span>
+      <p>O modelo não sabe que sua empresa é do setor farmacêutico, que tem 200 funcionários, que opera em regime de franchising, ou que a audiência é técnica. Sem esse contexto, as respostas são genéricas demais para ter valor real.</p>
+      <div class="ba">
+        <div class="ba-panel bad"><div class="ba-header">✗</div><div class="ba-body">Crie um plano de comunicação interna para o lançamento do novo sistema.</div></div>
+        <div class="ba-panel good"><div class="ba-header">✓</div><div class="ba-body">Nossa empresa distribui produtos farmacêuticos para 300 farmácias. Temos 80 funcionários, sendo 40 representantes comerciais em campo. Crie um plano de comunicação interna para o lançamento do novo CRM, considerando que representantes têm acesso limitado ao e-mail corporativo.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <span class="card-num">Erro 06</span>
+      <span class="card-name">Aceitar a primeira resposta sem iterar</span>
+      <p>Prompt engineering é um processo iterativo. A primeira resposta estabelece um baseline — você refina de lá. Dizer "reformule o parágrafo 3 em tom mais direto" ou "adicione um exemplo de caso real" é parte do processo, não sinal de falha.</p>
+      <div class="call y" style="margin-top:8px;border:none;padding:8px 12px;">
+        <span class="call-ico">✓</span>
+        <div><p><strong>Fluxo ideal:</strong> Prompt inicial → Avalie o output → Identifique o que precisa melhorar → Refine com instrução específica → Repita até estar pronto.</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <span class="card-num">Erro 07</span>
+      <span class="card-name">Confiar cegamente em dados numéricos e datas</span>
+      <p>LLMs alucinam com mais frequência em números específicos, datas recentes, percentuais e estatísticas. Para decisões que dependem de dados precisos, sempre peça que o modelo sinalize quando está estimando vs. afirmando com base em dados do contexto.</p>
+      <div class="call c" style="margin-top:8px;border:none;padding:8px 12px;">
+        <span class="call-ico">⚠️</span>
+        <div><p>Adicione ao prompt: <em>"Se não tiver dados precisos, diga explicitamente 'dado estimado' e qual a incerteza."</em></p></div>
+      </div>
+    </div>
+    <div class="card">
+      <span class="card-num">Erro 08</span>
+      <span class="card-name">Usar CoT em modelos de raciocínio estendido</span>
+      <p>Claude Extended Thinking, o1/o3 da OpenAI e Gemini Thinking Mode já realizam raciocínio interno profundo. Pedir "pense passo a passo" é redundante — e em alguns casos piora o resultado por interferir no processo interno do modelo.</p>
+      <div class="call g" style="margin-top:8px;border:none;padding:8px 12px;">
+        <span class="call-ico">✓</span>
+        <div><p>Com Extended Thinking/o-series: descreva o problema diretamente, sem instruções de raciocínio. O modelo já sabe como pensar.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 6. POR ÁREA ════ -->
+<section class="sec" id="porarea">
+  <span class="sec-label">Seção 6</span>
+  <h2 class="sec-title">Prompts por Área Profissional</h2>
+  <p class="sec-lead">Comparativos antes/depois para os cenários mais comuns em cada área. O objetivo é mostrar concretamente como a estrutura do prompt muda o resultado.</p>
+
+  <!-- FINANCEIRO -->
+  <div class="scenario-sec">
+    <h3>💰 Financeiro / Controladoria</h3>
+    <div class="sc-grid">
+      <div class="sc-card">
+        <div class="sc-card-header" style="background:var(--orange-bg);"><span style="font-size:1rem;">📊</span><span class="sc-card-role" style="color:var(--orange);">Análise de DRE</span></div>
+        <div class="sc-card-body">
+          <div class="sc-before">Analise o DRE e me diga o que está errado.</div>
+          <div class="sc-after">Você é um controller sênior. Analise o DRE do Q3/2026 (anexo) e identifique: (1) variações acima de 10% vs. Q3/2025 com causa provável, (2) margens fora do padrão histórico da empresa (EBITDA médio: 18%), (3) as 3 maiores ameaças à margem líquida no Q4. Responda em tabela com colunas: Item | Variação | Causa provável | Risco Q4.</div>
+          <div class="sc-why">A versão eficaz define persona, fornece benchmarks históricos, especifica o que analisar e formata a saída.</div>
+        </div>
+      </div>
+      <div class="sc-card">
+        <div class="sc-card-header" style="background:var(--orange-bg);"><span style="font-size:1rem;">📉</span><span class="sc-card-role" style="color:var(--orange);">Previsão de fluxo de caixa</span></div>
+        <div class="sc-card-body">
+          <div class="sc-before">Faça uma previsão de caixa.</div>
+          <div class="sc-after">Com base nas seguintes premissas: receita mensal média R$1,2M, ciclo de recebimento 45 dias, ciclo de pagamento a fornecedores 30 dias, folha R$320k/mês, CAPEX previsto R$200k em dezembro — gere uma projeção de fluxo de caixa para os próximos 3 meses (out/nov/dez). Sinalize os meses com risco de saldo negativo e sugira medidas preventivas. Formato: planilha simplificada com totalizadores mensais.</div>
+          <div class="sc-why">Premissas claras eliminam suposições do modelo e tornam a saída utilizável.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JURÍDICO -->
+  <div class="scenario-sec">
+    <h3>⚖️ Jurídico / Compliance</h3>
+    <div class="sc-grid">
+      <div class="sc-card">
+        <div class="sc-card-header" style="background:var(--purple-bg);"><span style="font-size:1rem;">📄</span><span class="sc-card-role" style="color:var(--purple);">Revisão de contrato</span></div>
+        <div class="sc-card-body">
+          <div class="sc-before">Leia esse contrato e me diga se está OK.</div>
+          <div class="sc-after">Você é um advogado empresarial especializado em contratos de TI e SaaS. Analise o contrato de prestação de serviços abaixo sob a perspectiva do contratante (nossa empresa). Identifique: (1) cláusulas de penalidade — valor, gatilho e prazo; (2) limitações de responsabilidade do fornecedor; (3) condições de rescisão unilateral; (4) cláusulas incomuns ou potencialmente prejudiciais. Atribua risco (Baixo/Médio/Alto) a cada achado. Lembre: não substitui parecer jurídico formal.</div>
+          <div class="sc-why">Define perspectiva, especifica o que analisar e inclui disclaimer — essencial em contextos legais.</div>
+        </div>
+      </div>
+      <div class="sc-card">
+        <div class="sc-card-header" style="background:var(--purple-bg);"><span style="font-size:1rem;">🛡️</span><span class="sc-card-role" style="color:var(--purple);">LGPD / Compliance</span></div>
+        <div class="sc-card-body">
+          <div class="sc-before">Verifique se nossa política de privacidade está em conformidade com a LGPD.</div>
+          <div class="sc-after">Você é um especialista em LGPD com foco em empresas B2B do setor de tecnologia. Analise a política de privacidade abaixo (nossa empresa coleta dados de pessoas jurídicas e físicas no Brasil) e verifique a presença e adequação dos seguintes elementos obrigatórios pela LGPD: base legal de cada tratamento, finalidade explícita, direitos do titular, encarregado (DPO) identificado, compartilhamento com terceiros, prazo de retenção e canal de contato para exercício de direitos. Indique o que está ausente ou insuficiente.</div>
+          <div class="sc-why">Especifica o setor, o tipo de dados tratados e os critérios exatos de verificação.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RH -->
+  <div class="scenario-sec">
+    <h3>👥 RH / Gestão de Pessoas</h3>
+    <div class="sc-grid">
+      <div class="sc-card">
+        <div class="sc-card-header" style="background:var(--teal-bg);"><span style="font-size:1rem;">📋</span><span class="sc-card-role" style="color:var(--teal);">Descrição de vaga</span></div>
+        <div class="sc-card-body">
+          <div class="sc-before">Escreva uma descrição para vaga de analista de dados.</div>
+          <div class="sc-after">Crie uma descrição de vaga para Analista de Dados Sênior para uma fintech de crédito consignado. Stack: Python, SQL, Power BI, AWS Redshift. A equipe tem 5 pessoas, cultura de autonomia e dados como produto. Responsabilidades: modelagem preditiva de inadimplência, dashboards para área comercial, governança de dados. Salário: R$8.000–12.000 + bônus. Inclua: título atrativo, responsabilidades (5 bullets), requisitos obrigatórios vs. desejáveis separados, benefícios, e um parágrafo de cultura que atraia quem quer impacto real.</div>
+          <div class="sc-why">Stack técnica, faixa salarial, cultura e separação obrigatório/desejável tornam a vaga relevante e honesta.</div>
+        </div>
+      </div>
+      <div class="sc-card">
+        <div class="sc-card-header" style="background:var(--teal-bg);"><span style="font-size:1rem;">🌡️</span><span class="sc-card-role" style="color:var(--teal);">Pesquisa de clima</span></div>
+        <div class="sc-card-body">
+          <div class="sc-before">Crie perguntas para pesquisa de clima.</div>
+          <div class="sc-after">Crie uma pesquisa de clima organizacional para empresa de logística com 150 funcionários (70% operacional, 30% administrativo). Objetivo: identificar principais causas de turnover, que chegou a 35% no semestre. Estruture em 5 dimensões: liderança imediata, condições de trabalho, reconhecimento, perspectiva de crescimento e comunicação. 3 perguntas por dimensão. Escala Likert 1–5 + 1 pergunta aberta por dimensão. Tom acessível para colaboradores com ensino médio. Total máximo: 20 questões.</div>
+          <div class="sc-why">Contexto do problema (turnover), perfil dos respondentes e restrições de tamanho tornam o resultado utilizável.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TI / DESENVOLVIMENTO -->
+  <div class="scenario-sec">
+    <h3>💻 TI / Desenvolvimento</h3>
+    <div class="sc-grid">
+      <div class="sc-card">
+        <div class="sc-card-header" style="background:var(--blue-bg);"><span style="font-size:1rem;">🐛</span><span class="sc-card-role" style="color:var(--blue);">Debug de código</span></div>
+        <div class="sc-card-body">
+          <div class="sc-before">Meu código não funciona. O que está errado?</div>
+          <div class="sc-after">Linguagem: Python 3.11. Objetivo: processar arquivo CSV com 50k linhas e inserir no PostgreSQL 15. Erro recebido: "psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint 'tb_clientes_pkey'". O código roda sem erro em ambiente de dev (100 linhas). Falha em produção a partir da linha 12.847. Hipótese: dados duplicados no CSV que não existem em dev. Analise o código abaixo e: (1) confirme ou refute a hipótese, (2) aponte a linha exata do problema, (3) proponha a correção com uso de ON CONFLICT DO UPDATE.</div>
+          <div class="sc-why">Stack, versões, mensagem de erro exata, contexto de falha e hipótese inicial reduzem dramaticamente o tempo de diagnóstico.</div>
+        </div>
+      </div>
+      <div class="sc-card">
+        <div class="sc-card-header" style="background:var(--blue-bg);"><span style="font-size:1rem;">🏗️</span><span class="sc-card-role" style="color:var(--blue);">Arquitetura de sistema</span></div>
+        <div class="sc-card-body">
+          <div class="sc-before">Como eu estruturo um sistema de automação para o meu processo?</div>
+          <div class="sc-after">Preciso automatizar a integração entre nosso ERP (TOTVS Protheus), o CRM (Salesforce) e nosso sistema legado COBOL que roda em IBM AS/400. Volume: 2.000 pedidos/dia. Requisito crítico: garantia de idempotência (nenhum pedido pode ser processado duas vezes). Restrições: não posso modificar o sistema COBOL; equipe de 3 desenvolvedores Java/Python. Proponha uma arquitetura de integração usando mensageria (preferencialmente RabbitMQ ou Kafka), explique os tradeoffs entre as duas opções, e indique onde tratar a idempotência na arquitetura.</div>
+          <div class="sc-why">Sistemas envolvidos, volume, restrições técnicas e stack da equipe tornam a resposta acionável.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 7. BIBLIOTECA ════ -->
+<section class="sec" id="biblioteca">
+  <span class="sec-label">Seção 7 — Templates prontos</span>
+  <h2 class="sec-title">Biblioteca de Prompts</h2>
+  <p class="sec-lead">Templates testados para as tarefas mais comuns. Copie, adapte com os dados da sua empresa e use imediatamente. Os campos entre [colchetes] são variáveis que você deve preencher.</p>
+
+  <div class="lib-section">
+    <h3><span class="lib-icon">📧</span> Comunicação corporativa</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">E-mail de comunicação de mudança</span><span class="code-tag neutral">Template</span></div>
+      <pre>Você é um especialista em comunicação corporativa.
+
+Escreva um e-mail interno comunicando [MUDANÇA] para [PÚBLICO-ALVO].
+
+Contexto:
+- Empresa: [NOME/SETOR]
+- Mudança: [DESCREVA A MUDANÇA]
+- Data de implementação: [DATA]
+- Impacto direto nos destinatários: [IMPACTO]
+- Benefícios esperados: [BENEFÍCIOS]
+- Próximos passos para os colaboradores: [AÇÕES NECESSÁRIAS]
+
+Tom: [profissional e empático / objetivo e direto / motivador]
+Tamanho: máximo 300 palavras
+Estrutura: assunto impactante + parágrafo de contexto + impacto + próximos passos + contato para dúvidas</pre>
+    </div>
+  </div>
+
+  <div class="lib-section">
+    <h3><span class="lib-icon">📊</span> Análise e relatórios</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">Análise de dados — insights executivos</span><span class="code-tag neutral">Template</span></div>
+      <pre>Você é um analista de dados sênior com experiência em [SETOR].
+
+Analise os dados abaixo e gere um relatório executivo de 1 página.
+
+[COLE OS DADOS AQUI]
+
+Estrutura obrigatória:
+1. Headline: uma frase resumindo o achado mais importante
+2. 3 insights principais (máximo 2 linhas cada)
+3. 1 anomalia ou dado surpreendente
+4. 2 recomendações de ação com responsável sugerido
+5. Próximo dado a monitorar
+
+Audiência: diretoria sem formação técnica em dados
+Tom: direto, orientado a decisão
+Evitar: jargão técnico sem explicação, precisão excessiva em percentuais (use "cerca de" quando apropriado)</pre>
+    </div>
+  </div>
+
+  <div class="lib-section">
+    <h3><span class="lib-icon">🔍</span> Pesquisa e síntese</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">Análise competitiva estruturada</span><span class="code-tag neutral">Template</span></div>
+      <pre>Você é um analista de inteligência competitiva.
+
+Analise os seguintes [N] concorrentes de [NOSSA EMPRESA] no mercado de [SETOR/PRODUTO]:
+[LISTA DOS CONCORRENTES]
+
+Para cada concorrente, identifique:
+- Posicionamento principal (1 frase)
+- Segmento-alvo prioritário
+- Diferencial competitivo declarado
+- Ponto fraco aparente
+- Faixa de preço estimada
+
+Depois, produza:
+1. Matriz de posicionamento (2x2): eixos [DIMENSÃO 1] x [DIMENSÃO 2]
+2. Lacuna de mercado que nenhum deles ocupa adequadamente
+3. Recomendação de posicionamento para [NOSSA EMPRESA]
+
+Base: use informações de domínio público (sites, LinkedIn, reviews). Sinalize incertezas.</pre>
+    </div>
+  </div>
+
+  <div class="lib-section">
+    <h3><span class="lib-icon">🎯</span> Vendas e CRM</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">Proposta comercial personalizada</span><span class="code-tag neutral">Template</span></div>
+      <pre><span class="hl-tag">&lt;empresa&gt;</span>
+Nome: [NOME]
+Setor: [SETOR]
+Tamanho: [N colaboradores / faturamento]
+Problema principal mencionado na reunião: [PROBLEMA]
+Objeção principal: [OBJEÇÃO]
+<span class="hl-tag">&lt;/empresa&gt;</span>
+
+<span class="hl-tag">&lt;nossa_solucao&gt;</span>
+[DESCREVA O PRODUTO/SERVIÇO]
+Cases relevantes para o setor: [CASES]
+Diferencial vs. concorrente [X] que o cliente mencionou: [DIFERENCIAL]
+<span class="hl-tag">&lt;/nossa_solucao&gt;</span>
+
+<span class="hl-tag">&lt;tarefa&gt;</span>
+Escreva uma proposta comercial de 1 página para o prospect acima.
+Estrutura: situação atual deles → problema → nossa solução → resultados esperados → investimento → próximo passo.
+Tom: consultivo, confiante, sem jargão de vendas. Foco no ROI do cliente, não nas features do produto.
+<span class="hl-tag">&lt;/tarefa&gt;</span></pre>
+    </div>
+  </div>
+
+  <div class="lib-section">
+    <h3><span class="lib-icon">💻</span> Desenvolvimento (COBOL / Python / Bash)</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">Review e refatoração de código legado</span><span class="code-tag neutral">Template · COBOL/Python/Bash</span></div>
+      <pre">Você é um desenvolvedor sênior especializado em [LINGUAGEM] com foco em sistemas legados e modernização.
+
+Contexto do sistema:
+- Linguagem: [COBOL/Python/Bash — versão]
+- Função do módulo: [O QUE FAZ]
+- Volume de dados processados: [VOLUME]
+- Restrições: [NÃO PODE MUDAR X / DEVE MANTER COMPATIBILIDADE COM Y]
+
+Tarefa: [REFATORAR / ADICIONAR FEATURE / DEBUGAR / DOCUMENTAR]
+
+[COLE O CÓDIGO AQUI]
+
+Ao responder:
+1. Explique o que o código faz atualmente (para validar meu entendimento)
+2. Aponte os problemas / oportunidades de melhoria
+3. Proponha a versão refatorada com comentários inline nas mudanças
+4. Indique qualquer risco de regressão a testar</pre>
+    </div>
+  </div>
+
+  <div class="call g" style="max-width:100%;margin-top:16px;">
+    <span class="call-ico">📚</span>
+    <div><span class="call-title">Construa sua biblioteca pessoal</span><p>Toda vez que um prompt funcionar bem para uma tarefa recorrente, <strong>salve-o em um documento ou Project do Claude</strong>. Rotule por área e tipo de tarefa. Com o tempo, você acumula um arsenal de prompts testados que elimina o trabalho de construir do zero a cada vez. Times que mantêm bibliotecas de prompts reportam ganhos de produtividade muito superiores a times que improvisam a cada interação.</p></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 8. GLOSSÁRIO ════ -->
+<section class="sec" id="glossario">
+  <span class="sec-label">Seção 8 — Referência</span>
+  <h2 class="sec-title">Glossário do Módulo 3</h2>
+  <p class="sec-lead">Termos e conceitos introduzidos neste módulo. Mantenha como referência rápida.</p>
+
+  <div class="glossary">
+    <div class="gr"><div class="gt">Prompt Engineering<small>Disciplina</small></div><div class="gd">A arte e ciência de estruturar instruções para extrair o máximo de LLMs. Em 2026, evoluiu de cargo especializado para habilidade essencial de qualquer profissional do conhecimento — como o Excel se tornou nos anos 2000.</div></div>
+    <div class="gr"><div class="gt">Zero-Shot<small>Técnica</small></div><div class="gd">Prompt sem exemplos — você instrui diretamente e o modelo usa o conhecimento pré-treinado. <strong>Quando usar:</strong> tarefas simples e bem conhecidas (resumos, traduções simples, formatações). <strong>Limitação:</strong> menor consistência em tarefas com formato específico.</div></div>
+    <div class="gr"><div class="gt">Few-Shot<small>Técnica</small></div><div class="gd">Incluir 2–5 exemplos de input → output antes da tarefa real. O modelo "aprende" o padrão temporariamente. <strong>Impacto:</strong> melhora consistência em 40–60% em tarefas estruturadas. A diversidade dos exemplos importa mais do que a perfeição de cada um.</div></div>
+    <div class="gr"><div class="gt">Chain-of-Thought<small>Técnica</small></div><div class="gd">Instrução para o modelo mostrar o raciocínio intermediário antes da resposta. Melhora dramaticamente problemas multi-etapa. Forma simples: adicionar "Pense passo a passo." <strong>Atenção:</strong> desnecessário com modelos de raciocínio estendido (Extended Thinking, o-series).</div></div>
+    <div class="gr"><div class="gt">Prompt Chaining<small>Técnica</small></div><div class="gd">Quebrar uma tarefa complexa em múltiplos prompts sequenciais onde o output de um vira o input do próximo. Reduz erros, permite revisão em cada etapa e melhora qualidade final em comparação com tentar fazer tudo de uma vez.</div></div>
+    <div class="gr"><div class="gt">Tree-of-Thought<small>Técnica avançada</small></div><div class="gd">Variação do Chain-of-Thought que explora múltiplos caminhos de raciocínio em paralelo, como branches de uma árvore, e depois seleciona o melhor. Útil para decisões com múltiplas abordagens válidas.</div></div>
+    <div class="gr"><div class="gt">System Prompt<small>Configuração</small></div><div class="gd">Instrução de nível mais alto que define a persona, as regras e o contexto permanente de um assistente. Processado antes de qualquer mensagem do usuário. Em produção: coloque conteúdo estático aqui para otimizar cache (até 90% de economia de custo com APIs da Anthropic/OpenAI).</div></div>
+    <div class="gr"><div class="gt">Role Prompting<small>Técnica</small></div><div class="gd">Atribuir ao modelo uma persona, expertise ou estilo específico. Funciona bem para tarefas abertas e criativas. Tem efeito menor em classificações e tarefas factuais. Dica: seja específico sobre domínio e nível de especialização ("advogado tributarista sênior" > "especialista jurídico").</div></div>
+    <div class="gr"><div class="gt">Context Stuffing<small>Técnica</small></div><div class="gd">Prover o máximo de contexto relevante antes de fazer a pergunta — políticas internas, dados históricos, exemplos passados, restrições do negócio. Modelos com janelas de contexto grandes (1M tokens) permitem incluir documentos inteiros. "Mais contexto relevante = menos alucinação".</div></div>
+    <div class="gr"><div class="gt">Prompt Cache<small>Infraestrutura</small></div><div class="gd">Recurso das APIs da Anthropic e OpenAI que armazena em cache as partes estáticas do prompt (system prompt + exemplos). Nas chamadas seguintes, apenas o conteúdo variável é processado, reduzindo custo em até 90% e latência em até 85%. <strong>Otimização:</strong> coloque sempre conteúdo fixo antes do variável no prompt.</div></div>
+    <div class="gr"><div class="gt">Self-Consistency<small>Técnica</small></div><div class="gd">Gerar múltiplas respostas para o mesmo prompt (com temperatura ligeiramente maior) e usar a resposta mais frequente como resultado final. Reduz variabilidade em problemas com resposta única correta mas múltiplos caminhos possíveis.</div></div>
+    <div class="gr"><div class="gt">Prefill / Output Priming<small>Técnica</small></div><div class="gd">Iniciar a resposta do modelo com um fragmento ou estrutura parcial. Como LLMs são motores de autocomplete, controlar como a resposta começa reduz aleatoriedade e dirige o formato. Exemplo: iniciar a resposta com <code>{"categoria":</code> faz o modelo continuar em JSON.</div></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ PRÓXIMO ════ -->
+<section class="sec">
+  <div class="next-box">
+    <span class="sec-label" style="color:rgba(255,255,255,.5);">E AGORA?</span>
+    <h2>Módulo 4: Ecossistema Anthropic</h2>
+    <p>APIs, modelos, precificação, Claude Code em profundidade, Projects, ferramentas de desenvolvimento e tudo que você precisa para começar a construir sistemas com IA da Anthropic.</p>
+    <a href="#" class="next-btn">CONTINUAR PARA O MÓDULO 4 →</a>
+  </div>
+</section>
+
+<script>
+function go(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+window.addEventListener('scroll',()=>{
+  const h=document.body.scrollHeight-window.innerHeight;
+  document.getElementById('prog').style.width=(window.scrollY/h*100)+'%';
+});
+</script>
+</body>
+</html>

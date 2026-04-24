@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLMs & Transformers — Módulo 2 · Cursinho de IA</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  --bg:      #FFF8F0;
+  --white:   #FFFFFF;
+  --ink:     #1A1A2E;
+  --border:  3px solid #1A1A2E;
+  --shadow:  8px 8px 0px #1A1A2E;
+  --shadow-s:4px 4px 0px #1A1A2E;
+  --coral:   #FF6B6B;
+  --teal:    #4ECDC4;
+  --yellow:  #FFD93D;
+  --purple:  #6C5CE7;
+  --green:   #2ECC71;
+  --orange:  #FF8C42;
+  --pink:    #FF6EB4;
+  --blue:    #3498DB;
+  --muted:   #5A5A7A;
+  --sans:    'Plus Jakarta Sans', sans-serif;
+  --display: 'Space Grotesk', sans-serif;
+  --mono:    'JetBrains Mono', monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.7;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:#999;border-radius:4px;}
+
+/* NAV */
+header{
+  position:sticky;top:0;z-index:200;
+  background:var(--teal);
+  border-bottom:var(--border);
+  padding:14px 5%;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.brand{font-family:var(--display);font-weight:700;font-size:1rem;display:flex;align-items:center;gap:.6rem;}
+.brand-dot{width:28px;height:28px;border-radius:6px;background:var(--purple);border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.6rem;color:white;font-weight:600;}
+.topnav{display:flex;gap:0;list-style:none;}
+.topnav a{font-size:.75rem;font-weight:700;color:var(--ink);text-decoration:none;padding:.3rem .85rem;border-left:2px solid var(--ink);transition:background .15s;}
+.topnav a:hover{background:rgba(0,0,0,.08);}
+#prog{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--teal),var(--purple),var(--coral));z-index:999;transition:width .15s;}
+
+/* HERO */
+.hero{display:grid;grid-template-columns:1.3fr .75fr;border-bottom:var(--border);padding:70px 5%;gap:36px;background:var(--bg);}
+.hero-card{background:var(--white);border:var(--border);padding:44px;box-shadow:var(--shadow);transform:rotate(-0.7deg);}
+.eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--teal);margin-bottom:1.1rem;display:flex;align-items:center;gap:.5rem;}
+.eyebrow::before{content:'▶';font-size:.55rem;}
+h1{font-family:var(--display);font-size:clamp(2.2rem,4.5vw,3.8rem);line-height:1.08;margin:14px 0 18px;font-weight:700;}
+h1 span{color:var(--teal);}
+.hero-desc{font-size:.98rem;color:var(--muted);max-width:500px;line-height:1.82;margin-bottom:1.6rem;font-weight:400;}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;}
+.chip{background:var(--teal);border:2px solid var(--ink);border-radius:20px;padding:.28rem .85rem;font-size:.75rem;font-weight:700;}
+.chip.p{background:var(--purple);color:white;}
+.chip.y{background:var(--yellow);}
+.chip.c{background:var(--coral);color:white;}
+.chip.g{background:var(--green);}
+/* toc */
+.toc-card{background:var(--ink);border:var(--border);padding:30px;color:white;box-shadow:var(--shadow);transform:rotate(.7deg);}
+.toc-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;opacity:.4;display:block;margin-bottom:.9rem;}
+.toc-item{display:flex;align-items:center;gap:.9rem;padding:.65rem 0;border-bottom:1px solid rgba(255,255,255,.1);cursor:pointer;transition:opacity .15s;}
+.toc-item:hover{opacity:.65;}
+.toc-item:last-child{border-bottom:none;}
+.toc-num{font-family:var(--mono);font-size:.6rem;opacity:.35;min-width:1.4rem;}
+.toc-text{font-size:.82rem;font-weight:600;}
+
+/* SECTION */
+.sec{max-width:1000px;margin:80px auto;padding:0 20px;}
+.sec-label{font-family:var(--mono);color:var(--teal);font-weight:700;text-transform:uppercase;font-size:.7rem;letter-spacing:.12em;}
+h2.sec-title{font-family:var(--display);font-size:clamp(1.8rem,3.5vw,2.8rem);margin:10px 0 6px;font-weight:700;}
+.sec-lead{font-size:1rem;color:var(--muted);margin:0 0 36px;padding-left:18px;border-left:5px solid var(--purple);max-width:700px;line-height:1.82;font-weight:400;}
+
+/* CARDS */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.card{background:var(--white);border:var(--border);padding:26px;box-shadow:var(--shadow);border-radius:14px;transition:transform .2s,box-shadow .2s;}
+.card:hover{transform:translate(-3px,-3px);box-shadow:11px 11px 0 var(--ink);}
+.card-sub{font-family:var(--mono);font-size:.58rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.4rem;}
+.card-name{font-family:var(--display);font-size:1.05rem;font-weight:700;margin-bottom:10px;display:block;}
+.card p{font-size:.86rem;color:var(--muted);line-height:1.78;margin-bottom:.7rem;}
+.card p:last-child{margin-bottom:0;}
+.box-y{background:var(--yellow);padding:11px 14px;border-radius:8px;border:1.5px solid var(--ink);margin:.55rem 0;font-size:.83rem;}
+.box-y::before{content:'💡 Analogia — ';font-weight:700;font-size:.7rem;display:block;margin-bottom:.2rem;}
+.box-t{background:#d0f5f3;padding:11px 14px;border-radius:8px;border:1.5px solid var(--ink);font-size:.83rem;}
+.box-t::before{content:'✦ Aplica-se em — ';font-weight:700;color:#178f88;font-size:.7rem;display:block;margin-bottom:.2rem;}
+.box-p{background:rgba(108,92,231,.1);padding:11px 14px;border-radius:8px;border:1.5px solid var(--ink);font-size:.83rem;}
+.box-p::before{content:'🔬 Técnico — ';font-weight:700;color:var(--purple);font-size:.7rem;display:block;margin-bottom:.2rem;}
+
+/* CALLOUT */
+.call{display:flex;gap:1rem;padding:16px 20px;margin:18px 0;border:2px solid var(--ink);border-radius:10px;}
+.call.v{background:rgba(108,92,231,.1);}
+.call.y{background:rgba(255,217,61,.2);}
+.call.t{background:rgba(78,205,196,.15);}
+.call.c{background:rgba(255,107,107,.1);}
+.call.g{background:rgba(46,204,113,.1);}
+.call.o{background:rgba(255,140,66,.1);}
+.call-ico{font-size:1rem;flex-shrink:0;padding-top:.05rem;}
+.call-title{font-family:var(--mono);font-size:.61rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;display:block;margin-bottom:.3rem;}
+.call.v .call-title{color:var(--purple);}
+.call.y .call-title{color:#b8860b;}
+.call.t .call-title{color:#1a8a82;}
+.call.c .call-title{color:var(--coral);}
+.call.g .call-title{color:#1a7a40;}
+.call.o .call-title{color:var(--orange);}
+.call p{font-size:.86rem;color:var(--muted);line-height:1.72;margin:0;}
+.call p strong{color:var(--ink);}
+
+/* GLOSSARY */
+.glossary{background:var(--white);border:var(--border);box-shadow:var(--shadow);border-radius:14px;overflow:hidden;}
+.gr{display:grid;grid-template-columns:190px 1fr;border-bottom:2px solid var(--ink);}
+.gr:last-child{border-bottom:none;}
+.gr:hover{background:#FFF5E6;}
+.gt{padding:16px 18px;background:#f0f0f7;border-right:2px solid var(--ink);font-family:var(--display);font-weight:700;font-size:.87rem;}
+.gt small{display:block;font-family:var(--mono);font-size:.58rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:.2rem;font-weight:400;}
+.gd{padding:16px 20px;font-size:.85rem;color:var(--muted);line-height:1.75;}
+.gd strong{color:var(--ink);}
+
+/* TAGS */
+.tags{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem;}
+.tag{font-family:var(--mono);font-size:.58rem;letter-spacing:.07em;text-transform:uppercase;padding:.16rem .48rem;border-radius:4px;border:1.5px solid var(--ink);font-weight:600;}
+.tag.c{background:var(--coral);color:white;}
+.tag.t{background:var(--teal);}
+.tag.y{background:var(--yellow);}
+.tag.p{background:var(--purple);color:white;}
+.tag.g{background:var(--green);color:white;}
+.tag.o{background:var(--orange);color:white;}
+.tag.b{background:var(--blue);color:white;}
+.tag.pk{background:var(--pink);color:white;}
+
+/* AI TYPE CARDS */
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.type-card{border:var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);transition:transform .2s;}
+.type-card:hover{transform:translate(-3px,-3px);}
+.type-header{padding:20px 22px;border-bottom:var(--border);}
+.type-num{font-family:var(--mono);font-size:.6rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.3rem;}
+.type-name{font-family:var(--display);font-size:1.1rem;font-weight:700;}
+.type-body{padding:20px 22px;background:var(--white);font-size:.85rem;color:var(--muted);line-height:1.78;}
+.type-body strong{color:var(--ink);}
+.type-ex{margin-top:10px;padding:9px 12px;border-radius:6px;font-size:.8rem;border:1.5px solid var(--ink);}
+
+/* TRANSFORMER DIAGRAM */
+.t-flow{display:flex;align-items:stretch;gap:0;border:var(--border);border-radius:12px;overflow:hidden;background:var(--white);box-shadow:var(--shadow);margin:24px 0;}
+.t-step{flex:1;padding:18px 14px;border-right:2px solid var(--ink);text-align:center;}
+.t-step:last-child{border-right:none;}
+.t-step-n{font-family:var(--mono);font-size:.58rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.4rem;}
+.t-step-icon{font-size:1.5rem;display:block;margin-bottom:.4rem;}
+.t-step-name{font-family:var(--display);font-size:.82rem;font-weight:700;display:block;margin-bottom:.3rem;}
+.t-step-desc{font-size:.75rem;color:var(--muted);line-height:1.6;}
+
+/* EMERGENCE VISUAL */
+.emerge-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:20px 0;}
+.emerge-card{border:var(--border);border-radius:10px;padding:14px;text-align:center;background:var(--white);transition:transform .2s;}
+.emerge-card:hover{transform:translateY(-3px);}
+.em-size{font-family:var(--mono);font-size:.65rem;color:var(--muted);display:block;margin-bottom:.3rem;}
+.em-label{font-family:var(--display);font-size:.82rem;font-weight:700;margin-bottom:.4rem;display:block;}
+.em-bar{height:6px;border-radius:3px;border:1.5px solid var(--ink);margin-bottom:.4rem;}
+.em-skills{font-size:.7rem;color:var(--muted);line-height:1.5;}
+
+/* IMAGE AI SECTION */
+.img-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;}
+.img-card{background:var(--white);border:var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);transition:transform .2s;}
+.img-card:hover{transform:translate(-3px,-3px);}
+.img-thumb{width:100%;height:160px;object-fit:cover;border-bottom:var(--border);display:block;}
+.img-thumb-ph{width:100%;height:160px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;border-bottom:var(--border);}
+.img-body{padding:18px 20px;}
+.img-name{font-family:var(--display);font-size:.98rem;font-weight:700;display:block;margin-bottom:.3rem;}
+.img-badge{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;background:var(--bg);border:1.5px solid var(--ink);padding:.18rem .5rem;border-radius:4px;float:right;}
+.img-desc{font-size:.83rem;color:var(--muted);line-height:1.75;margin:.6rem 0;}
+.img-best{font-size:.8rem;font-weight:700;color:#178f88;background:#d0f5f3;border:1.5px solid var(--ink);padding:.38rem .72rem;border-radius:6px;display:block;}
+.img-best::before{content:'✦ Melhor para: ';}
+
+/* VIDEO AI */
+.video-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.vid-card{background:var(--white);border:var(--border);padding:20px 22px;border-radius:12px;box-shadow:var(--shadow-s);transition:transform .2s;}
+.vid-card:hover{transform:translate(-2px,-2px);}
+.vid-brand{font-family:var(--mono);font-size:.58rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.3rem;}
+.vid-name{font-family:var(--display);font-size:.92rem;font-weight:700;display:block;margin-bottom:.4rem;}
+.vid-desc{font-size:.81rem;color:var(--muted);line-height:1.7;margin-bottom:.5rem;}
+
+/* OTHER CONTENT AI */
+.other-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.ot-card{background:var(--white);border:var(--border);padding:18px 20px;border-radius:12px;box-shadow:var(--shadow-s);transition:transform .2s;}
+.ot-card:hover{transform:translate(-2px,-2px);}
+.ot-icon{font-size:1.6rem;display:block;margin-bottom:.5rem;}
+.ot-name{font-family:var(--display);font-size:.88rem;font-weight:700;display:block;margin-bottom:.35rem;}
+.ot-desc{font-size:.78rem;color:var(--muted);line-height:1.68;}
+.ot-tools{margin-top:.5rem;font-family:var(--mono);font-size:.6rem;color:var(--purple);letter-spacing:.07em;}
+
+/* MODEL COMPARISON TABLE */
+.cmp-table{border:var(--border);box-shadow:var(--shadow);border-radius:14px;overflow:hidden;background:var(--white);}
+table.cmp{width:100%;border-collapse:collapse;font-size:.83rem;}
+table.cmp thead th{background:var(--ink);color:white;padding:13px 15px;text-align:left;font-family:var(--display);font-weight:700;font-size:.79rem;white-space:nowrap;}
+table.cmp thead th:not(:first-child){text-align:center;}
+table.cmp tbody td{padding:12px 15px;border-bottom:1.5px solid #e8e4de;color:var(--muted);vertical-align:middle;}
+table.cmp tbody td:not(:first-child){text-align:center;}
+table.cmp tbody tr:last-child td{border-bottom:none;}
+table.cmp tbody tr:hover td{background:#FFF5E6;}
+.yes{color:#16a34a;font-weight:800;}
+.no{color:#dc2626;opacity:.6;}
+.partial{color:#b8860b;font-weight:700;}
+
+/* NEXT */
+.next-box{background:var(--teal);color:var(--ink);border:var(--border);padding:50px;border-radius:24px;box-shadow:var(--shadow);text-align:center;}
+.next-box h2{font-family:var(--display);font-size:clamp(1.8rem,4vw,3rem);margin:12px 0 16px;}
+.next-box p{max-width:500px;margin:0 auto 28px;font-size:.97rem;opacity:.8;}
+.next-btn{display:inline-block;background:var(--ink);color:white;padding:14px 36px;border:var(--border);font-family:var(--display);font-weight:700;text-decoration:none;box-shadow:var(--shadow-s);transition:transform .15s;font-size:.95rem;}
+.next-btn:hover{transform:translate(-2px,-2px);}
+
+/* DIVIDER */
+.divider{border:none;border-top:var(--border);max-width:1000px;margin:0 auto 80px;padding:0 20px;}
+
+/* SCENARIOS */
+.scenario{background:var(--white);border:var(--border);padding:24px;border-radius:14px;display:flex;gap:16px;box-shadow:var(--shadow);margin-bottom:16px;transition:transform .2s;}
+.scenario:hover{transform:translate(-2px,-2px);}
+.sc-icon{font-size:1.8rem;background:var(--bg);padding:12px;border-radius:10px;border:2px solid var(--ink);flex-shrink:0;box-shadow:var(--shadow-s);}
+.sc-role{font-family:var(--mono);font-weight:700;color:var(--teal);font-size:.67rem;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.3rem;}
+.sc-title{font-family:var(--display);font-weight:700;font-size:.9rem;margin-bottom:.35rem;display:block;}
+.sc-desc{font-size:.82rem;color:var(--muted);line-height:1.72;margin-bottom:.45rem;}
+.sc-chips{display:flex;flex-wrap:wrap;gap:.3rem;}
+.sc-chip{background:var(--bg);border:1.5px solid var(--ink);border-radius:6px;padding:.16rem .6rem;font-size:.71rem;font-weight:600;}
+
+/* RESPONSIVE */
+@media(max-width:820px){
+  .hero{grid-template-columns:1fr;}.hero-card{transform:none;}.toc-card{display:none;}
+  .type-grid,.grid-2,.grid-3,.grid-4,.img-grid,.video-grid,.other-grid,.emerge-row{grid-template-columns:1fr;}
+  .sec{padding:0 15px;margin:50px auto;}
+  .t-flow{flex-direction:column;}
+  .t-step{border-right:none;border-bottom:2px solid var(--ink);}
+  .t-step:last-child{border-bottom:none;}
+  .topnav{display:none;}
+  .gr{grid-template-columns:1fr;}
+  .gt{border-right:none;border-bottom:2px solid var(--ink);}
+}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<header>
+  <div class="brand"><div class="brand-dot">IA</div>IA CONSULTORIA ⚡ Módulo 02</div>
+  <ul class="topnav">
+    <li><a href="#tipos">Tipos de IA</a></li>
+    <li><a href="#transformer">Transformer</a></li>
+    <li><a href="#geracao">Geração token</a></li>
+    <li><a href="#escala">Escala</a></li>
+    <li><a href="#multimodal">Multimodal</a></li>
+    <li><a href="#imagem">Imagem</a></li>
+    <li><a href="#video">Vídeo</a></li>
+    <li><a href="#outros">Outros conteúdos</a></li>
+    <li><a href="#glossario">Glossário</a></li>
+  </ul>
+</header>
+
+<!-- ════ HERO ════ -->
+<div class="hero">
+  <div class="hero-card">
+    <div class="eyebrow">Módulo 02 de 08 · Atualizado Abril 2026</div>
+    <h1>LLMs, Transformers<br><span>& IA Generativa</span></h1>
+    <p class="hero-desc">Como os modelos de linguagem funcionam por dentro — sem matemática pesada. Mais: os tipos de IA que o Módulo 1 não cobriu, e o mapa completo de ferramentas de geração de imagem, vídeo, slides e outros conteúdos.</p>
+    <div class="chips">
+      <span class="chip">IA Generativa</span>
+      <span class="chip p">IA Preditiva</span>
+      <span class="chip y">Transformer</span>
+      <span class="chip c">Geração de imagem</span>
+      <span class="chip g">Vídeo com IA</span>
+      <span class="chip y">Emergência</span>
+    </div>
+  </div>
+  <div class="toc-card">
+    <span class="toc-label">Conteúdo deste módulo</span>
+    <div class="toc-item" onclick="go('tipos')"><span class="toc-num">1</span><span class="toc-text">Os tipos de IA — generativa, preditiva, discriminativa</span></div>
+    <div class="toc-item" onclick="go('transformer')"><span class="toc-num">2</span><span class="toc-text">Como o Transformer funciona</span></div>
+    <div class="toc-item" onclick="go('geracao')"><span class="toc-num">3</span><span class="toc-text">Como um LLM gera texto — token a token</span></div>
+    <div class="toc-item" onclick="go('escala')"><span class="toc-num">4</span><span class="toc-text">Escala, emergência e por que LLMs alucinam</span></div>
+    <div class="toc-item" onclick="go('multimodal')"><span class="toc-num">5</span><span class="toc-text">IA multimodal — além do texto</span></div>
+    <div class="toc-item" onclick="go('imagem')"><span class="toc-num">6</span><span class="toc-text">IA de geração de imagens</span></div>
+    <div class="toc-item" onclick="go('video')"><span class="toc-num">7</span><span class="toc-text">IA de geração de vídeos</span></div>
+    <div class="toc-item" onclick="go('outros')"><span class="toc-num">8</span><span class="toc-text">Outros conteúdos — slides, flows, música, voz</span></div>
+    <div class="toc-item" onclick="go('glossario')"><span class="toc-num">9</span><span class="toc-text">Glossário do Módulo 2</span></div>
+  </div>
+</div>
+
+<!-- ════ 1. TIPOS DE IA ════ -->
+<section class="sec" id="tipos">
+  <span class="sec-label">Seção 1 — Correção do Módulo 1</span>
+  <h2 class="sec-title">Os Tipos de IA — O que o Módulo 1 Não Cobriu</h2>
+  <p class="sec-lead">No Módulo 1 falamos de Machine Learning, Deep Learning e LLMs — mas existe uma distinção mais fundamental que todo profissional precisa entender: a diferença entre IA Generativa, Preditiva, Discriminativa e Analítica. Cada uma tem uma finalidade completamente diferente.</p>
+
+  <div class="type-grid">
+    <div class="type-card">
+      <div class="type-header" style="background:rgba(78,205,196,.15);">
+        <span class="type-num">Tipo 01</span>
+        <span class="type-name">IA Generativa</span>
+      </div>
+      <div class="type-body">
+        <p><strong>O que faz:</strong> cria conteúdo novo — texto, imagens, vídeo, código, música — que não existia antes, aprendendo padrões de dados existentes.</p>
+        <p>É o tipo mais recente e mais disruptivo. ChatGPT, Claude, Midjourney, Sora, ElevenLabs e Gamma são todos IA generativa. Usa arquiteturas como Transformers, Modelos de Difusão e GANs.</p>
+        <div class="type-ex" style="background:rgba(78,205,196,.12);">✦ Redigir relatórios, gerar imagens de marketing, criar vídeos de treinamento, escrever código</div>
+      </div>
+    </div>
+    <div class="type-card">
+      <div class="type-header" style="background:rgba(108,92,231,.12);">
+        <span class="type-num">Tipo 02</span>
+        <span class="type-name">IA Preditiva</span>
+      </div>
+      <div class="type-body">
+        <p><strong>O que faz:</strong> analisa dados históricos e <em>prevê o que vai acontecer</em> — um resultado futuro, um comportamento provável, uma tendência.</p>
+        <p>É o tipo mais antigo e mais usado silenciosamente no mundo corporativo. Não cria nada — analisa e projeta. Regressão, séries temporais, random forests e redes neurais de classificação são suas ferramentas.</p>
+        <div class="type-ex" style="background:rgba(108,92,231,.08);">✦ Previsão de demanda, score de crédito, detecção de fraude, manutenção preditiva, churn de clientes</div>
+      </div>
+    </div>
+    <div class="type-card">
+      <div class="type-header" style="background:rgba(255,107,107,.12);">
+        <span class="type-num">Tipo 03</span>
+        <span class="type-name">IA Discriminativa</span>
+      </div>
+      <div class="type-body">
+        <p><strong>O que faz:</strong> aprende a <em>separar e classificar</em> — distingue spam de e-mail legítimo, tumor maligno de benigno, voz autorizada de intruso. Foca nas fronteiras entre categorias.</p>
+        <p>Enquanto a IA generativa pergunta "como esses dados foram criados?", a discriminativa pergunta "a qual categoria este dado pertence?". É mais precisa em tarefas de classificação industrial.</p>
+        <div class="type-ex" style="background:rgba(255,107,107,.08);">✦ Filtro de spam, diagnóstico médico, controle de qualidade visual, reconhecimento facial</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="call y" style="margin:24px 0;max-width:100%;">
+    <span class="call-ico">🏭</span>
+    <div><span class="call-title">Mais dois tipos importantes</span><p><strong>IA Descritiva:</strong> descreve o que aconteceu no passado — analytics, dashboards, relatórios automáticos. <strong>IA Analítica (ou Prescritiva):</strong> não só prevê, mas recomenda o que fazer — "com base na previsão de demanda, você deve comprar X unidades até quarta-feira". A maioria dos sistemas corporativos combina dois ou mais tipos.</p></div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.2rem;font-weight:700;margin:32px 0 14px;">Como esses tipos se relacionam</h3>
+  <div class="grid-2">
+    <div class="card">
+      <span class="card-name">Generativa + Preditiva juntas</span>
+      <p>A combinação mais poderosa. A IA preditiva prevê que um cliente tem 78% de chance de churn. A IA generativa escreve automaticamente um e-mail personalizado de retenção para aquele cliente específico, com o tom certo e a oferta mais relevante. Separadas, são úteis. Juntas, automatizam um fluxo inteiro de CRM.</p>
+    </div>
+    <div class="card">
+      <span class="card-name">Discriminativa + Generativa juntas</span>
+      <p>As GANs (Redes Adversariais Generativas) funcionam exatamente assim: uma rede <em>geradora</em> cria imagens novas, e uma rede <em>discriminadora</em> avalia se parecem reais. As duas competem — forçando o gerador a produzir resultados cada vez mais realistas. Essa arquitetura foi a base da geração de imagens antes dos modelos de difusão.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 2. TRANSFORMER ════ -->
+<section class="sec" id="transformer">
+  <span class="sec-label">Seção 2 — O Motor por Trás de Tudo</span>
+  <h2 class="sec-title">Como o Transformer Funciona</h2>
+  <p class="sec-lead">A arquitetura que mudou a IA. Publicada em 2017 pelo Google em "Attention Is All You Need", o Transformer resolveu em um papel o problema que havia bloqueado o progresso do NLP por décadas — e hoje é o motor de praticamente todos os modelos de linguagem modernos.</p>
+
+  <div class="call y" style="max-width:100%;">
+    <span class="call-ico">❓</span>
+    <div><span class="call-title">O problema que o Transformer resolveu</span><p>As redes neurais anteriores (chamadas RNNs — Redes Neurais Recorrentes) processavam texto <strong>palavra por palavra, em sequência</strong>. Isso criava dois problemas graves: (1) era impossível paralelizar o treinamento em GPUs — era lento demais para grandes volumes de dados; (2) quando o texto era longo, a rede "esquecia" as palavras do início até chegar ao fim.</p></div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:28px 0 10px;">O mecanismo de Attention — a inovação central</h3>
+  <p style="font-size:.9rem;color:var(--muted);max-width:700px;margin-bottom:20px;line-height:1.82;">O Transformer processa <strong>todas as palavras ao mesmo tempo</strong> — e usa o mecanismo de Attention para calcular qual palavra é mais relevante para entender cada outra palavra no texto.</p>
+
+  <div class="card" style="max-width:700px;margin-bottom:24px;">
+    <span class="card-name">Attention na prática</span>
+    <p>Considere a frase: <em>"O banco ficou na margem do rio, mas eu não consegui sentar porque estava coberto de lama."</em></p>
+    <p>Ao processar a palavra "lama", o mecanismo de Attention identifica que "banco" aqui se refere ao banco de praça (objeto físico), não à instituição financeira — porque as palavras "rio", "sentar" e "margem" recebem pesos altos de atenção nesse contexto. É esse cálculo de relevância dinâmica que permite aos LLMs entender ambiguidades e contextos longos.</p>
+    <div class="box-p">Tecnicamente: cada token gera três vetores — Query (o que estou buscando?), Key (o que eu ofereço?) e Value (qual informação devo passar?). O produto escalar entre Query e Key gera uma pontuação de relevância. Pontuações altas = mais atenção. Esse processo acontece em paralelo para todos os tokens ao mesmo tempo.</div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:28px 0 12px;">O fluxo do Transformer — da entrada à saída</h3>
+
+  <div class="t-flow">
+    <div class="t-step">
+      <span class="t-step-n">Passo 1</span>
+      <span class="t-step-icon">🔤</span>
+      <span class="t-step-name">Tokenização</span>
+      <span class="t-step-desc">O texto é dividido em tokens. "Inteligência" pode virar 2–3 tokens dependendo do modelo.</span>
+    </div>
+    <div class="t-step">
+      <span class="t-step-n">Passo 2</span>
+      <span class="t-step-icon">🧭</span>
+      <span class="t-step-name">Embeddings</span>
+      <span class="t-step-desc">Cada token é convertido em um vetor numérico de alta dimensão (geralmente 768–4.096 números).</span>
+    </div>
+    <div class="t-step">
+      <span class="t-step-n">Passo 3</span>
+      <span class="t-step-icon">👁️</span>
+      <span class="t-step-name">Multi-head Attention</span>
+      <span class="t-step-desc">Múltiplas "cabeças" analisam relações diferentes: sintaxe, semântica, referências de longo alcance. Em paralelo.</span>
+    </div>
+    <div class="t-step">
+      <span class="t-step-n">Passo 4</span>
+      <span class="t-step-icon">🏗️</span>
+      <span class="t-step-name">Feed-forward + camadas</span>
+      <span class="t-step-desc">Cada representação é refinada por camadas densas. GPT-4 tem ~96 dessas camadas empilhadas.</span>
+    </div>
+    <div class="t-step">
+      <span class="t-step-n">Passo 5</span>
+      <span class="t-step-icon">📊</span>
+      <span class="t-step-name">Softmax → próximo token</span>
+      <span class="t-step-desc">A saída final é uma distribuição de probabilidade sobre todos os tokens do vocabulário. O mais provável (ou um próximo a ele, conforme a temperatura) é selecionado.</span>
+    </div>
+  </div>
+
+  <div class="call v" style="margin-top:20px;max-width:100%;">
+    <span class="call-ico">🏢</span>
+    <div><span class="call-title">Por que isso importa para quem não é desenvolvedor</span><p>Entender que o Transformer processa tudo em paralelo explica <strong>por que janelas de contexto grandes são possíveis</strong> — e por que o modelo não "lê de cima pra baixo", mas considera todas as partes do documento ao mesmo tempo. Isso também explica por que um prompt bem estruturado (com exemplos antes da pergunta) melhora tanto a qualidade da resposta.</p></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 3. GERAÇÃO TOKEN A TOKEN ════ -->
+<section class="sec" id="geracao">
+  <span class="sec-label">Seção 3</span>
+  <h2 class="sec-title">Como um LLM Gera Texto — Token a Token</h2>
+  <p class="sec-lead">Um LLM não "pensa" a resposta inteira e depois digita. Ele gera um token por vez, e cada token gerado influencia todos os próximos. Entender isso muda como você escreve prompts.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <span class="card-name">O processo de inferência</span>
+      <p>Quando você manda uma mensagem ao Claude ou ao ChatGPT, o modelo executa um ciclo repetidamente:</p>
+      <p><strong>1.</strong> Recebe toda a janela de contexto (seu prompt + histórico + documentos).</p>
+      <p><strong>2.</strong> Calcula uma distribuição de probabilidade sobre o próximo token.</p>
+      <p><strong>3.</strong> Seleciona um token (influenciado pela temperatura).</p>
+      <p><strong>4.</strong> Adiciona esse token ao contexto e repete.</p>
+      <p>Isso acontece dezenas a centenas de vezes para gerar uma resposta completa — cada token gerado se torna parte do contexto para os próximos.</p>
+    </div>
+    <div class="card">
+      <span class="card-name">Por que isso explica comportamentos</span>
+      <p>Se o início de uma resposta vai por um caminho equivocado, os tokens seguintes constroem em cima desse erro — é difícil "corrigir no meio". Por isso modelos com <strong>Extended Thinking</strong> (Claude, o1 da OpenAI) geram uma cadeia de raciocínio intermediária antes da resposta final — eles se corrigem antes de entregar.</p>
+      <p>Também explica por que prompts com exemplos no início funcionam melhor: eles "direcionam" a distribuição de probabilidade dos primeiros tokens para o padrão correto, e os tokens seguintes constroem em cima disso.</p>
+      <div class="box-y">Não peça ao modelo para "pensar diferente no meio". Estruture o prompt para que os primeiros tokens gerados já sigam o formato certo.</div>
+    </div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:32px 0 12px;">Autoregressive vs Diffusion — dois paradigmas de geração</h3>
+  <div class="grid-2">
+    <div class="card">
+      <span class="card-sub">Paradigma 1</span>
+      <span class="card-name">Autoregressive (LLMs atuais)</span>
+      <p>Gera conteúdo sequencialmente — um token por vez, da esquerda para a direita. É o paradigma do GPT, Claude, Gemini e Llama. Funciona muito bem para texto e código, onde a ordem importa. Limitação: mais lento para conteúdo longo, pois cada passo depende do anterior.</p>
+      <div class="box-t">Usado em: todos os grandes LLMs de texto, ChatGPT, Claude, Gemini, Llama</div>
+    </div>
+    <div class="card">
+      <span class="card-sub">Paradigma 2</span>
+      <span class="card-name">Modelos de Difusão</span>
+      <p>Partem de "ruído puro" (pixels ou dados aleatórios) e aprendem a removê-lo gradualmente, revelando uma imagem ou outro conteúdo. Em vez de construir da esquerda para a direita, refinam tudo ao mesmo tempo em etapas de denoising. Mais eficientes para imagens e vídeos porque permitem paralelização.</p>
+      <div class="box-t">Usado em: Midjourney, DALL-E, Stable Diffusion, Flux — todos os geradores de imagem modernos</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 4. ESCALA E EMERGÊNCIA ════ -->
+<section class="sec" id="escala">
+  <span class="sec-label">Seção 4</span>
+  <h2 class="sec-title">Escala, Emergência e Por Que LLMs Alucinam</h2>
+  <p class="sec-lead">Uma das descobertas mais surpreendentes da IA moderna: modelos maiores desenvolvem capacidades que modelos menores não têm — e essas capacidades surgem sem treinamento específico para elas.</p>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:0 0 14px;">Emergência — quando quantidade vira qualidade</h3>
+
+  <div class="emerge-row">
+    <div class="emerge-card">
+      <span class="em-size">~1B parâmetros</span>
+      <div class="em-bar" style="background:var(--teal);width:20%;"></div>
+      <span class="em-label">GPT-1 (2018)</span>
+      <span class="em-skills">Completar frases simples. Nada mais confiável.</span>
+    </div>
+    <div class="emerge-card">
+      <span class="em-size">~117B parâmetros</span>
+      <div class="em-bar" style="background:var(--teal);width:40%;"></div>
+      <span class="em-label">GPT-2 (2019)</span>
+      <span class="em-skills">Escrever parágrafos coerentes. Considerado "perigoso demais" para publicar.</span>
+    </div>
+    <div class="emerge-card">
+      <span class="em-size">~175B parâmetros</span>
+      <div class="em-bar" style="background:var(--yellow);width:65%;"></div>
+      <span class="em-label">GPT-3 (2020)</span>
+      <span class="em-skills">Escrita, código, tradução sem treinamento específico. Emergência real.</span>
+    </div>
+    <div class="emerge-card">
+      <span class="em-size">>500B parâmetros</span>
+      <div class="em-bar" style="background:var(--coral);width:82%;"></div>
+      <span class="em-label">GPT-4 / Claude 3 (2023)</span>
+      <span class="em-skills">Raciocínio multi-etapa, exames profissionais, código complexo, análise de imagem.</span>
+    </div>
+    <div class="emerge-card">
+      <span class="em-size">Não divulgado</span>
+      <div class="em-bar" style="background:var(--purple);width:100%;"></div>
+      <span class="em-label">GPT-5 / Opus 4.6 (2025–26)</span>
+      <span class="em-skills">Agentes autônomos, raciocínio complexo, coding profissional, execução multi-hora.</span>
+    </div>
+  </div>
+
+  <div class="call t" style="margin-top:20px;max-width:100%;">
+    <span class="call-ico">⚡</span>
+    <div><span class="call-title">O que é emergência?</span><p>Capacidades que surgem espontaneamente em modelos grandes, sem terem sido treinadas especificamente para isso. GPT-3 aprendeu a fazer aritmética básica sem ter sido treinado nessa tarefa — apenas porque havia muitos exemplos de matemática nos dados de texto. Não sabemos exatamente por que isso acontece, nem em qual ponto emerge — o que torna o campo ao mesmo tempo fascinante e imprevisível.</p></div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:32px 0 12px;">Por que LLMs alucinam — a explicação técnica</h3>
+  <div class="grid-2">
+    <div class="card">
+      <span class="card-name">A causa estrutural</span>
+      <p>LLMs são treinados para prever o próximo token mais <strong>plausível</strong>, não necessariamente o mais <strong>verdadeiro</strong>. Quando não têm informação suficiente, continuam gerando tokens plausíveis — baseados em padrões estatísticos do treinamento, não em fatos verificados.</p>
+      <p>É como pedir a um especialista que não conhece o assunto para falar com autoridade: ele vai inventar algo que <em>soa</em> correto, porque aprendeu como especialistas falam — mas o conteúdo pode ser fabricado.</p>
+    </div>
+    <div class="card">
+      <span class="card-name">Quando alucinações são mais prováveis</span>
+      <p>Assuntos pouco representados nos dados de treinamento (notícias recentes, nichos técnicos, dados privados da sua empresa). Perguntas sobre pessoas pouco conhecidas, artigos científicos específicos, ou números precisos. Raciocínio encadeado longo, onde um erro inicial contamina todos os passos seguintes.</p>
+      <div class="box-y">Para reduzir: use RAG com fontes verificáveis, peça citações, use temperatura baixa, e sempre valide outputs de IA em contextos críticos.</div>
+    </div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:32px 0 12px;">Haiku vs Sonnet vs Opus — quando usar cada modelo</h3>
+  <div class="cmp-table">
+    <table class="cmp">
+      <thead><tr><th>Característica</th><th>Haiku / Flash / Mini</th><th>Sonnet / Pro / Flash</th><th>Opus / GPT-5 Pro / Gemini Ultra</th></tr></thead>
+      <tbody>
+        <tr><td>Velocidade</td><td class="yes">⚡ Muito rápido</td><td class="partial">⚡⚡ Rápido</td><td class="no">⏱ Mais lento</td></tr>
+        <tr><td>Custo por token</td><td class="yes">$$$ Muito baixo</td><td class="partial">$$ Moderado</td><td class="no">$$$$ Alto</td></tr>
+        <tr><td>Raciocínio complexo</td><td class="no">Limitado</td><td class="partial">Bom</td><td class="yes">Excelente</td></tr>
+        <tr><td>Coding avançado</td><td class="no">Básico</td><td class="yes">Muito bom</td><td class="yes">Líder</td></tr>
+        <tr><td>Documentos longos</td><td class="partial">Até 100K tokens</td><td class="yes">200K–1M tokens</td><td class="yes">1M tokens</td></tr>
+        <tr><td>Tarefas de alta escala</td><td class="yes">Ideal — triagem, classificação, extração</td><td class="partial">Uso diário</td><td class="no">Reservar para problemas difíceis</td></tr>
+        <tr><td>Uso recomendado</td><td>Automações, APIs, alto volume</td><td>Trabalho diário geral</td><td>Análises críticas, code review, agentes</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 5. MULTIMODAL ════ -->
+<section class="sec" id="multimodal">
+  <span class="sec-label">Seção 5</span>
+  <h2 class="sec-title">IA Multimodal — Além do Texto</h2>
+  <p class="sec-lead">Os LLMs modernos não se limitam ao texto. Modelos multimodais processam e geram múltiplos tipos de mídia na mesma interface — texto, imagens, áudio, vídeo e código — combinados em fluxos de trabalho únicos.</p>
+
+  <div class="grid-3" style="margin-bottom:20px;">
+    <div class="card">
+      <span class="card-sub">Entrada multimodal</span>
+      <span class="card-name">Ver e entender</span>
+      <p>Você envia uma foto de uma nota fiscal — o modelo lê os valores. Você envia um diagrama técnico — o modelo explica o que está errado. GPT-4 Vision, Claude e Gemini 3.1 Pro aceitam imagens como entrada e respondem sobre elas em texto.</p>
+    </div>
+    <div class="card">
+      <span class="card-sub">Saída multimodal</span>
+      <span class="card-name">Criar além do texto</span>
+      <p>Modelos como GPT-5, Gemini Ultra e Claude (desde março 2026) podem gerar imagens diretamente na conversa. Você descreve em texto — o modelo entrega a imagem no mesmo chat, sem mudar de ferramenta. Uma evolução significativa em relação a ter de usar ferramentas separadas.</p>
+    </div>
+    <div class="card">
+      <span class="card-sub">Audio & Voz</span>
+      <span class="card-name">Ouvir e falar</span>
+      <p>GPT-5 com Advanced Voice e Gemini com Audio permitem conversas por voz em tempo real — com emoção, pausas naturais e interrupções. Não é apenas text-to-speech: o modelo entende contexto de voz, tom e nuances. ElevenLabs vai além com clonagem de voz customizada.</p>
+    </div>
+  </div>
+
+  <div class="call g" style="max-width:100%;">
+    <span class="call-ico">📱</span>
+    <div><span class="call-title">Por que multimodal importa para negócios</span><p>Um processo que antes exigia: (1) digitalizar documento → (2) extrair texto com OCR → (3) enviar para análise → (4) gerar relatório em outra ferramenta — pode agora acontecer em uma única conversa com um modelo multimodal. Foto do documento → análise → relatório → imagem do gráfico, tudo no mesmo chat.</p></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 6. GERAÇÃO DE IMAGENS ════ -->
+<section class="sec" id="imagem">
+  <span class="sec-label">Seção 6</span>
+  <h2 class="sec-title">IA de Geração de Imagens</h2>
+  <p class="sec-lead">Em 2026, ferramentas de geração de imagem com IA são usadas por mais de 50 milhões de criadores globalmente — de designers de marketing a arquitetos e times de produto. Cada ferramenta tem um nicho claro.</p>
+
+  <div class="call y" style="max-width:100%;margin-bottom:24px;">
+    <span class="call-ico">🎨</span>
+    <div><span class="call-title">Como funciona a geração de imagens com IA</span><p>Os geradores modernos usam <strong>Modelos de Difusão</strong>: começam com ruído aleatório (como uma televisão fora do ar) e aprendem a "desfazer" esse ruído gradualmente, guiados pela descrição em texto (o prompt). Após dezenas de passos de refinamento, emerge uma imagem. É o inverso de adicionar ruído — o modelo subtrai ruído de forma direcionada pelo texto.</p></div>
+  </div>
+
+  <div class="img-grid">
+    <div class="img-card">
+      <img class="img-thumb" src="https://images.ctfassets.net/lzny33ho1g45/6BNq1dYJeqr7A3C2qSUcVO/2e7e06abba1e9f5b6fc90a6f9dbac53c/Midjourney_hero.jpg" alt="Midjourney" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="img-thumb-ph" style="display:none;background:#f0e8ff;">🎨</div>
+      <div class="img-body">
+        <span class="img-badge">midjourney.com</span>
+        <span class="img-name">Midjourney v7</span>
+        <p class="img-desc">O rei da qualidade artística. Imagens com profundidade, atmosfera e coerência visual que outros ainda não replicam. Opera via Discord ou web. Sem plano gratuito. Curva de aprendizado de prompts existe, mas o resultado vale.<br><strong>Novidade em 2026:</strong> Niji 7 para anime/ilustração e geração de vídeo curto integrada.</p>
+        <span class="img-best">arte conceitual, design de marca, marketing visual, ilustrações editoriais.</span>
+        <div class="tags" style="margin-top:.6rem;"><span class="tag p">Arte</span><span class="tag y">$10–60/mês</span></div>
+      </div>
+    </div>
+
+    <div class="img-card">
+      <div class="img-thumb-ph" style="background:#fff3e0;">⚡</div>
+      <div class="img-body">
+        <span class="img-badge">flux.ai</span>
+        <span class="img-name">Flux 2 (Black Forest Labs)</span>
+        <p class="img-desc">O desafiante open-source que surpreendeu em 2025. Flux.1.1 Pro lidera em fotorrealismo e velocidade (4,5 segundos por imagem). Licença Apache 2.0 — uso comercial livre. Disponível via API e em dezenas de plataformas. Criado pelos fundadores do Stable Diffusion.<br><strong>Variantes:</strong> Flux Max (qualidade máxima), Dev (open-weight), Klein (sub-segundo).</p>
+        <span class="img-best">fotorrealismo, product shots, uso comercial, integração via API.</span>
+        <div class="tags" style="margin-top:.6rem;"><span class="tag g">Open-source</span><span class="tag t">API</span></div>
+      </div>
+    </div>
+
+    <div class="img-card">
+      <div class="img-thumb-ph" style="background:#e8f5f3;">📝</div>
+      <div class="img-body">
+        <span class="img-badge">ideogram.ai</span>
+        <span class="img-name">Ideogram 2.0</span>
+        <p class="img-desc">O especialista em texto dentro de imagens. Enquanto Midjourney ainda erra letras, Ideogram acerta 90%+ das vezes. Para logos, posters, mockups de interface e qualquer imagem que precise ter palavras legíveis, é o líder absoluto.<br><strong>Também tem:</strong> Canvas para edições mais complexas, Character Creator para consistência de personagem e modo batch para lotes via planilha.</p>
+        <span class="img-best">logos, posters, social media com texto, mockups de app, materiais de marketing.</span>
+        <div class="tags" style="margin-top:.6rem;"><span class="tag c">Texto</span><span class="tag y">Gratuito</span></div>
+      </div>
+    </div>
+
+    <div class="img-card">
+      <div class="img-thumb-ph" style="background:#edf2fb;">🛡️</div>
+      <div class="img-body">
+        <span class="img-badge">adobe.com/firefly</span>
+        <span class="img-name">Adobe Firefly 3</span>
+        <p class="img-desc">O único grande gerador treinado <strong>exclusivamente em conteúdo licenciado</strong>. Isso significa indemnização comercial total — sua empresa não corre risco de processo por direitos autorais. Integrado ao Photoshop (Generative Fill), Illustrator e toda a Creative Cloud. Para designers já no ecossistema Adobe, é a escolha óbvia.</p>
+        <span class="img-best">uso corporativo com conformidade legal, design editorial, equipes no ecossistema Adobe.</span>
+        <div class="tags" style="margin-top:.6rem;"><span class="tag b">Legal</span><span class="tag y">$10/mês</span></div>
+      </div>
+    </div>
+
+    <div class="img-card">
+      <div class="img-thumb-ph" style="background:#e8fff2;">🔵</div>
+      <div class="img-body">
+        <span class="img-badge">dall-e / openai</span>
+        <span class="img-name">DALL-E 4 / GPT Image 1.5</span>
+        <p class="img-desc">Mais acessível para iniciantes — integrado ao ChatGPT, você descreve em linguagem natural sem aprender sintaxe de prompt. Lidera em <strong>aderência a instruções complexas</strong>: cenas com múltiplos elementos, composições específicas e precisão semântica. Rende texto corretamente dentro de imagens.<br><strong>2026:</strong> GPT Image 1.5 ocupa o topo do LM Arena para imagens.</p>
+        <span class="img-best">iniciantes, composições complexas, mockups de UI, integração com ChatGPT.</span>
+        <div class="tags" style="margin-top:.6rem;"><span class="tag g">Fácil</span><span class="tag o">ChatGPT</span></div>
+      </div>
+    </div>
+
+    <div class="img-card">
+      <div class="img-thumb-ph" style="background:#f5eeff;">🔓</div>
+      <div class="img-body">
+        <span class="img-badge">stability.ai</span>
+        <span class="img-name">Stable Diffusion 3.5</span>
+        <p class="img-desc">A opção open-source para quem quer controle total. Rode localmente — suas imagens nunca saem da empresa. Customização profunda via LoRA (modelos ajustados ao seu estilo específico) e ControlNet (controle de pose, profundidade, bordas). Requer GPU com 8GB+ de VRAM. Ecossistema enorme de modelos na Civitai.</p>
+        <span class="img-best">privacidade total, fine-tuning de estilo, automação em alto volume, uso em GPU local.</span>
+        <div class="tags" style="margin-top:.6rem;"><span class="tag g">Open-source</span><span class="tag c">Local</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="call o" style="margin-top:20px;max-width:100%;">
+    <span class="call-ico">🔄</span>
+    <div><span class="call-title">Fluxo profissional com múltiplas ferramentas</span><p>Muitos criadores usam duas ou três ferramentas juntas: <strong>Midjourney</strong> para explorar conceitos visuais rapidamente → <strong>Flux ou Stable Diffusion</strong> para produção em volume e refinamento técnico → <strong>Adobe Firefly</strong> para assets finais com segurança legal. Cada ferramenta no estágio certo do processo.</p></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 7. GERAÇÃO DE VÍDEO ════ -->
+<section class="sec" id="video">
+  <span class="sec-label">Seção 7</span>
+  <h2 class="sec-title">IA de Geração de Vídeos</h2>
+  <p class="sec-lead">O campo que mais evoluiu entre 2024 e 2026. Ferramentas que em 2023 geravam clipes de 3 segundos com física impossível agora produzem vídeos de até 2 minutos em 4K, com áudio nativo sincronizado. O custo por segundo de vídeo caiu 65% em dois anos.</p>
+
+  <div class="call c" style="max-width:100%;margin-bottom:24px;">
+    <span class="call-ico">⚠️</span>
+    <div><span class="call-title">Nota importante — Sora foi descontinuado</span><p>A OpenAI encerrou o Sora como produto standalone em abril de 2026, citando custos insustentáveis (cada clip de 25 segundos custava ~US$18 para gerar, enquanto usuários pagavam US$4–8). O acesso limitado via ChatGPT Plus permanece. As ferramentas abaixo são as alternativas recomendadas.</p></div>
+  </div>
+
+  <div class="video-grid">
+    <div class="vid-card">
+      <span class="vid-brand">RunwayML</span>
+      <span class="vid-name">Runway Gen-4.5</span>
+      <p class="vid-desc">Referência em <strong>qualidade cinematográfica e controle criativo</strong>. O mais completo como estúdio: gere, itere, edite e exporte no mesmo lugar. Motion brushes, storyboard, 4K, consistência de cena. Favorito de produtoras e agências. Sem áudio nativo.</p>
+      <div class="tags"><span class="tag p">Cinematográfico</span><span class="tag y">$12/mês</span></div>
+    </div>
+    <div class="vid-card">
+      <span class="vid-brand">Kuaishou</span>
+      <span class="vid-name">Kling AI 3.0</span>
+      <p class="vid-desc">Melhor <strong>custo-benefício do mercado</strong> — 40% mais barato que Runway por segundo de vídeo gerado. Lidera em realismo humano e lip sync. Vídeos de até 2 minutos. Áudio nativo em 5 idiomas. Plano gratuito generoso para testes.</p>
+      <div class="tags"><span class="tag g">Custo-benefício</span><span class="tag t">$10/mês</span></div>
+    </div>
+    <div class="vid-card">
+      <span class="vid-brand">Google DeepMind</span>
+      <span class="vid-name">Veo 3.1</span>
+      <p class="vid-desc">Melhor em <strong>áudio nativo</strong> — gera diálogo, efeitos sonoros e áudio ambiente sincronizados na mesma passagem que o vídeo. Integra com Google Workspace, YouTube Studio e Google Ads. Via Gemini AI Pro ou Flow app.</p>
+      <div class="tags"><span class="tag b">Áudio nativo</span><span class="tag y">Google Pro</span></div>
+    </div>
+    <div class="vid-card">
+      <span class="vid-brand">Luma AI</span>
+      <span class="vid-name">Dream Machine 3</span>
+      <p class="vid-desc">Especialista em <strong>atmosfera, fluidos e ambientes cinematográficos</strong>. Excepcional para footage de natureza, efeitos especiais e visuais abstratos. 4K HDR com simulação de física superior. Sem personagens humanos consistentes.</p>
+      <div class="tags"><span class="tag c">Atmosfera</span><span class="tag y">$7,99/mês</span></div>
+    </div>
+    <div class="vid-card">
+      <span class="vid-brand">Pika Labs</span>
+      <span class="vid-name">Pika 2.5</span>
+      <p class="vid-desc">O mais <strong>rápido para conteúdo social</strong> — gera um clip em ~42 segundos. Pikaswaps, Pikaffects, Pikaframes. Para TikTok, Reels e Instagram onde velocidade > qualidade cinematográfica. Plano a partir de US$8/mês.</p>
+      <div class="tags"><span class="tag g">Rápido</span><span class="tag t">$8/mês</span></div>
+    </div>
+    <div class="vid-card">
+      <span class="vid-brand">Adobe</span>
+      <span class="vid-name">Firefly Video</span>
+      <p class="vid-desc">Integrado ao Adobe Premiere e ao ecossistema Creative Suite. Acessa também Sora 2, Veo 3.1, Runway Gen 4.5 e Luma Ray3 via Artlist. Para equipes corporativas no ecossistema Adobe com necessidade de conformidade legal.</p>
+      <div class="tags"><span class="tag b">Adobe</span><span class="tag p">Enterprise</span></div>
+    </div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:28px 0 12px;">Quando usar cada ferramenta de vídeo</h3>
+  <div class="cmp-table">
+    <table class="cmp">
+      <thead><tr><th>Situação</th><th>Ferramenta recomendada</th><th>Por quê</th></tr></thead>
+      <tbody>
+        <tr><td>Vídeo publicitário de alta qualidade</td><td class="yes">Runway Gen-4.5</td><td>Melhor controle criativo e qualidade consistente</td></tr>
+        <tr><td>Alto volume de clips para redes sociais</td><td class="yes">Kling 3.0</td><td>Custo-benefício + velocidade razoável</td></tr>
+        <tr><td>Precisa de áudio sincronizado sem pós-produção</td><td class="yes">Veo 3.1 / Kling 3.0</td><td>Únicos com áudio nativo de qualidade</td></tr>
+        <tr><td>Reels e TikTok com entrega urgente</td><td class="yes">Pika 2.5</td><td>42 segundos de geração — o mais rápido</td></tr>
+        <tr><td>Equipe no ecossistema Google</td><td class="partial">Veo 3.1 via Gemini</td><td>Integração com Drive, YouTube e Google Ads</td></tr>
+        <tr><td>Vídeos de treinamento com avatar corporativo</td><td class="yes">Synthesia / HeyGen</td><td>Avatares profissionais, 140+ idiomas, lip sync</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 8. OUTROS CONTEÚDOS ════ -->
+<section class="sec" id="outros">
+  <span class="sec-label">Seção 8</span>
+  <h2 class="sec-title">IA para Outros Tipos de Conteúdo</h2>
+  <p class="sec-lead">Além de texto, imagem e vídeo, existe um ecossistema de ferramentas especializadas para cada tipo de conteúdo. Slides, flows, música, voz, design, código — cada nicho tem sua IA.</p>
+
+  <div class="other-grid">
+    <div class="ot-card">
+      <span class="ot-icon">🎯</span>
+      <span class="ot-name">Slides e Apresentações</span>
+      <p class="ot-desc">Você fornece um tópico ou texto bruto — a IA cria slides visualmente polidos em segundos. Exporta para PowerPoint/PDF. Zero habilidades de design necessárias.</p>
+      <span class="ot-tools">Gamma · Beautiful.ai · Canva AI · Tome</span>
+    </div>
+    <div class="ot-card">
+      <span class="ot-icon">🔄</span>
+      <span class="ot-name">Flows e Automações</span>
+      <p class="ot-desc">IAs que desenham diagramas de fluxo, mapeiam processos e criam automações com agentes. Descreva o processo em linguagem natural — a IA estrutura o flow.</p>
+      <span class="ot-tools">Miro AI · FigJam AI · Zapier AI · Make (Integromat)</span>
+    </div>
+    <div class="ot-card">
+      <span class="ot-icon">🎵</span>
+      <span class="ot-name">Música e Áudio</span>
+      <p class="ot-desc">Gere trilhas musicais completas descrevendo gênero, humor e duração. Sem royalties. Para trilhas de vídeo, podcasts e background de apresentações.</p>
+      <span class="ot-tools">Suno · Udio · ElevenLabs · Mubert</span>
+    </div>
+    <div class="ot-card">
+      <span class="ot-icon">🗣️</span>
+      <span class="ot-name">Voz e Narração</span>
+      <p class="ot-desc">Texto-para-voz realista, clonagem de voz com poucos minutos de áudio, agentes de voz para atendimento. Suporte a 30+ idiomas com emoção e naturalidade.</p>
+      <span class="ot-tools">ElevenLabs · Play.ht · Murf · Resemble AI</span>
+    </div>
+    <div class="ot-card">
+      <span class="ot-icon">🎨</span>
+      <span class="ot-name">Design e UI/UX</span>
+      <p class="ot-desc">Gere wireframes, mockups de interface e identidades visuais completas a partir de descrição em texto. Integra com Figma via plugins de IA.</p>
+      <span class="ot-tools">Canva AI · Lovart · Framer AI · Galileo AI</span>
+    </div>
+    <div class="ot-card">
+      <span class="ot-icon">💻</span>
+      <span class="ot-name">Código e Dev</span>
+      <p class="ot-desc">Do autocomplete em tempo real a agentes que escrevem aplicações inteiras. Cursor, Windsurf e GitHub Copilot lideram para desenvolvimento assistido por IA.</p>
+      <span class="ot-tools">GitHub Copilot · Cursor · Windsurf · Replit AI</span>
+    </div>
+    <div class="ot-card">
+      <span class="ot-icon">📊</span>
+      <span class="ot-name">Planilhas e Dados</span>
+      <p class="ot-desc">IA que entende planilhas em linguagem natural — "some a coluna B apenas onde a coluna C é maior que 100" — sem fórmulas manuais. Gera gráficos e insights automáticos.</p>
+      <span class="ot-tools">Microsoft Copilot Excel · Gemini Sheets · Julius AI</span>
+    </div>
+    <div class="ot-card">
+      <span class="ot-icon">📄</span>
+      <span class="ot-name">Documentos e Relatórios</span>
+      <p class="ot-desc">Geração e edição iterativa de documentos longos — artigos, relatórios, contratos. Canvas (ChatGPT) e Gemini Canvas permitem edição colaborativa direto na interface.</p>
+      <span class="ot-tools">ChatGPT Canvas · Gemini Canvas · Notion AI · Coda AI</span>
+    </div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:28px 0 12px;">Casos de uso combinando múltiplas ferramentas</h3>
+
+  <div class="scenario">
+    <div class="sc-icon">📣</div>
+    <div>
+      <span class="sc-role">Marketing / Conteúdo</span>
+      <span class="sc-title">Campanha completa de lançamento de produto — do zero ao publicado</span>
+      <p class="sc-desc">1. Perplexity pesquisa o mercado e concorrentes. 2. Claude escreve o copy do e-mail, posts e landing page. 3. Midjourney gera as imagens do produto e do ambiente. 4. Suno cria a trilha da campanha. 5. Kling gera o vídeo de 30s com a música sincronizada. 6. Gamma monta o deck de aprovação interna. 7. Canva AI formata para todos os tamanhos de canal. Processo que levaria 2 semanas para uma agência agora leva 2 dias para um time interno.</p>
+      <div class="sc-chips"><span class="sc-chip">Perplexity</span><span class="sc-chip">Claude</span><span class="sc-chip">Midjourney</span><span class="sc-chip">Suno</span><span class="sc-chip">Kling</span><span class="sc-chip">Gamma</span></div>
+    </div>
+  </div>
+  <div class="scenario">
+    <div class="sc-icon">🏗️</div>
+    <div>
+      <span class="sc-role">TI / Produto Digital</span>
+      <span class="sc-title">MVP de aplicativo web — do conceito ao código em dias</span>
+      <p class="sc-desc">1. Claude descreve a arquitetura e gera o PRD. 2. Galileo AI cria os wireframes de UX em minutos. 3. Cursor/Windsurf escreve o código front-end e back-end com supervisão humana. 4. Claude Code refatora e adiciona testes. 5. Runway gera um vídeo demo para stakeholders. 6. Gamma monta o pitch deck para aprovação. O que levaria um sprint de 2 semanas pode ter um MVP funcional em 2–3 dias.</p>
+      <div class="sc-chips"><span class="sc-chip">Claude</span><span class="sc-chip">Galileo AI</span><span class="sc-chip">Cursor</span><span class="sc-chip">Claude Code</span><span class="sc-chip">Runway</span><span class="sc-chip">Gamma</span></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ 9. GLOSSÁRIO ════ -->
+<section class="sec" id="glossario">
+  <span class="sec-label">Seção 9 — Referência</span>
+  <h2 class="sec-title">Glossário do Módulo 2</h2>
+  <p class="sec-lead">Termos novos introduzidos neste módulo. Use como referência durante e após a leitura.</p>
+
+  <div class="glossary">
+    <div class="gr"><div class="gt">IA Generativa<small>Tipo de IA</small></div><div class="gd"><strong>Cria conteúdo novo</strong> — texto, imagem, vídeo, código, música — aprendendo padrões de dados existentes. É o tipo mais recente e mais visível publicamente. Claude, ChatGPT, Midjourney e Sora são todos IA generativa.</div></div>
+    <div class="gr"><div class="gt">IA Preditiva<small>Tipo de IA</small></div><div class="gd"><strong>Prevê o que vai acontecer</strong> com base em dados históricos. Não cria conteúdo — analisa e projeta. Usada silenciosamente em detecção de fraude, score de crédito, previsão de demanda e manutenção preditiva há décadas.</div></div>
+    <div class="gr"><div class="gt">IA Discriminativa<small>Tipo de IA</small></div><div class="gd"><strong>Separa e classifica</strong> — aprende as fronteiras entre categorias. Responde: "isso é spam ou não?" ou "isso é um defeito ou está OK?". É mais precisa que a generativa em classificação industrial.</div></div>
+    <div class="gr"><div class="gt">Transformer<small>Arquitetura</small></div><div class="gd">Arquitetura de rede neural publicada pelo Google em 2017 que <strong>processa todo o texto em paralelo</strong> (não sequencialmente) usando o mecanismo de Attention. Base de quase todos os LLMs modernos.</div></div>
+    <div class="gr"><div class="gt">Self-Attention<small>Mecanismo</small></div><div class="gd">O mecanismo central do Transformer. Para cada palavra/token, calcula <strong>qual relação com cada outra palavra é relevante</strong> para entender o contexto. Permite ao modelo conectar "banco" com "rio" ou com "dinheiro" dependendo do contexto.</div></div>
+    <div class="gr"><div class="gt">Embeddings<small>Representação</small></div><div class="gd"><strong>Representação numérica de texto</strong> como vetores de alta dimensão (centenas a milhares de números). Palavras com significados similares têm embeddings próximos no espaço vetorial. Base do sistema de busca semântica em RAG.</div></div>
+    <div class="gr"><div class="gt">Modelo de Difusão<small>Arquitetura</small></div><div class="gd">Arquitetura usada em geração de imagens. <strong>Começa com ruído aleatório e aprende a removê-lo gradualmente</strong>, guiado pelo texto do prompt. Em dezenas de passos de refinamento, emerge uma imagem. Diferente do Transformer, não gera sequencialmente.</div></div>
+    <div class="gr"><div class="gt">GAN<small>Arquitetura</small></div><div class="gd"><strong>Rede Adversarial Generativa.</strong> Duas redes neurais que competem: uma <em>geradora</em> cria amostras novas, uma <em>discriminadora</em> tenta identificar o que é real vs. gerado. Essa competição melhora continuamente a qualidade da geração. Usada para imagens e vídeos antes dos modelos de difusão dominarem.</div></div>
+    <div class="gr"><div class="gt">Emergência<small>Fenômeno</small></div><div class="gd">Capacidades que surgem espontaneamente em modelos de IA grandes, <strong>sem terem sido treinadas especificamente para isso</strong>. GPT-3 "aprendeu" aritmética sem treinamento explícito. Modelos maiores demonstram emergência em raciocínio, tradução e coding — fenômeno não completamente explicado.</div></div>
+    <div class="gr"><div class="gt">Autoregressive<small>Paradigma de geração</small></div><div class="gd">Modelos que geram conteúdo <strong>um elemento por vez, sequencialmente</strong> — cada token gerado depende dos anteriores. É o paradigma dos LLMs de texto. Contraponto: modelos de difusão, que refinam tudo em paralelo.</div></div>
+    <div class="gr"><div class="gt">Extended Thinking<small>Técnica</small></div><div class="gd">Modo onde o modelo gera uma <strong>cadeia de raciocínio intermediária</strong> (não visível pelo usuário) antes de responder. Permite "se corrigir" antes de entregar a resposta. Disponível no Claude e na série o1/o3 da OpenAI. Aumenta qualidade em problemas difíceis, mas é mais lento e caro.</div></div>
+    <div class="gr"><div class="gt">Multimodal<small>Capacidade</small></div><div class="gd">Modelo ou sistema que <strong>processa e/ou gera múltiplos tipos de mídia</strong>: texto, imagem, áudio, vídeo, código — em uma única interface. Gemini 3.1 Pro, GPT-5 e Claude (desde março 2026) são exemplos de modelos multimodais.</div></div>
+    <div class="gr"><div class="gt">LoRA<small>Técnica de treinamento</small></div><div class="gd"><strong>Low-Rank Adaptation.</strong> Técnica de fine-tuning eficiente que ajusta apenas uma pequena fração dos parâmetros do modelo — muito mais barata que retreinar tudo. Permite criar um "estilo visual personalizado" para geradores de imagem (ex: seu estilo de marca) com dezenas de imagens de exemplo.</div></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════ PRÓXIMO ════ -->
+<section class="sec">
+  <div class="next-box">
+    <span class="sec-label" style="color:rgba(0,0,0,.5);">E AGORA?</span>
+    <h2>Módulo 3: Prompt Engineering</h2>
+    <p>Agora que você entende como os modelos funcionam por dentro, vamos aprender a extrair o máximo deles. Técnicas de prompting, chain-of-thought, few-shot learning, e como estruturar instruções para diferentes tipos de tarefa.</p>
+    <a href="#" class="next-btn">CONTINUAR PARA O MÓDULO 3 →</a>
+  </div>
+</section>
+
+<script>
+function go(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+window.addEventListener('scroll',()=>{
+  const h=document.body.scrollHeight-window.innerHeight;
+  document.getElementById('prog').style.width=(window.scrollY/h*100)+'%';
+});
+</script>
+</body>
+</html>
