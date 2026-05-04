@@ -1,54 +1,40 @@
-<div align="center">
-  <img src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-blue?style=for-the-the-badge&logo=github" alt="Status Badge">
-  <img src="https://img.shields.io/badge/IA-Consultoria-blueviolet?style=for-the-the-badge&logo=openai" alt="IA Badge">
-</div>
+# Consultoria IA: Nivelamento de Conhecimento
 
-# 🤖 Consultoria em IA
-
-> Repositório destinado a materiais produzidos para o nivelamento de conhecimento acerca da Inteligência Artificial e tecnologias correlatas.
-
-<p align="center">
-  <a href="https://ckieling.github.io/consultoria-ia/">
-    <img src="https://img.shields.io/badge/ACESSAR%20PORTAL%20DO%20ALUNO-000?style=for-the-badge&logo=googlegenerativeai&logoColor=white" alt="Link Portal">
-  </a>
-</p>
+Este repositório contém a documentação técnica e os módulos de treinamento para o nivelamento em Inteligência Artificial. O material foi estruturado para visualização web e consulta dinâmica.
 
 ---
 
-### 🗺️ Trilha de Aprendizado
-
-Abaixo, você encontrará o progresso da consultoria. Clique nos cards para acessar o material de cada nível:
-
-| Módulo | Conteúdo | Status | Acesso Direto |
-| :---: | :--- | :---: | :--- |
-| <img src="https://img.shields.io/badge/00-Introdução-lightgrey?style=flat-square" /> | Fundamentos e Conceitos Base | ✅ | [Visualizar ↗](https://ckieling.github.io/consultoria-ia/modulo0.html) |
-| <img src="https://img.shields.io/badge/01-Módulo-blue?style=flat-square" /> | Conteúdo do Módulo 1 | ✅ | [Visualizar ↗](https://ckieling.github.io/consultoria-ia/modulo1.html) |
-| <img src="https://img.shields.io/badge/02-Módulo-blue?style=flat-square" /> | Conteúdo do Módulo 2 | ✅ | [Visualizar ↗](https://ckieling.github.io/consultoria-ia/modulo2.html) |
-| <img src="https://img.shields.io/badge/03-Módulo-blue?style=flat-square" /> | Conteúdo do Módulo 3 | 🔄 | [Visualizar ↗](https://ckieling.github.io/consultoria-ia/modulo3.html) |
-| <img src="https://img.shields.io/badge/04-Módulo-blue?style=flat-square" /> | Conteúdo do Módulo 4 | ✅ | [Visualizar ↗](https://ckieling.github.io/consultoria-ia/modulo4.html) |
-| <img src="https://img.shields.io/badge/05-Módulo-blue?style=flat-square" /> | Conteúdo do Módulo 5 | ✅ | [Visualizar ↗](https://ckieling.github.io/consultoria-ia/modulo5.html) |
-| <img src="https://img.shields.io/badge/06-Módulo-blue?style=flat-square" /> | Conteúdo do Módulo 6 | ✅ | [Visualizar ↗](https://ckieling.github.io/consultoria-ia/modulo6.html) |
-| <img src="https://img.shields.io/badge/07-Módulo-blue?style=flat-square" /> | Conteúdo do Módulo 7 | ✅ | [Visualizar ↗](https://ckieling.github.io/consultoria-ia/modulo7.html) |
-| <img src="https://img.shields.io/badge/08-Módulo-blue?style=flat-square" /> | Conteúdo do Módulo 8 | ✅ | [Visualizar ↗](https://ckieling.github.io/consultoria-ia/modulo8.html) |
+### 🧠 Base de Conhecimento (Q&A)
+Para dúvidas frequentes, estudos de caso e interação com o conteúdo via IA, acesse nossa área de estudo no NotebookLM:
+👉 [**Portal de Estudos e Perguntas - NotebookLM**](https://notebooklm.google.com/notebook/25c2f053-e602-48ec-9324-66da7d38719b?authuser=1)
 
 ---
 
-### 🛠️ Tecnologias e Ferramentas
+### 📂 Conteúdo Programático
+Acesse os módulos navegáveis através do GitHub Pages:
 
-<div align="left">
-  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
-  <img src="https://img.shields.io/badge/GitHub_Pages-222222?style=for-the-badge&logo=github&logoColor=white" />
-  <img src="https://img.shields.io/badge/Markdown-000000?style=for-the-badge&logo=markdown&logoColor=white" />
-</div>
+| Módulo | Documentação Disponível | Link de Acesso |
+| :--- | :--- | :--- |
+| **00** | Introdução e Fundamentos | [Abrir Documento](https://ckieling.github.io/consultoria-ia/modulo0.html) |
+| **01** | Módulo 01 | [Abrir Documento](https://ckieling.github.io/consultoria-ia/modulo1.html) |
+| **02** | Módulo 02 | [Abrir Documento](https://ckieling.github.io/consultoria-ia/modulo2.html) |
+| **03** | Módulo 03 | [Abrir Documento](https://ckieling.github.io/consultoria-ia/modulo3.html) |
+| **04** | Módulo 04 | [Abrir Documento](https://ckieling.github.io/consultoria-ia/modulo4.html) |
+| **05** | Módulo 05 | [Abrir Documento](https://ckieling.github.io/consultoria-ia/modulo5.html) |
+| **06** | Módulo 06 | [Abrir Documento](https://ckieling.github.io/consultoria-ia/modulo6.html) |
+| **07** | Módulo 07 | [Abrir Documento](https://ckieling.github.io/consultoria-ia/modulo7.html) |
+| **08** | Módulo 08 | [Abrir Documento](https://ckieling.github.io/consultoria-ia/modulo8.html) |
+
+---
+
+### 💻 Stack Tecnológica
+*   **Interface:** HTML5 customizado para leitura técnica.
+*   **Hospedagem:** GitHub Pages para renderização estática.
+*   **Interatividade:** NotebookLM para processamento de linguagem natural e perguntas sobre o conteúdo.
 
 ---
 
-### ✍️ Autora
-
-**Caroline Kieling**
-> "Transformando dados em conhecimento através da IA."
-
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ckieling)
-
----
-<p align="center"> 💡 <i>Dica: Utilize o menu lateral do repositório para navegar pelos arquivos fonte.</i> </p>
+### 👤 Responsável
+**Caroline Kieling**  
+*Consultoria em Tecnologia e Inteligência Artificial*  
+[Perfil no GitHub](https://github.com/ckieling)
