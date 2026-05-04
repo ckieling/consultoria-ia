@@ -1,0 +1,2031 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M5 · Estado da IA em 2026 — Cursinho de IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  :root {
+    --green: #2ECC71;
+    --green-dark: #1aaa57;
+    --green-light: #A8F0C8;
+    --green-pale: #D4F7E7;
+    --ink: #1A1A2E;
+    --cream: #FFF8F0;
+    --white: #FFFFFF;
+    --shadow: 8px 8px 0px #1A1A2E;
+    --shadow-hover: 11px 11px 0px #1A1A2E;
+    --shadow-sm: 4px 4px 0px #1A1A2E;
+    --border: 3px solid #1A1A2E;
+    --radius: 14px;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+    --font-head: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    padding-top: 8px;
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 0%;
+    height: 6px;
+    background: linear-gradient(90deg, #2ECC71, #1aaa57, #27ae60);
+    z-index: 9999;
+    transition: width 0.2s ease;
+  }
+
+  /* ===== TYPOGRAPHY ===== */
+  h1, h2, h3 { font-family: var(--font-head); line-height: 1.2; }
+  h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; }
+  h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 700; }
+  h3 { font-size: 1.25rem; font-weight: 700; }
+  p { margin-bottom: 1rem; }
+  a { color: var(--ink); }
+
+  .mono { font-family: var(--font-mono); }
+
+  /* ===== LAYOUT ===== */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* ===== HEADER ===== */
+  .site-header {
+    background: var(--green);
+    border-bottom: var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 6px;
+    z-index: 100;
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .header-badge {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: var(--ink);
+    color: var(--green);
+    padding: 4px 12px;
+    border-radius: 4px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .header-title {
+    font-family: var(--font-head);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .header-nav {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .header-nav a {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--ink);
+    padding: 4px 10px;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    transition: background 0.15s;
+  }
+  .header-nav a:hover { background: var(--ink); color: var(--green); }
+
+  /* ===== HERO ===== */
+  .hero {
+    padding: 60px 0 50px;
+    background: var(--green);
+    border-bottom: var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: rgba(26,26,46,0.08);
+    pointer-events: none;
+  }
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 36px;
+    align-items: start;
+  }
+  .hero-card {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 36px 40px;
+    box-shadow: var(--shadow);
+    transform: rotate(-0.7deg);
+  }
+  .hero-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--green-dark);
+    margin-bottom: 10px;
+  }
+  .hero-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 100px;
+    border: 2px solid var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .chip-green  { background: var(--green); }
+  .chip-yellow { background: #FFD93D; }
+  .chip-teal   { background: #4ECDC4; }
+  .chip-pink   { background: #E91E8C; color: white; }
+  .chip-orange { background: #FF8C42; }
+  .chip-ink    { background: var(--ink); color: var(--green); }
+
+  .toc-card {
+    background: var(--ink);
+    color: var(--white);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow);
+    transform: rotate(0.7deg);
+    position: sticky;
+    top: 80px;
+  }
+  .toc-card h3 {
+    color: var(--green);
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+  .toc-list { list-style: none; }
+  .toc-list li {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 7px 0;
+  }
+  .toc-list li:last-child { border-bottom: none; }
+  .toc-list a {
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-family: var(--font-mono);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.15s;
+  }
+  .toc-list a:hover { color: var(--green); }
+  .toc-num {
+    background: rgba(255,255,255,0.1);
+    color: var(--green);
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    min-width: 24px;
+    text-align: center;
+  }
+
+  /* ===== SECTIONS ===== */
+  section {
+    padding: 64px 0;
+    border-top: 3px solid var(--ink);
+  }
+  section:first-of-type { border-top: none; }
+
+  .sec-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--green-dark);
+    margin-bottom: 6px;
+  }
+  .sec-title {
+    margin-bottom: 12px;
+  }
+  .sec-lead {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    max-width: 720px;
+    border-left: 5px solid var(--green);
+    padding-left: 18px;
+    margin-bottom: 40px;
+    color: #333;
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow);
+    transition: transform 0.18s, box-shadow 0.18s;
+  }
+  .card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: var(--shadow-hover);
+  }
+  .card-grid {
+    display: grid;
+    gap: 24px;
+  }
+  .card-grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .card-grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .card-grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+  .card-icon { font-size: 2rem; margin-bottom: 12px; }
+  .card h3 { margin-bottom: 8px; font-size: 1.05rem; }
+  .card p { font-size: 0.9rem; margin-bottom: 0; color: #444; }
+
+  .card-accent { border-left: 6px solid var(--green); }
+  .card-dark { background: var(--ink); color: var(--white); border-color: var(--ink); }
+  .card-dark p { color: rgba(255,255,255,0.75); }
+  .card-dark h3 { color: var(--green); }
+  .card-green { background: var(--green); }
+  .card-green h3 { color: var(--ink); }
+  .card-green p { color: var(--ink); }
+
+  /* ===== STAT CARDS ===== */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 32px 0;
+  }
+  .stat-card {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+    transition: transform 0.18s, box-shadow 0.18s;
+  }
+  .stat-card:hover { transform: translate(-3px,-3px); box-shadow: var(--shadow); }
+  .stat-number {
+    font-family: var(--font-head);
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--green-dark);
+    margin-bottom: 4px;
+  }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    opacity: 0.7;
+  }
+  .stat-note { font-size: 0.78rem; color: #555; margin-top: 6px; }
+
+  /* ===== TIMELINE ===== */
+  .timeline { position: relative; padding-left: 0; }
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+    align-items: start;
+  }
+  .timeline-date {
+    background: var(--ink);
+    color: var(--green);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 8px 10px;
+    border-radius: 8px;
+    text-align: center;
+    line-height: 1.3;
+    border: var(--border);
+  }
+  .timeline-content {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    box-shadow: var(--shadow-sm);
+  }
+  .timeline-content h4 {
+    font-family: var(--font-head);
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .timeline-content p { font-size: 0.87rem; color: #444; margin: 0; }
+
+  /* ===== BENCHMARK TABLE ===== */
+  .bench-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    margin: 24px 0;
+  }
+  .bench-table th {
+    background: var(--ink);
+    color: var(--green);
+    padding: 12px 14px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.73rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .bench-table th:first-child { border-radius: 8px 0 0 0; }
+  .bench-table th:last-child  { border-radius: 0 8px 0 0; }
+  .bench-table td {
+    padding: 11px 14px;
+    border-bottom: 2px solid var(--ink);
+    vertical-align: middle;
+  }
+  .bench-table tr:nth-child(even) td { background: rgba(46,204,113,0.06); }
+  .bench-table tr:hover td { background: var(--green-pale); }
+  .bench-table .leader { font-weight: 700; color: var(--green-dark); }
+
+  /* ===== BAR VISUAL ===== */
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .bar-label {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    min-width: 180px;
+    color: var(--ink);
+  }
+  .bar-track {
+    flex: 1;
+    background: rgba(26,26,46,0.1);
+    border-radius: 100px;
+    height: 20px;
+    border: 2px solid var(--ink);
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--green-dark));
+    border-radius: 100px;
+    transition: width 1s ease;
+  }
+  .bar-fill-human {
+    background: linear-gradient(90deg, #FFD93D, #e8c200);
+  }
+  .bar-fill-danger {
+    background: linear-gradient(90deg, #FF6B6B, #c0392b);
+  }
+  .bar-pct {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    min-width: 48px;
+    text-align: right;
+  }
+
+  /* ===== CODE BLOCK ===== */
+  .code-block {
+    background: var(--ink);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    overflow-x: auto;
+    margin: 24px 0;
+    box-shadow: var(--shadow);
+  }
+  .code-block pre {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: #c8d3f5;
+    margin: 0;
+  }
+  .code-block .c  { color: #7ec8a0; } /* green */
+  .code-block .s  { color: #ffd93d; } /* yellow string */
+  .code-block .k  { color: #82b1ff; } /* blue keyword */
+  .code-block .n  { color: #c792ea; } /* purple */
+  .code-block .o  { color: #89ddff; } /* cyan operator */
+  .code-block .cm { color: #546e7a; font-style: italic; } /* comment */
+
+  .code-header {
+    background: rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 8px 0 14px;
+    margin: -24px -24px 18px;
+    padding: 12px 24px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--green);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+
+  /* ===== CALLOUT ===== */
+  .callout {
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 24px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .callout-icon { font-size: 1.5rem; flex-shrink: 0; margin-top: 2px; }
+  .callout-body h4 { font-size: 0.95rem; margin-bottom: 4px; font-family: var(--font-head); }
+  .callout-body p  { font-size: 0.88rem; margin: 0; color: #444; }
+  .callout-green  { background: var(--green-pale); border-color: var(--green-dark); }
+  .callout-yellow { background: #FFF9CC; border-color: #e8c200; }
+  .callout-red    { background: #FFE8E8; border-color: #c0392b; }
+  .callout-dark   { background: var(--ink); border-color: var(--ink); }
+  .callout-dark .callout-body h4 { color: var(--green); }
+  .callout-dark .callout-body p  { color: rgba(255,255,255,0.75); }
+
+  /* ===== COMPARISON ===== */
+  .compare-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 24px 0;
+  }
+  .compare-side {
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .compare-before { background: #FFF9CC; }
+  .compare-after  { background: var(--green-pale); }
+  .compare-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    color: #666;
+  }
+  .compare-after .compare-label { color: var(--green-dark); }
+
+  /* ===== NEXT BOX ===== */
+  .next-box {
+    background: var(--ink);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 40px;
+    text-align: center;
+    margin-top: 48px;
+    box-shadow: var(--shadow);
+  }
+  .next-box h3 { color: var(--green); font-size: 1.6rem; margin-bottom: 12px; }
+  .next-box p  { color: rgba(255,255,255,0.75); max-width: 520px; margin: 0 auto 24px; }
+  .btn {
+    display: inline-block;
+    background: var(--green);
+    color: var(--ink);
+    font-family: var(--font-head);
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 12px 32px;
+    border-radius: 8px;
+    border: 3px solid var(--ink);
+    text-decoration: none;
+    box-shadow: 5px 5px 0 rgba(255,255,255,0.2);
+    transition: transform 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+  }
+  .btn:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 rgba(255,255,255,0.25); }
+
+  /* ===== GLOSSARY ===== */
+  .glossary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin-top: 28px;
+  }
+  .gloss-item {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.15s;
+  }
+  .gloss-item:hover { transform: translate(-2px,-2px); }
+  .gloss-term {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--green-dark);
+    margin-bottom: 5px;
+  }
+  .gloss-def { font-size: 0.85rem; color: #444; line-height: 1.5; }
+
+  /* ===== PILL ===== */
+  .pill {
+    display: inline-block;
+    background: var(--green);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 100px;
+    border: 2px solid var(--ink);
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+  .pill-yellow { background: #FFD93D; }
+  .pill-red    { background: #FF6B6B; color: white; }
+  .pill-teal   { background: #4ECDC4; }
+
+  /* ===== DIVIDER ===== */
+  .divider { border: none; border-top: 3px solid var(--ink); margin: 40px 0; }
+
+  /* NEXT */
+  .next-box{background:var(--ink);border:var(--border);padding:50px;border-radius:24px;box-shadow:var(--shadow);text-align:center;}
+  .next-box h2{font-family:var(--display);font-size:clamp(1.8rem,4vw,3rem);margin:12px 0 16px;color:white;}
+  .next-box p{max-width:500px;margin:0 auto 28px;font-size:.97rem;color:rgba(255,255,255,.65);}
+  .next-btn{display:inline-block;background:var(--pink);color:white;padding:14px 36px;border:var(--border);font-family:var(--display);font-weight:700;text-decoration:none;box-shadow:var(--shadow-s);transition:transform .15s;font-size:.95rem;}
+  .next-btn:hover{transform:translate(-2px,-2px);}
+
+
+  /* ===== AGI METER ===== */
+  .agi-meter {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow);
+    margin: 24px 0;
+  }
+  .agi-track {
+    height: 36px;
+    background: rgba(26,26,46,0.08);
+    border: 3px solid var(--ink);
+    border-radius: 100px;
+    overflow: hidden;
+    position: relative;
+    margin: 16px 0 12px;
+  }
+  .agi-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4ECDC4, #2ECC71, #e8c200);
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink);
+    position: relative;
+  }
+  .agi-markers {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: #666;
+    padding: 0 4px;
+  }
+  .agi-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    opacity: 0.6;
+    margin-bottom: 6px;
+  }
+
+  /* ===== SECTOR IMPACT ===== */
+  .sector-card {
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.18s, box-shadow 0.18s;
+  }
+  .sector-card:hover { transform: translate(-3px,-3px); box-shadow: var(--shadow); }
+  .sector-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .sector-icon { font-size: 1.6rem; }
+  .sector-name { font-family: var(--font-head); font-weight: 700; font-size: 0.95rem; }
+  .sector-impact {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 2px solid var(--ink);
+    margin-left: auto;
+  }
+  .impact-high   { background: #FF6B6B; color: white; }
+  .impact-medium { background: #FFD93D; }
+  .impact-low    { background: #4ECDC4; }
+  .sector-tasks {
+    font-size: 0.83rem;
+    color: #444;
+    line-height: 1.6;
+  }
+  .sector-tasks li { margin-bottom: 3px; list-style: none; padding-left: 14px; position: relative; }
+  .sector-tasks li::before { content: '→'; position: absolute; left: 0; color: var(--green-dark); font-weight: 700; }
+
+  /* ===== REGULATION TABLE ===== */
+  .reg-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin: 24px 0;
+  }
+  .reg-table th {
+    background: var(--green);
+    border: 2px solid var(--ink);
+    padding: 12px 16px;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 0.82rem;
+    text-align: left;
+  }
+  .reg-table td {
+    border: 2px solid var(--ink);
+    padding: 11px 16px;
+    vertical-align: top;
+    background: var(--white);
+  }
+  .reg-table tr:hover td { background: var(--green-pale); }
+  .reg-table .tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid var(--ink);
+    margin-right: 4px;
+  }
+
+  /* ===== TREND CARDS ===== */
+  .trend-card {
+    border: var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.18s, box-shadow 0.18s;
+  }
+  .trend-card:hover { transform: translate(-3px,-3px); box-shadow: var(--shadow); }
+  .trend-header {
+    background: var(--green);
+    border-bottom: var(--border);
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .trend-title { font-family: var(--font-head); font-weight: 700; font-size: 0.95rem; }
+  .trend-body { background: var(--white); padding: 16px 18px; }
+  .trend-body p { font-size: 0.88rem; color: #444; margin: 0; }
+
+  /* ===== QUOTE ===== */
+  .quote-block {
+    border-left: 6px solid var(--green);
+    background: var(--white);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin: 28px 0;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+  }
+  .quote-block::before {
+    content: '"';
+    font-size: 5rem;
+    color: var(--green);
+    position: absolute;
+    top: -10px; left: 16px;
+    font-family: Georgia, serif;
+    line-height: 1;
+  }
+  .quote-text {
+    font-size: 1.05rem;
+    font-style: italic;
+    line-height: 1.7;
+    padding-top: 24px;
+    margin-bottom: 10px;
+  }
+  .quote-attr {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--green-dark);
+    font-weight: 700;
+  }
+
+  /* ===== TAG CLOUDS ===== */
+  .tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border: 2px solid var(--ink);
+    border-radius: 100px;
+    background: var(--white);
+    transition: background 0.15s, transform 0.15s;
+    cursor: default;
+  }
+  .tag:hover { background: var(--green); transform: translate(-2px,-2px); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .toc-card { position: static; transform: none; }
+    .hero-card { transform: none; }
+    .timeline-item { grid-template-columns: 1fr; gap: 8px; }
+    .compare-box { grid-template-columns: 1fr; }
+    .bench-table { font-size: 0.72rem; }
+    .header-nav { display: none; }
+  }
+
+  /* ===== ANIMATION ===== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate { animation: fadeUp 0.5s ease forwards; }
+  .delay-1 { animation-delay: 0.1s; opacity: 0; }
+  .delay-2 { animation-delay: 0.2s; opacity: 0; }
+  .delay-3 { animation-delay: 0.3s; opacity: 0; }
+  .delay-4 { animation-delay: 0.4s; opacity: 0; }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <div class="container header-inner">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="header-badge">M5</span>
+      <span class="header-title">Estado da IA em 2026</span>
+    </div>
+    <nav class="header-nav">
+      <a href="#onde-estamos">Curva</a>
+      <a href="#modelos">Modelos</a>
+      <a href="#limitacoes">Limitações</a>
+      <a href="#agi">AGI</a>
+      <a href="#empregos">Empregos</a>
+      <a href="#regulacao">Regulação</a>
+      <a href="#tendencias">2026-27</a>
+      <a href="#glossario">Glossário</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero" style="border-top:none">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-card animate delay-1">
+        <div class="hero-label">Módulo 5 · Cursinho de IA</div>
+        <h1>Estado da IA<br>em 2026</h1>
+        <p style="font-size:1.05rem;color:#444;margin-top:12px;margin-bottom:0">
+          Onde realmente estamos? O que os benchmarks dizem (e omitem), 
+          o debate AGI, o impacto no mercado de trabalho, 
+          e o mapa regulatório global — com dados de abril 2026.
+        </p>
+        <div class="hero-chips">
+          <span class="chip chip-green">📊 Stanford AI Index 2026</span>
+          <span class="chip chip-yellow">🏁 Benchmarks reais</span>
+          <span class="chip chip-teal">🤖 Debate AGI</span>
+          <span class="chip chip-orange">⚖️ EU AI Act</span>
+          <span class="chip chip-ink">🇧🇷 PL Brasil</span>
+          <span class="chip chip-pink">💼 Mercado de trabalho</span>
+        </div>
+      </div>
+      <div class="toc-card animate delay-2">
+        <h3>📋 Conteúdo</h3>
+        <ul class="toc-list">
+          <li><a href="#onde-estamos"><span class="toc-num">01</span> Na curva de adoção</a></li>
+          <li><a href="#18-meses"><span class="toc-num">02</span> Últimos 18 meses</a></li>
+          <li><a href="#modelos"><span class="toc-num">03</span> Modelos 2025–2026</a></li>
+          <li><a href="#benchmarks"><span class="toc-num">04</span> Benchmarks & limites</a></li>
+          <li><a href="#limitacoes"><span class="toc-num">05</span> O que ainda falha</a></li>
+          <li><a href="#agi"><span class="toc-num">06</span> Debate AGI</a></li>
+          <li><a href="#empregos"><span class="toc-num">07</span> Impacto no trabalho</a></li>
+          <li><a href="#regulacao"><span class="toc-num">08</span> Regulação global</a></li>
+          <li><a href="#tendencias"><span class="toc-num">09</span> 2026–2027</a></li>
+          <li><a href="#glossario"><span class="toc-num">10</span> Glossário</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEC 1: ONDE ESTAMOS ===== -->
+<section id="onde-estamos">
+  <div class="container">
+    <div class="sec-label">Seção 01 · Contexto</div>
+    <h2 class="sec-title">Na curva de adoção</h2>
+    <p class="sec-lead">
+      A IA generativa está sendo adotada mais rápido do que qualquer tecnologia anterior. 
+      Mais rápido que a internet, os smartphones e os PCs. Mas velocidade não é uniformidade — 
+      diferentes setores, países e perfis profissionais estão em pontos radicalmente distintos da curva.
+    </p>
+
+    <div class="callout callout-green">
+      <span class="callout-icon">📈</span>
+      <div class="callout-body">
+        <h4>Dado-chave do Stanford AI Index 2026</h4>
+        <p>O investimento global em IA atingiu <strong>US$ 581 bilhões em 2025</strong> — mais que o dobro dos US$ 253 bilhões de 2024, e superando o recorde anterior de US$ 360 bilhões de 2021. O setor gera receita mais rápido do que qualquer boom tecnológico anterior.</p>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-number">$581B</div>
+        <div class="stat-label">Investimento global IA 2025</div>
+        <div class="stat-note">Dobrou em 1 ano</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">38,3%</div>
+        <div class="stat-label">Humanity's Last Exam (top modelo)</div>
+        <div class="stat-note">Era 8,8% em 2025 — subiu 4× em 12 meses</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">66%</div>
+        <div class="stat-label">OSWorld — tarefas autônomas em PC</div>
+        <div class="stat-note">Era ~12% em 2024. Humano: ~72%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">≈99%</div>
+        <div class="stat-label">SWE-Bench Verified (eng. de software)</div>
+        <div class="stat-note">Era ~60% em 2024. Saturado.</div>
+      </div>
+    </div>
+
+    <h3 style="margin:32px 0 16px">Adoção vs. tecnologias anteriores</h3>
+
+    <div class="card-grid card-grid-3" style="margin-bottom:32px">
+      <div class="card">
+        <div class="card-icon">🖥️</div>
+        <h3>PC Pessoal</h3>
+        <p>Levou ~15 anos para penetrar metade dos lares americanos (1980s–1995). Curva de adoção suave e gradual, limitada por custo de hardware.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌐</div>
+        <h3>Internet</h3>
+        <p>Atingiu 50% de penetração nos EUA em ~10 anos (1995–2005). Acelerada por banda larga. Transformou comunicação e comércio.</p>
+      </div>
+      <div class="card card-green">
+        <div class="card-icon">🤖</div>
+        <h3>IA Generativa</h3>
+        <p>ChatGPT atingiu 100M de usuários em 60 dias — a adoção mais rápida da história. Em 2026, estimativas apontam ~1 bilhão de usuários ativos de ferramentas de IA.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-yellow">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <h4>A armadilha do Hype Cycle</h4>
+        <p>Velocidade de adoção ≠ maturidade. Muitas empresas estão no pico da "curva de expectativas infladas" — usam IA para casos simples e concluem que transformação é fácil, antes de descobrir o "vale da desilusão" em sistemas complexos e de missão crítica.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEC 2: ÚLTIMOS 18 MESES ===== -->
+<section id="18-meses">
+  <div class="container">
+    <div class="sec-label">Seção 02 · Histórico</div>
+    <h2 class="sec-title">O que mudou nos últimos 18 meses</h2>
+    <p class="sec-lead">
+      De outubro de 2024 a abril de 2026 houve mais avanços do que nos 3 anos anteriores combinados. 
+      Reasoning, agentes autônomos e multimodalidade deixaram de ser demonstrações de laboratório e viraram APIs em produção.
+    </p>
+
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-date">OUT<br>2024</div>
+        <div class="timeline-content">
+          <h4>Claude 3.5 Sonnet + Computer Use público</h4>
+          <p>Anthropic libera Computer Use em beta — pela primeira vez um modelo comercial pode operar um PC visualmente. GPT-4o ganha suporte a voz em tempo real.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-date">NOV<br>2024</div>
+        <div class="timeline-content">
+          <h4>OpenAI o1 / o3 — raciocínio encadeado</h4>
+          <p>Modelos com "chain-of-thought" interno chegam ao mercado. Diferença entre velocidade e precisão: o3 atinge 87% em benchmark de matemática de olimpíada.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-date">JAN<br>2025</div>
+        <div class="timeline-content">
+          <h4>DeepSeek R1 — choque de eficiência</h4>
+          <p>Lab chinês lança modelo open-source que iguala GPT-4o treinado com fração do custo. Derruba ações da Nvidia em 1 dia (−17%). Prova que a vantagem americana em custo de treinamento não é permanente.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-date">MAR<br>2025</div>
+        <div class="timeline-content">
+          <h4>Claude 3.7 Sonnet — Extended Thinking</h4>
+          <p>Anthropic lança raciocínio explícito configurável, com 200K tokens de contexto. Torna-se referência em coding e análise técnica.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-date">MAI<br>2025</div>
+        <div class="timeline-content">
+          <h4>GPT-5 + Claude Code GA</h4>
+          <p>OpenAI lança GPT-5 unificando os modelos Codex. Claude Code sai de preview para GA — agentes de coding autônomo viram mercado real. Gemini 2.5 Pro crava contexto de 1M tokens.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-date">AGO<br>2025</div>
+        <div class="timeline-content">
+          <h4>EU AI Act — GPAI rules em vigor</h4>
+          <p>Segunda fase do AI Act entra em vigor: fornecedores de modelos de propósito geral (como GPT, Claude, Gemini) precisam publicar documentação de treinamento e respeitar copyright. Prazo final: agosto 2026.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-date">OUT<br>2025</div>
+        <div class="timeline-content">
+          <h4>Modelos de vídeo e áudio em produção</h4>
+          <p>Runway Gen-4, Kling 3.0, Veo 3 chegam a qualidade broadcast. ElevenLabs lança vozes em 32 idiomas com emoção. Barreira criativa de custo colapsa.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-date">FEV<br>2026</div>
+        <div class="timeline-content">
+          <h4>Claude 4 Family + Gemini 3 Pro</h4>
+          <p>Opus 4.6 com Adaptive Thinking, Sonnet 4.6 como workhorse. Google lança Gemini 3.1 Pro com 77% no ARC-AGI-2, dobro da versão anterior. Corrida entre Anthropic, Google, OpenAI e xAI se intensifica.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-date">ABR<br>2026</div>
+        <div class="timeline-content">
+          <h4>Stanford AI Index 2026 + Humanity's Last Exam: 38%</h4>
+          <p>Relatório anual confirma aceleração. HLE sobe de 8,8% para 38,3% em 12 meses. Arena Elo mostra empate técnico entre Anthropic, xAI, Google e OpenAI. Competição se desloca para custo, confiabilidade e uso real.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEC 3: MODELOS ===== -->
+<section id="modelos">
+  <div class="container">
+    <div class="sec-label">Seção 03 · Panorama</div>
+    <h2 class="sec-title">Principais modelos 2025–2026</h2>
+    <p class="sec-lead">
+      O mercado convergiu para um oligopólio técnico: 4-5 labs dominam os benchmarks, 
+      mas as margens são tão pequenas que a diferenciação real é custo, latência e integração.
+    </p>
+
+    <div class="callout callout-green" style="margin-bottom:28px">
+      <span class="callout-icon">🏆</span>
+      <div class="callout-body">
+        <h4>Arena Elo — Março/Abril 2026</h4>
+        <p>Anthropic (1.503) · xAI (1.495) · Google (1.494) · OpenAI (1.481) · Alibaba (1.449) · DeepSeek (1.424). Separação de apenas ~80 pontos entre primeiro e sexto lugar — o menor gap da história.</p>
+      </div>
+    </div>
+
+    <table class="bench-table">
+      <thead>
+        <tr>
+          <th>Modelo</th>
+          <th>Lab</th>
+          <th>SWE-Bench</th>
+          <th>GPQA Diamond</th>
+          <th>ARC-AGI-2</th>
+          <th>HLE</th>
+          <th>Contexto</th>
+          <th>Preço (input/MTok)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>GPT-5.5</strong> <span class="pill">NEW</span></td>
+          <td>OpenAI</td>
+          <td>78,2%</td>
+          <td>~88%</td>
+          <td class="leader">85%</td>
+          <td>~38%</td>
+          <td>128K</td>
+          <td>$2,50</td>
+        </tr>
+        <tr>
+          <td><strong>Gemini 3.1 Pro</strong> <span class="pill">NEW</span></td>
+          <td>Google</td>
+          <td class="leader">78,8%</td>
+          <td class="leader">94,3%</td>
+          <td>77,1%</td>
+          <td>~36%</td>
+          <td>2M</td>
+          <td>$2,00</td>
+        </tr>
+        <tr>
+          <td><strong>Claude Opus 4.6</strong></td>
+          <td>Anthropic</td>
+          <td>80,8%</td>
+          <td>87-89%</td>
+          <td>~70%</td>
+          <td class="leader">38,3%</td>
+          <td>200K</td>
+          <td>$15,00</td>
+        </tr>
+        <tr>
+          <td><strong>Grok 4.20</strong></td>
+          <td>xAI</td>
+          <td>~76%</td>
+          <td>~87%</td>
+          <td>~68%</td>
+          <td>~35%</td>
+          <td>128K</td>
+          <td>$3,00</td>
+        </tr>
+        <tr>
+          <td><strong>Llama 4 Scout</strong></td>
+          <td>Meta (open)</td>
+          <td>~65%</td>
+          <td>~78%</td>
+          <td>~45%</td>
+          <td>~25%</td>
+          <td class="leader">10M</td>
+          <td>Free (self-host)</td>
+        </tr>
+        <tr>
+          <td><strong>DeepSeek V3.2</strong></td>
+          <td>DeepSeek (open)</td>
+          <td>~70%</td>
+          <td>~82%</td>
+          <td>~55%</td>
+          <td>~28%</td>
+          <td>128K</td>
+          <td>$0,28</td>
+        </tr>
+        <tr>
+          <td><strong>Qwen 3.5 9B</strong></td>
+          <td>Alibaba (open)</td>
+          <td>—</td>
+          <td>81,7%</td>
+          <td>—</td>
+          <td>—</td>
+          <td>128K</td>
+          <td>$0,10</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-yellow">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <h4>Interpretação consultiva</h4>
+        <p>Para 90% dos casos de uso empresariais, Sonnet 4.6 (Anthropic) ou Gemini 3.1 Flash são a escolha ideal em custo-benefício. Opus 4.6 e GPT-5.5 fazem sentido apenas para tarefas de raciocínio extremamente complexo. DeepSeek V3.2 tem custo 50× menor que Opus com ≈85% da capacidade — escolha real para volume.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEC 4: BENCHMARKS ===== -->
+<section id="benchmarks">
+  <div class="container">
+    <div class="sec-label">Seção 04 · Métricas</div>
+    <h2 class="sec-title">Benchmarks: o que medem (e o que escondem)</h2>
+    <p class="sec-lead">
+      Todo número de benchmark precisa de contexto. MMLU está saturado. SWE-Bench virou obrigatório. 
+      ARC-AGI-2 é o mais honesto sobre raciocínio genuíno. Mas nenhum prediz desempenho em produção.
+    </p>
+
+    <h3 style="margin-bottom:20px">Benchmarks principais e status atual</h3>
+
+    <div class="bar-row">
+      <span class="bar-label">MMLU (conhecimento geral)</span>
+      <div class="bar-track"><div class="bar-fill" style="width:93%"></div></div>
+      <span class="bar-pct">93% 🔴</span>
+    </div>
+    <div style="font-size:0.8rem;color:#666;margin:-8px 0 14px 192px;font-family:var(--font-mono)">SATURADO — diferença entre modelos é ruído estatístico</div>
+
+    <div class="bar-row">
+      <span class="bar-label">SWE-Bench Verified (código)</span>
+      <div class="bar-track"><div class="bar-fill" style="width:80%"></div></div>
+      <span class="bar-pct">~80%</span>
+    </div>
+
+    <div class="bar-row">
+      <span class="bar-label">GPQA Diamond (PhD science)</span>
+      <div class="bar-track"><div class="bar-fill" style="width:94%"></div></div>
+      <span class="bar-pct">94% 🔴</span>
+    </div>
+    <div style="font-size:0.8rem;color:#666;margin:-8px 0 14px 192px;font-family:var(--font-mono)">Gemini 3.1 Pro lidera — quase saturado</div>
+
+    <div class="bar-row">
+      <span class="bar-label">Humanity's Last Exam (HLE)</span>
+      <div class="bar-track"><div class="bar-fill" style="width:38%"></div></div>
+      <span class="bar-pct">38%</span>
+    </div>
+    <div class="bar-row" style="margin-top:-4px">
+      <span class="bar-label" style="color:#888;font-size:0.72rem;padding-left:12px">→ Humano especialista</span>
+      <div class="bar-track"><div class="bar-fill bar-fill-human" style="width:90%"></div></div>
+      <span class="bar-pct">~90%</span>
+    </div>
+
+    <div class="bar-row" style="margin-top:10px">
+      <span class="bar-label">ARC-AGI-2 (raciocínio fluido)</span>
+      <div class="bar-track"><div class="bar-fill" style="width:85%"></div></div>
+      <span class="bar-pct">85% 🏆</span>
+    </div>
+    <div class="bar-row" style="margin-top:-4px">
+      <span class="bar-label" style="color:#888;font-size:0.72rem;padding-left:12px">→ Humano médio</span>
+      <div class="bar-track"><div class="bar-fill bar-fill-human" style="width:60%"></div></div>
+      <span class="bar-pct">60%</span>
+    </div>
+
+    <div class="bar-row" style="margin-top:10px">
+      <span class="bar-label">OSWorld (autonomia em PC)</span>
+      <div class="bar-track"><div class="bar-fill" style="width:66%"></div></div>
+      <span class="bar-pct">66%</span>
+    </div>
+    <div class="bar-row" style="margin-top:-4px">
+      <span class="bar-label" style="color:#888;font-size:0.72rem;padding-left:12px">→ Humano</span>
+      <div class="bar-track"><div class="bar-fill bar-fill-human" style="width:72%"></div></div>
+      <span class="bar-pct">~72%</span>
+    </div>
+
+    <div class="callout callout-red" style="margin-top:28px">
+      <span class="callout-icon">🚨</span>
+      <div class="callout-body">
+        <h4>O Gap Benchmark → Produção</h4>
+        <p>Análise de 2026 mostra um <strong>gap de 37%</strong> entre scores de benchmark e desempenho real em sistemas agênticos corporativos. Custo varia 50× para precisão similar. Benchmark é filtro, não veredicto — avalie o que você realmente vai deployar.</p>
+      </div>
+    </div>
+
+    <h3 style="margin:32px 0 16px">Como interpretar benchmarks com clientes</h3>
+    <div class="compare-box">
+      <div class="compare-side compare-before">
+        <div class="compare-label">❌ Interpretação ingênua</div>
+        <p style="font-size:0.88rem">"O modelo X tem 94% em GPQA, então é melhor para qualquer coisa técnica do que o Y com 89%."</p>
+      </div>
+      <div class="compare-side compare-after">
+        <div class="compare-label">✅ Interpretação consultiva</div>
+        <p style="font-size:0.88rem">"GPQA mede PhD-level science. Para o seu caso de análise fiscal, o diferencial relevante é SWE-Bench + latência + custo por chamada no seu volume esperado."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEC 5: LIMITAÇÕES ===== -->
+<section id="limitacoes">
+  <div class="container">
+    <div class="sec-label">Seção 05 · Realidade</div>
+    <h2 class="sec-title">O que ainda não funciona bem</h2>
+    <p class="sec-lead">
+      "Jagged intelligence" — inteligência irregular. Modelos de 2026 resolvem problemas de olimpíada de matemática 
+      mas falham em ler relógios analógicos. Entender onde a IA ainda tropeça é tão importante 
+      quanto saber onde ela brilha.
+    </p>
+
+    <div class="card-grid card-grid-2">
+
+      <div class="card card-accent">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <h3>⏰ Percepção visual básica</h3>
+          <span class="pill pill-red">FALHA</span>
+        </div>
+        <p>ClockBench 2026: até o melhor modelo (GPT-5.4) acerta um relógio analógico em apenas 50% das vezes. Claude Opus 4.6: <strong>8,9% de acerto</strong>. O problema é que "a linguagem carrega o peso" mesmo em tarefas multimodais — o modelo ignora pistas visuais.</p>
+      </div>
+
+      <div class="card card-accent">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <h3>🤖 Robótica física</h3>
+          <span class="pill pill-red">FALHA</span>
+        </div>
+        <p>Robôs domésticos completam apenas <strong>12% das tarefas do lar</strong>. Em laboratório controlado (RLBench), chegam a 89% — mas o mundo real é imprevisível. Físico é muito mais difícil que digital.</p>
+      </div>
+
+      <div class="card card-accent">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <h3>🧮 Matemática visual</h3>
+          <span class="pill pill-yellow">PARCIAL</span>
+        </div>
+        <p>Modelos resolvem problemas matemáticos complexos em texto com >90% de acerto, mas degradam significativamente quando os mesmos problemas são apresentados como imagens (puzzles visuais, diagramas). Raciocínio espacial continua problemático.</p>
+      </div>
+
+      <div class="card card-accent">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <h3>🌍 Física intuitiva</h3>
+          <span class="pill pill-red">FALHA</span>
+        </div>
+        <p>IntPhys 2 (benchmark de física intuitiva em vídeo): modelos performam apenas <strong>marginalmente acima do acaso</strong>. Saber se um vídeo é "fisicamente plausível" é trivial para humanos e difícil para LLMs sem experiência no mundo físico.</p>
+      </div>
+
+      <div class="card card-accent">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <h3>📅 Datas e calendários</h3>
+          <span class="pill pill-yellow">PARCIAL</span>
+        </div>
+        <p>Combinações de linguagem + data/calendário são suscetíveis a erros. Modelos frequentemente ignoram informações temporais explícitas se contradizem padrões do treinamento. Calcular "qual era a terceira sexta-feira de fevereiro de 1987" ainda varia muito.</p>
+      </div>
+
+      <div class="card card-accent">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <h3>⚖️ Domínios profissionais complexos</h3>
+          <span class="pill pill-yellow">PARCIAL</span>
+        </div>
+        <p>Direito e finanças: nenhum modelo domina o campo ainda. GDPval (avaliação com profissionais reais de 14+ anos) mostra que em estética Claude se destaca, mas em precisão jurídica nenhum modelo é confiável sem supervisão humana.</p>
+      </div>
+
+      <div class="card card-accent">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <h3>🔒 Consistência longa</h3>
+          <span class="pill pill-yellow">PARCIAL</span>
+        </div>
+        <p>Em conversas e agentes de longa duração, modelos "esquecem" instruções do início, contradizem decisões anteriores e perdem o fio de raciocínio. Janela de contexto grande ≠ atenção uniforme ao longo do contexto.</p>
+      </div>
+
+      <div class="card card-accent">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+          <h3>🎯 Calibração de confiança</h3>
+          <span class="pill pill-yellow">PARCIAL</span>
+        </div>
+        <p>Modelos frequentemente expressam igual confiança em respostas certas e erradas. Alucinações confiantes (hallucinations with high confidence) continuam sendo o principal risco em casos de uso de alto stakes como medicina e compliance.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEC 6: AGI ===== -->
+<section id="agi">
+  <div class="container">
+    <div class="sec-label">Seção 06 · Debate</div>
+    <h2 class="sec-title">Debate AGI: onde estamos?</h2>
+    <p class="sec-lead">
+      AGI (Artificial General Intelligence) é o termo mais debatido e menos definido da indústria. 
+      Cada lab tem uma definição, e cada definição convenientemente posiciona seu próprio produto 
+      como próximo de atingi-la. Vamos colocar dados na mesa.
+    </p>
+
+    <div class="agi-meter">
+      <div class="agi-label">AGI Progress Estimate — GPT-5 (pesquisa Center for AI Safety, 2025)</div>
+      <div class="agi-track">
+        <div class="agi-fill" style="width:57%">57%</div>
+      </div>
+      <div class="agi-markers">
+        <span>0% — Ferramenta básica</span>
+        <span>50% — Marco intermediário</span>
+        <span>100% — AGI (def. CAIS)</span>
+      </div>
+      <p style="font-size:0.82rem;color:#666;margin-top:12px;margin-bottom:0">Framework: 10 capacidades humanas (raciocínio, memória, linguagem, visão, escrita...) ponderadas igualmente. GPT-4: 27%. GPT-5: 57%.</p>
+    </div>
+
+    <div class="card-grid card-grid-2" style="margin:28px 0">
+      <div class="quote-block">
+        <p class="quote-text">Podemos ter algo semelhante a 'um país de gênios em um datacenter' já em 2026.</p>
+        <div class="quote-attr">Dario Amodei (CEO Anthropic) — previsão 2024, progressivamente revisada</div>
+      </div>
+      <div class="quote-block">
+        <p class="quote-text">A IA será mais inteligente que um Prêmio Nobel em muitas disciplinas até o final de 2026 ou 2027.</p>
+        <div class="quote-attr">Jack Clark (co-fundador Anthropic), setembro 2025</div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:16px">Os 3 conceitos que você precisa separar</h3>
+
+    <div class="card-grid card-grid-3">
+      <div class="card card-dark">
+        <div class="card-icon">🧠</div>
+        <h3>AGI</h3>
+        <p>Artificial General Intelligence — sistema que iguala ou supera humanos em qualquer tarefa cognitiva. Não existe consenso se ou quando será atingido. GPT-5 está em ~57% por uma definição rigorosa.</p>
+      </div>
+      <div class="card card-dark">
+        <div class="card-icon">🚀</div>
+        <h3>ASI</h3>
+        <p>Artificial Superintelligence — sistema que supera humanos em todas as dimensões cognitivas por ordens de magnitude. Conceito de longo prazo. Mayoridade dos pesquisadores o coloca como décadas à frente — se possível.</p>
+      </div>
+      <div class="card card-dark">
+        <div class="card-icon">🎯</div>
+        <h3>Alignment</h3>
+        <p>Garantir que sistemas de IA poderosos ajam de acordo com valores humanos. Problema técnico e filosófico não resolvido. Anthropic e OpenAI têm equipes dedicadas — mas não há solução validada para sistemas muito acima do atual.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-yellow" style="margin-top:28px">
+      <span class="callout-icon">🔬</span>
+      <div class="callout-body">
+        <h4>Capability Overhang — o risco real</h4>
+        <p>Modelos já treinados podem ter capacidades ocultas que ainda não foram descobertas ou elicitadas. Quando novas técnicas de prompting ou scaffolding surgem, capacidades "dormentes" emergem sem novo treinamento. Este é um dos principais riscos para o debate de safety: não sabemos o que modelos existentes "sabem".</p>
+      </div>
+    </div>
+
+    <h3 style="margin:32px 0 16px">O que os dados dizem sobre ARC-AGI-2 (Abril 2026)</h3>
+
+    <div class="bar-row">
+      <span class="bar-label">GPT-5.5</span>
+      <div class="bar-track"><div class="bar-fill" style="width:85%"></div></div>
+      <span class="bar-pct">85% 🏆</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">GPT-5.4 Pro</span>
+      <div class="bar-track"><div class="bar-fill" style="width:83.3%"></div></div>
+      <span class="bar-pct">83,3%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Gemini 3.1 Pro</span>
+      <div class="bar-track"><div class="bar-fill" style="width:77.1%"></div></div>
+      <span class="bar-pct">77,1%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Humano médio</span>
+      <div class="bar-track"><div class="bar-fill bar-fill-human" style="width:60%"></div></div>
+      <span class="bar-pct">60%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">ARC-AGI-3 (novo, sem regras)</span>
+      <div class="bar-track"><div class="bar-fill bar-fill-danger" style="width:1%"></div></div>
+      <span class="bar-pct">&lt;1%</span>
+    </div>
+    <p style="font-size:0.8rem;color:#666;margin-top:8px;font-family:var(--font-mono)">ARC-AGI-3: jogo sem regras explícitas, exige raciocínio fluido puro. Modelos frontier: &lt;1%. Humanos: &gt;60%.</p>
+
+    <div class="callout callout-dark" style="margin-top:24px">
+      <span class="callout-icon">🎓</span>
+      <div class="callout-body">
+        <h4>Posição consultiva</h4>
+        <p>Para clientes: AGI é irrelevante para decisões de compra de 2026. O que importa é: o modelo resolve o seu problema específico com confiabilidade e custo aceitáveis? Deixe o debate filosófico para os labs — você está pagando por ROI.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEC 7: EMPREGOS ===== -->
+<section id="empregos">
+  <div class="container">
+    <div class="sec-label">Seção 07 · Mercado de Trabalho</div>
+    <h2 class="sec-title">Impacto no mercado de trabalho</h2>
+    <p class="sec-lead">
+      A pergunta não é "a IA vai roubar empregos?" — é "quais tarefas serão automatizadas, 
+      quais serão aumentadas, e quem será deslocado ou elevado?" Os dados de 2025-2026 mostram 
+      um impacto real, mas mais matizado do que o hype sugere.
+    </p>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-number">+2,7×</div>
+        <div class="stat-label">Publicações sobre IA em drug discovery</div>
+        <div class="stat-note">Vs. 2 anos atrás — setor mais acelerado</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">≈100%</div>
+        <div class="stat-label">SWE-Bench Verified 2025</div>
+        <div class="stat-note">Era 60% em 2024 — coding assistido transformado</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">37%</div>
+        <div class="stat-label">Gap benchmark → produção em agentes</div>
+        <div class="stat-note">Significa que humano de supervisão ainda é crítico</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">450K</div>
+        <div class="stat-label">Viagens semanais Waymo</div>
+        <div class="stat-note">5 cidades EUA — mobilidade autônoma em escala real</div>
+      </div>
+    </div>
+
+    <h3 style="margin:32px 0 16px">Setores por nível de disrupção (visão 2026)</h3>
+
+    <div class="card-grid card-grid-3">
+
+      <div class="sector-card">
+        <div class="sector-header">
+          <span class="sector-icon">💻</span>
+          <span class="sector-name">Desenvolvimento de Software</span>
+          <span class="sector-impact impact-high">ALTO</span>
+        </div>
+        <ul class="sector-tasks">
+          <li>Coding assistido ≈ padrão universal</li>
+          <li>Code review automatizado</li>
+          <li>Documentação e testes gerados por IA</li>
+          <li>Junior devs precisam reposicionamento</li>
+          <li>Senior+ com IA produz 3–5× mais</li>
+        </ul>
+      </div>
+
+      <div class="sector-card">
+        <div class="sector-header">
+          <span class="sector-icon">📝</span>
+          <span class="sector-name">Redação & Conteúdo</span>
+          <span class="sector-impact impact-high">ALTO</span>
+        </div>
+        <ul class="sector-tasks">
+          <li>Conteúdo de marketing em escala</li>
+          <li>Tradução profissional transformada</li>
+          <li>Jornalismo de dados automatizado</li>
+          <li>Copywriting: co-piloto universal</li>
+          <li>Diferencial: voz autoral + estratégia</li>
+        </ul>
+      </div>
+
+      <div class="sector-card">
+        <div class="sector-header">
+          <span class="sector-icon">🏥</span>
+          <span class="sector-name">Saúde & Medicina</span>
+          <span class="sector-impact impact-medium">MÉDIO</span>
+        </div>
+        <ul class="sector-tasks">
+          <li>Diagnóstico por imagem: IA como 2ª opinião</li>
+          <li>Drug discovery acelerado (2,7× publicações)</li>
+          <li>Registro clínico automatizado</li>
+          <li>Regulação e responsabilidade ainda bloqueiam</li>
+          <li>Médico + IA &gt; médico ou IA sozinhos</li>
+        </ul>
+      </div>
+
+      <div class="sector-card">
+        <div class="sector-header">
+          <span class="sector-icon">⚖️</span>
+          <span class="sector-name">Direito & Compliance</span>
+          <span class="sector-impact impact-medium">MÉDIO</span>
+        </div>
+        <ul class="sector-tasks">
+          <li>Due diligence e revisão de contratos: alta automação</li>
+          <li>Pesquisa jurídica acelerada</li>
+          <li>Aconselhamento estratégico: humano ainda lidera</li>
+          <li>Nenhum modelo domina julgamentos reais ainda</li>
+          <li>Foco: paralegais e advogados júnior mais impactados</li>
+        </ul>
+      </div>
+
+      <div class="sector-card">
+        <div class="sector-header">
+          <span class="sector-icon">🧮</span>
+          <span class="sector-name">Contabilidade & Fiscal</span>
+          <span class="sector-impact impact-medium">MÉDIO</span>
+        </div>
+        <ul class="sector-tasks">
+          <li>Conciliação e classificação automatizadas</li>
+          <li>Geração de relatórios de conformidade</li>
+          <li>Análise de anomalias fiscal em escala</li>
+          <li>Interpretação de legislação: co-piloto útil, não autônomo</li>
+          <li>Diferencial: julgamento sobre casos-borda</li>
+        </ul>
+      </div>
+
+      <div class="sector-card">
+        <div class="sector-header">
+          <span class="sector-icon">🚚</span>
+          <span class="sector-name">Logística & Supply Chain</span>
+          <span class="sector-impact impact-medium">MÉDIO</span>
+        </div>
+        <ul class="sector-tasks">
+          <li>Roteirização e previsão de demanda: transformadas</li>
+          <li>Controle de estoque preditivo</li>
+          <li>Robótica em armazéns (mas 12% físico...)</li>
+          <li>Gestão de fornecedores: documentação automática</li>
+          <li>Decisão estratégica de sourcing: humano</li>
+        </ul>
+      </div>
+
+      <div class="sector-card">
+        <div class="sector-header">
+          <span class="sector-icon">🎨</span>
+          <span class="sector-name">Design & Criação</span>
+          <span class="sector-impact impact-high">ALTO</span>
+        </div>
+        <ul class="sector-tasks">
+          <li>Design de peças únicas: IA como co-criador</li>
+          <li>Produção em escala: altamente automatizada</li>
+          <li>Identidade de marca: ainda demanda humano</li>
+          <li>Vídeo e áudio: qualidade broadcast com IA</li>
+          <li>Diferencial: direção criativa e estratégia</li>
+        </ul>
+      </div>
+
+      <div class="sector-card">
+        <div class="sector-header">
+          <span class="sector-icon">📊</span>
+          <span class="sector-name">Análise de Dados & BI</span>
+          <span class="sector-impact impact-high">ALTO</span>
+        </div>
+        <ul class="sector-tasks">
+          <li>Análises ad-hoc em linguagem natural</li>
+          <li>Geração de dashboards por descrição</li>
+          <li>Interpretação de anomalias</li>
+          <li>Data cleaning: altamente automatizado</li>
+          <li>Diferencial: perguntas estratégicas certas</li>
+        </ul>
+      </div>
+
+      <div class="sector-card">
+        <div class="sector-header">
+          <span class="sector-icon">🔧</span>
+          <span class="sector-name">Manutenção Industrial / Field</span>
+          <span class="sector-impact impact-low">BAIXO</span>
+        </div>
+        <ul class="sector-tasks">
+          <li>Diagnóstico de falhas com IA: útil</li>
+          <li>Manuais e procedimentos gerados</li>
+          <li>Robótica física: apenas 12% de tarefas</li>
+          <li>Trabalho manual especializado: mais protegido</li>
+          <li>Augmentação via AR + IA é o caminho</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="callout callout-green" style="margin-top:32px">
+      <span class="callout-icon">🎓</span>
+      <div class="callout-body">
+        <h4>A habilidade que mais importa em 2026</h4>
+        <p>Não é saber programar IA. É saber <strong>fazer as perguntas certas</strong>. Em qualquer setor, o profissional que consegue decompor problemas complexos em tarefas que IA pode executar — e validar os resultados com julgamento de domínio — se torna multiplicador de valor. Essa consultora aprende isso neste cursinho.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEC 8: REGULAÇÃO ===== -->
+<section id="regulacao">
+  <div class="container">
+    <div class="sec-label">Seção 08 · Governança</div>
+    <h2 class="sec-title">Regulação global: o mapa de 2026</h2>
+    <p class="sec-lead">
+      O mundo da regulação de IA está divergindo: UE com abordagem baseada em risco e compliance rigoroso, 
+      EUA com mosaico de leis estaduais e executive orders, e Brasil com seu PL ainda em construção. 
+      Entender o mapa evita surpresas caras para clientes.
+    </p>
+
+    <table class="reg-table">
+      <thead>
+        <tr>
+          <th>Jurisdição</th>
+          <th>Abordagem</th>
+          <th>Status (Abr 2026)</th>
+          <th>O que afeta na prática</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>🇪🇺 União Europeia</strong><br><span style="font-size:0.78rem;color:#666">EU AI Act</span></td>
+          <td><span class="tag" style="background:#4ECDC4">Risk-based</span></td>
+          <td>
+            <span class="tag" style="background:#FF6B6B;color:white">Fev/25: banidos</span>
+            <span class="tag" style="background:#FFD93D">Ago/25: GPAI</span>
+            <span class="tag" style="background:#2ECC71">Ago/26: high-risk</span>
+          </td>
+          <td>HR, recrutamento, scoring de crédito, sistemas de saúde. Multas até €15M ou 3% do faturamento global. Digital Omnibus propõe adiamento de algumas obrigações.</td>
+        </tr>
+        <tr>
+          <td><strong>🇺🇸 Estados Unidos</strong><br><span style="font-size:0.78rem;color:#666">Federal + Estadual</span></td>
+          <td><span class="tag" style="background:#FFD93D">Setorial</span></td>
+          <td>
+            <span class="tag" style="background:#4ECDC4">Dez/25: Executive Order</span>
+          </td>
+          <td>EO de dez/2025: framework federal mínimo para limitar divergência estadual. Califórnia, NY, Colorado avançam independentemente. Sem lei federal unificada ainda.</td>
+        </tr>
+        <tr>
+          <td><strong>🇧🇷 Brasil</strong><br><span style="font-size:0.78rem;color:#666">PL 2338/2023</span></td>
+          <td><span class="tag" style="background:#4ECDC4">Risk-based</span></td>
+          <td>
+            <span class="tag" style="background:#FFD93D">Em comissão</span>
+          </td>
+          <td>Aprovado no Senado em dez/2024, em comissão especial em 2025. Espelha a UE: proíbe "risco excessivo", responsabilidade objetiva, LGPD complementa. ANPD potencial autoridade supervisora.</td>
+        </tr>
+        <tr>
+          <td><strong>🇨🇳 China</strong><br><span style="font-size:0.78rem;color:#666">Vertical / Segurança</span></td>
+          <td><span class="tag" style="background:var(--ink);color:white">Controle</span></td>
+          <td>
+            <span class="tag" style="background:#FF6B6B;color:white">Jan/26: Cybersec</span>
+          </td>
+          <td>Foco em segurança estatal e conteúdo. Jan/2026: emendas de cibersegurança com punições imediatas sem aviso. Conteúdo AI-gerado: watermark + metadados obrigatórios.</td>
+        </tr>
+        <tr>
+          <td><strong>🇯🇵 Japão</strong><br><span style="font-size:0.78rem;color:#666">AI Promotion Act</span></td>
+          <td><span class="tag" style="background:#2ECC71">Innovation-first</span></td>
+          <td>
+            <span class="tag" style="background:#2ECC71">Mai/25: aprovado</span>
+          </td>
+          <td>Approach mais leve: princípios, advertências, sem punições duras. Pressão reputacional como mecanismo. Visa adoção com responsabilidade, sem enforcement agressivo.</td>
+        </tr>
+        <tr>
+          <td><strong>🇬🇧 Reino Unido</strong></td>
+          <td><span class="tag" style="background:#FFD93D">Setorial</span></td>
+          <td>
+            <span class="tag" style="background:#4ECDC4">Sem lei central</span>
+          </td>
+          <td>Reguladores setoriais (FCA, CMA, ICO) aplicam regras existentes ao contexto de IA. Proposta de responsabilidade para desenvolvedores em discussão. Postura pós-Brexit: diferente da UE.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin:32px 0 16px">EU AI Act — linha do tempo para clientes</h3>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-date" style="background:var(--green);color:var(--ink)">FEV<br>2025</div>
+        <div class="timeline-content">
+          <h4>✅ Fase 1 — Banimentos em vigor</h4>
+          <p>Sistemas de "risco inaceitável" proibidos: reconhecimento de emoção no trabalho, scoring social biométrico, vigilância em massa. Obrigatoriedade de AI literacy nas organizações europeias.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date" style="background:var(--green);color:var(--ink)">AGO<br>2025</div>
+        <div class="timeline-content">
+          <h4>✅ Fase 2 — GPAI rules</h4>
+          <p>Fornecedores de modelos de propósito geral (OpenAI, Anthropic, Google) precisam publicar documentação de treinamento, respeitar copyright, e modelos de "risco sistêmico" devem reportar incidentes à AI Office.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date">AGO<br>2026</div>
+        <div class="timeline-content">
+          <h4>⏳ Fase 3 — High-risk completo (em risco de atraso)</h4>
+          <p>Sistemas de alto risco (RH, crédito, saúde, infraestrutura crítica) precisam de: documentação técnica, testes de bias, supervisão humana, registro na EU. Digital Omnibus pode atrasar esta fase até 2027-2028 por falta de padrões técnicos.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-green" style="margin-top:24px">
+      <span class="callout-icon">🇧🇷</span>
+      <div class="callout-body">
+        <h4>Brasil: o que monitorar</h4>
+        <p>PL 2338/2023 segue o modelo europeu de risco. LGPD já afeta sistemas de IA que tratam dados pessoais. Organizações brasileiras que exportam para a UE precisam se preparar para o EU AI Act agora — e o PL nacional deve chegar com exigências similares. Quem construir governança para a UE estará adiantado no Brasil.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEC 9: TENDÊNCIAS ===== -->
+<section id="tendencias">
+  <div class="container">
+    <div class="sec-label">Seção 09 · Futuro próximo</div>
+    <h2 class="sec-title">O que vem por aí: 2026–2027</h2>
+    <p class="sec-lead">
+      Previsões em IA têm prazo de validade curto — modelos de há 18 meses já são obsoletos. 
+      Mas existem tendências estruturais com momentum suficiente para apostar com confiança.
+    </p>
+
+    <div class="card-grid card-grid-2" style="margin-bottom:32px">
+
+      <div class="trend-card">
+        <div class="trend-header">
+          <span class="trend-title">🤖 Agentes autônomos em produção</span>
+          <span class="pill">ALTA CERTEZA</span>
+        </div>
+        <div class="trend-body">
+          <p>OSWorld passou de 12% para 66% em 1 ano — falta ~6 pontos para parity humana em tarefas de PC. Espere agentes de automação corporativa (RPA + IA) substituindo fluxos de trabalho inteiros, não apenas tarefas. Human-in-the-loop: não vai sumir, vai se tornar raro para ações reversíveis.</p>
+        </div>
+      </div>
+
+      <div class="trend-card">
+        <div class="trend-header">
+          <span class="trend-title">💰 Comoditização de modelos frontier</span>
+          <span class="pill">ALTA CERTEZA</span>
+        </div>
+        <div class="trend-body">
+          <p>Com Arena Elo separando os top-5 por apenas ~80 pontos, a competição se desloca para custo, latência e integração. Espere preços caindo 40-70% nos próximos 18 meses (tendência histórica desde GPT-3). Modelos menores e especializados vão dominar a maioria dos casos de uso.</p>
+        </div>
+      </div>
+
+      <div class="trend-card">
+        <div class="trend-header">
+          <span class="trend-title">🧠 Raciocínio persistente e memória</span>
+          <span class="pill">MÉDIA CERTEZA</span>
+        </div>
+        <div class="trend-body">
+          <p>Extended Thinking (Anthropic) e equivalentes consolidam o paradigma de "pensar antes de responder". Próximo passo: agentes que constroem memória semântica ao longo de meses. Modelos que "lembram" de contexto de projetos anteriores sem re-injeção manual.</p>
+        </div>
+      </div>
+
+      <div class="trend-card">
+        <div class="trend-header">
+          <span class="trend-title">📊 Avaliação e evals como competência</span>
+          <span class="pill">ALTA CERTEZA</span>
+        </div>
+        <div class="trend-body">
+          <p>2026 é o ano em que times de AI precisam investir pesado em avaliação e monitoramento. Gap de 37% entre benchmark e produção significa que qualidade precisa ser medida continuamente — não apenas no lançamento. Evals são o novo controle de qualidade.</p>
+        </div>
+      </div>
+
+      <div class="trend-card">
+        <div class="trend-header">
+          <span class="trend-title">⚡ Física e robótica: próxima fronteira</span>
+          <span class="pill">BAIXA CERTEZA (curto)</span>
+        </div>
+        <div class="trend-body">
+          <p>12% de tarefas domésticas é frustrante para os labs — mas aceleração está vindo. Figure, Boston Dynamics, Tesla Bot estão todos em escala de produção. 2027-2028 é o horizonte realista para robótica em ambientes industriais controlados.</p>
+        </div>
+      </div>
+
+      <div class="trend-card">
+        <div class="trend-header">
+          <span class="trend-title">🌐 Multi-agent por padrão</span>
+          <span class="pill">MÉDIA CERTEZA</span>
+        </div>
+        <div class="trend-body">
+          <p>Sistemas com um único agente LLM estão sendo substituídos por orquestrações multi-agente onde modelos especializados colaboram. Padrão Supervisor-Worker se torna default para pipelines empresariais. OpenAI Operator, Claude Cowork e Google Mariner provam o modelo.</p>
+        </div>
+      </div>
+
+      <div class="trend-card">
+        <div class="trend-header">
+          <span class="trend-title">🔒 Safety como diferencial competitivo</span>
+          <span class="pill">MÉDIA CERTEZA</span>
+        </div>
+        <div class="trend-body">
+          <p>Com EU AI Act em vigor, compliance não é custo — é vantagem. Empresas com governança de IA madura chegam a novos mercados primeiro. Anthropic's Constitutional AI e interpretabilidade (mecanistic interpretability) devem gerar diferencial técnico crescente.</p>
+        </div>
+      </div>
+
+      <div class="trend-card">
+        <div class="trend-header">
+          <span class="trend-title">🇨🇳 Convergência EUA-China</span>
+          <span class="pill">ALTA CERTEZA</span>
+        </div>
+        <div class="trend-body">
+          <p>DeepSeek V3.2 e Alibaba Qwen 3.5 provam que o gap técnico entre labs americanos e chineses está fechando. Com preços 50-100× menores, modelos chineses open-source vão pressionar preços globalmente — e complicar controles de exportação de chips.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout callout-dark">
+      <span class="callout-icon">🎯</span>
+      <div class="callout-body">
+        <h4>Síntese consultiva: o que monitorar nos próximos 12 meses</h4>
+        <p>
+          <strong style="color:var(--green)">Regulation:</strong> PL brasileiro + EU AI Act high-risk deadline (ago/2026).&nbsp;
+          <strong style="color:var(--green)">Técnico:</strong> ARC-AGI-3 scores — indicador mais honesto de raciocínio genuíno.&nbsp;
+          <strong style="color:var(--green)">Mercado:</strong> queda de preços de frontier models — quanto e quando.&nbsp;
+          <strong style="color:var(--green)">Agentes:</strong> OSWorld passando humanos em 2026 ou 2027.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEC 10: GLOSSÁRIO ===== -->
+<section id="glossario">
+  <div class="container">
+    <div class="sec-label">Seção 10 · Referência</div>
+    <h2 class="sec-title">Glossário do Módulo 5</h2>
+    <p class="sec-lead">
+      Termos introduzidos neste módulo. Mantenha à mão para consultorias — 
+      clientes adoram quando você usa a terminologia certa no momento certo.
+    </p>
+
+    <div class="glossary-grid">
+
+      <div class="gloss-item">
+        <div class="gloss-term">AGI — Artificial General Intelligence</div>
+        <div class="gloss-def">Sistema de IA capaz de realizar qualquer tarefa cognitiva que um humano consegue fazer, com qualidade equivalente ou superior. Não existe ainda; definição varia por lab e pesquisador.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">ASI — Artificial Superintelligence</div>
+        <div class="gloss-def">Sistema de IA que supera humanos em todas as dimensões cognitivas por ordens de magnitude. Conceito teórico, sem previsão consensual de quando (ou se) ocorreria.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">Alignment</div>
+        <div class="gloss-def">Campo de pesquisa focado em garantir que sistemas de IA poderosos ajam de acordo com valores e intenções humanas. Problema técnico e filosófico central para safety de IA avançada.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">Frontier Model</div>
+        <div class="gloss-def">Modelos de IA no estado da arte em desempenho — os mais capazes disponíveis em um dado momento. Ex: Claude Opus 4.6, GPT-5.5, Gemini 3.1 Pro em abril 2026.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">Capability Overhang</div>
+        <div class="gloss-def">Capacidades latentes em modelos existentes que ainda não foram descobertas ou elicitadas. Quando novas técnicas surgem (prompts, scaffolding), capacidades "dormentes" emergem sem novo treinamento.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">Jagged Intelligence</div>
+        <div class="gloss-def">Perfil de capacidades irregular dos LLMs: excelentes em tarefas complexas (olimpíadas de matemática) mas falham em tarefas simples (ler relógio). Não há inteligência uniforme.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">Benchmark Saturation</div>
+        <div class="gloss-def">Quando um benchmark deixa de ser útil para diferenciar modelos porque todos já atingem scores próximos do máximo. MMLU está saturado (88-93%). Novos benchmarks são criados ciclicamente.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">Arena Elo</div>
+        <div class="gloss-def">Sistema de ranking de LLMs baseado em comparações cegas lado a lado por usuários humanos (Chatbot Arena). Considerado mais próximo da preferência real do que benchmarks automatizados.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">Humanity's Last Exam (HLE)</div>
+        <div class="gloss-def">Benchmark com 2.500 perguntas criadas por especialistas de domínio, projetado para ser difícil para IA. Em 2025: top modelo 8,8%. Em 2026: 38,3%. Humano especialista: ~90%.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">ARC-AGI-2</div>
+        <div class="gloss-def">Benchmark de raciocínio fluido com puzzles visuais sem regras explícitas. Mede inteligência genuína vs. memorização de padrões. Humano médio: 60%. Top IA: 85% (GPT-5.5, abr/2026).</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">OSWorld</div>
+        <div class="gloss-def">Benchmark de autonomia em computadores — agentes controlam um PC real e completam tarefas em ambientes de SO. Em 2024: ~12%. Em 2026: 66%. Humano: ~72%.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">Safety (AI Safety)</div>
+        <div class="gloss-def">Campo focado em garantir que sistemas de IA sejam seguros, confiáveis e não causem danos imprevistos. Inclui robustez técnica, interpretabilidade, alinhamento e governança.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">EU AI Act</div>
+        <div class="gloss-def">Primeira regulação abrangente de IA do mundo, da União Europeia. Classifica sistemas por risco (inaceitável/alto/limitado/mínimo) com obrigações crescentes. Em vigor gradualmente de fev/2025 a ago/2027.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">PL 2338/2023 (Brasil)</div>
+        <div class="gloss-def">Projeto de Lei brasileiro de IA, aprovado no Senado em dez/2024. Espelha abordagem europeia de risco. Em comissão especial em 2025. ANPD potencial autoridade supervisora.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">GPAI (General Purpose AI)</div>
+        <div class="gloss-def">No contexto do EU AI Act: modelos de IA de propósito geral como GPT, Claude, Gemini. Sujeitos a regras específicas de transparência e documentação desde agosto 2025.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">Human-in-the-Loop (HITL)</div>
+        <div class="gloss-def">Padrão de design onde humanos supervisionam, validam ou aprovam decisões de sistemas de IA — especialmente em ações de alto impacto ou irreversíveis. Requisito regulatório para sistemas de alto risco.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">Eval (Evaluation)</div>
+        <div class="gloss-def">Processo sistemático de avaliar a qualidade e desempenho de um sistema de LLM em tarefas específicas. Fundamental para produção: gap de 37% entre benchmark e performance real em agentes.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">Deployment Gap</div>
+        <div class="gloss-def">Diferença entre performance de um modelo em benchmarks controlados e sua performance em aplicações reais de produção. Em 2026, estimado em 37% para sistemas agênticos corporativos.</div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:32px">
+      <div class="sec-label" style="margin-bottom:10px">Tags — conceitos do módulo</div>
+      <div class="tag-cloud">
+        <span class="tag">AGI</span>
+        <span class="tag">ASI</span>
+        <span class="tag">Alignment</span>
+        <span class="tag">Safety</span>
+        <span class="tag">Frontier Models</span>
+        <span class="tag">Capability Overhang</span>
+        <span class="tag">Jagged Intelligence</span>
+        <span class="tag">Benchmark Saturation</span>
+        <span class="tag">Arena Elo</span>
+        <span class="tag">HLE</span>
+        <span class="tag">ARC-AGI-2</span>
+        <span class="tag">OSWorld</span>
+        <span class="tag">EU AI Act</span>
+        <span class="tag">GPAI</span>
+        <span class="tag">PL 2338</span>
+        <span class="tag">HITL</span>
+        <span class="tag">Evals</span>
+        <span class="tag">Deployment Gap</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== NEXT BOX ===== -->
+<div class="container">
+  <div class="next-box">
+    <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--green);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:10px">Próximo módulo</div>
+    <h3>M6 · Arquivos de Contexto e Memória de Sistema</h3>
+    <p>Como sistemas de IA constroem, armazenam e recuperam memória. RAG em profundidade, vector databases, janela de contexto como recurso finito e arquitetura de agentes de longa duração.</p>
+    <a href="modulo6" class="next-btn">CONTINUAR PARA O MÓDULO 6 →</a>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer style="border-top:3px solid var(--ink);padding:32px 0;margin-top:64px;background:var(--ink)">
+  <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+    <div style="font-family:var(--font-mono);font-size:0.75rem;color:rgba(255,255,255,0.5)">
+      Cursinho de IA · Módulo 5 de 8 · Dados: Stanford AI Index 2026, MIT Tech Review, IEEE Spectrum
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="chip chip-green" style="font-size:0.65rem">M1 ✅</span>
+      <span class="chip chip-teal" style="font-size:0.65rem">M2 ✅</span>
+      <span class="chip chip-orange" style="font-size:0.65rem">M3 ✅</span>
+      <span class="chip chip-pink" style="font-size:0.65rem">M4 ✅</span>
+      <span class="chip chip-green" style="font-size:0.65rem;background:#1aaa57;color:white">M5 ✅</span>
+      <span class="chip" style="font-size:0.65rem;opacity:0.5">M6 ⏳</span>
+      <span class="chip" style="font-size:0.65rem;opacity:0.5">M7 ⏳</span>
+      <span class="chip" style="font-size:0.65rem;opacity:0.5">M8 ⏳</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Progress bar
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrollTop / docHeight) * 100;
+    document.getElementById('progress-bar').style.width = progress + '%';
+  });
+
+  // Intersection observer for bar animations
+  const bars = document.querySelectorAll('.bar-fill');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.width = entry.target.dataset.width || entry.target.style.width;
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+  bars.forEach(bar => observer.observe(bar));
+
+  // Smooth scroll for TOC
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M8 · Arquitetura de Agentes e Claude Code — Cursinho de IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --coral: #FF6B6B;
+  --coral-dark: #c0392b;
+  --coral-light: #FFAAAA;
+  --coral-pale: #FFE8E8;
+  --ink: #1A1A2E;
+  --cream: #FFF8F0;
+  --white: #FFFFFF;
+  --shadow: 8px 8px 0px #1A1A2E;
+  --shadow-hover: 11px 11px 0px #1A1A2E;
+  --shadow-sm: 4px 4px 0px #1A1A2E;
+  --border: 3px solid #1A1A2E;
+  --radius: 14px;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-head: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--cream); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.7; padding-top: 8px; }
+
+#progress-bar { position: fixed; top: 0; left: 0; width: 0%; height: 6px; background: linear-gradient(90deg, #FF6B6B, #c0392b, #e74c3c); z-index: 9999; transition: width 0.2s ease; }
+
+h1, h2, h3 { font-family: var(--font-head); line-height: 1.2; }
+h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; }
+h2 { font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 700; }
+h3 { font-size: 1.15rem; font-weight: 700; }
+p  { margin-bottom: 1rem; }
+a  { color: var(--ink); }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+/* HEADER */
+.site-header { background: var(--coral); border-bottom: var(--border); padding: 12px 0; position: sticky; top: 6px; z-index: 100; }
+.header-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.header-badge { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; background: var(--ink); color: var(--coral); padding: 4px 12px; border-radius: 4px; letter-spacing: 0.08em; text-transform: uppercase; }
+.header-title { font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: var(--white); }
+.header-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+.header-nav a { font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600; text-decoration: none; color: var(--ink); padding: 4px 10px; border: 2px solid var(--ink); border-radius: 4px; transition: all 0.15s; background: rgba(255,255,255,0.6); }
+.header-nav a:hover { background: var(--ink); color: var(--coral); }
+
+/* HERO */
+.hero { padding: 60px 0 50px; background: var(--coral); border-bottom: var(--border); position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -80px; right: -80px; width: 360px; height: 360px; border-radius: 50%; background: rgba(255,255,255,0.08); pointer-events: none; }
+.hero::after  { content: ''; position: absolute; bottom: -50px; left: 40px; width: 220px; height: 220px; border-radius: 50%; background: rgba(26,26,46,0.08); pointer-events: none; }
+.hero-inner { display: grid; grid-template-columns: 1fr 300px; gap: 36px; align-items: start; }
+.hero-card { background: var(--white); border: var(--border); border-radius: var(--radius); padding: 36px 40px; box-shadow: var(--shadow); transform: rotate(-0.7deg); }
+.hero-label { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--coral-dark); margin-bottom: 10px; }
+.hero-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.chip { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; padding: 4px 12px; border-radius: 100px; border: 2px solid var(--ink); display: inline-flex; align-items: center; gap: 5px; }
+.chip-coral  { background: var(--coral); color: white; }
+.chip-yellow { background: #FFD93D; }
+.chip-green  { background: #2ECC71; }
+.chip-teal   { background: #4ECDC4; }
+.chip-purple { background: #6C5CE7; color: white; }
+.chip-ink    { background: var(--ink); color: var(--coral-light); }
+
+.toc-card { background: var(--ink); color: var(--white); border: var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); transform: rotate(0.7deg); position: sticky; top: 80px; }
+.toc-card h3 { color: var(--coral-light); font-size: 0.85rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; }
+.toc-list { list-style: none; }
+.toc-list li { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 7px 0; }
+.toc-list li:last-child { border-bottom: none; }
+.toc-list a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.79rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 8px; transition: color 0.15s; }
+.toc-list a:hover { color: var(--coral-light); }
+.toc-num { background: rgba(255,255,255,0.08); color: var(--coral-light); font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; font-family: var(--font-mono); font-weight: 700; min-width: 24px; text-align: center; }
+
+/* SECTIONS */
+section { padding: 64px 0; border-top: 3px solid var(--ink); }
+section:first-of-type { border-top: none; }
+.sec-label { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--coral-dark); margin-bottom: 6px; }
+.sec-title { margin-bottom: 12px; }
+.sec-lead { font-size: 1.1rem; line-height: 1.7; max-width: 720px; border-left: 5px solid var(--coral); padding-left: 18px; margin-bottom: 40px; color: #333; }
+
+/* CARDS */
+.card { background: var(--white); border: var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); transition: transform 0.18s, box-shadow 0.18s; }
+.card:hover { transform: translate(-3px,-3px); box-shadow: var(--shadow-hover); }
+.card-grid { display: grid; gap: 20px; }
+.card-grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); }
+.card-grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); }
+.card-grid-4 { grid-template-columns: repeat(auto-fit, minmax(195px,1fr)); }
+.card h3 { margin-bottom: 8px; }
+.card p  { font-size: 0.88rem; margin-bottom: 0; color: #444; }
+.card-dark    { background: var(--ink); }
+.card-dark h3 { color: var(--coral-light); }
+.card-dark p  { color: rgba(255,255,255,0.72); }
+.card-coral   { background: var(--coral); }
+.card-coral h3, .card-coral p { color: var(--white); }
+.card-accent  { border-left: 6px solid var(--coral); }
+
+/* CODE */
+.code-block { background: var(--ink); border: var(--border); border-radius: var(--radius); padding: 0; overflow: hidden; margin: 20px 0; box-shadow: var(--shadow); }
+.code-header { background: #12122A; border-bottom: 2px solid rgba(255,255,255,0.06); padding: 10px 20px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--coral-light); letter-spacing: 0.1em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
+.code-body { padding: 20px 24px; overflow-x: auto; }
+.code-body pre { font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.8; color: #c8d3f5; margin: 0; }
+.c  { color: #7ec8a0; }
+.s  { color: #ffd93d; }
+.k  { color: #82b1ff; }
+.n  { color: #c792ea; }
+.o  { color: #89ddff; }
+.t  { color: #FF8C42; }
+.cm { color: #546e7a; font-style: italic; }
+.hi { color: #FFAAAA; font-weight: 700; }
+
+/* CALLOUT */
+.callout { border: var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 24px 0; display: flex; gap: 14px; align-items: flex-start; }
+.callout-icon { font-size: 1.5rem; flex-shrink: 0; margin-top: 2px; }
+.callout-body h4 { font-size: 0.95rem; margin-bottom: 4px; font-family: var(--font-head); }
+.callout-body p  { font-size: 0.88rem; margin: 0; color: #444; }
+.callout-coral  { background: var(--coral-pale); border-color: var(--coral-dark); }
+.callout-yellow { background: #FFF9CC; border-color: #e8c200; }
+.callout-green  { background: #D4F7E7; border-color: #1aaa57; }
+.callout-dark   { background: var(--ink); border-color: var(--ink); }
+.callout-dark .callout-body h4 { color: var(--coral-light); }
+.callout-dark .callout-body p  { color: rgba(255,255,255,0.72); }
+
+/* TABLE */
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; margin: 24px 0; }
+.data-table th { background: var(--ink); color: var(--coral-light); padding: 12px 14px; text-align: left; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.data-table th:first-child { border-radius: 8px 0 0 0; } .data-table th:last-child { border-radius: 0 8px 0 0; }
+.data-table td { padding: 11px 14px; border-bottom: 2px solid var(--ink); vertical-align: top; }
+.data-table tr:nth-child(even) td { background: rgba(255,107,107,0.05); }
+.data-table tr:hover td { background: var(--coral-pale); }
+
+/* PILL */
+.pill { display: inline-block; background: var(--coral); color: white; font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 100px; border: 2px solid var(--ink); letter-spacing: 0.05em; vertical-align: middle; margin-left: 4px; }
+.pill-green  { background: #2ECC71; color: var(--ink); }
+.pill-yellow { background: #FFD93D; color: var(--ink); }
+.pill-purple { background: #6C5CE7; color: white; }
+.pill-blue   { background: #3498DB; color: white; }
+
+/* ARCH DIAGRAM */
+.arch-dark { background: var(--ink); border: var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); margin: 24px 0; }
+.arch-label { font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); margin-bottom: 10px; }
+.arch-row   { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+.abox { background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 14px; font-family: var(--font-mono); font-size: 0.73rem; color: rgba(255,255,255,0.85); text-align: center; transition: background 0.15s; min-width: 100px; }
+.abox:hover { background: rgba(255,107,107,0.2); border-color: var(--coral); }
+.abox-coral  { background: rgba(255,107,107,0.2); border-color: var(--coral); color: var(--coral-light); }
+.abox-green  { background: rgba(46,204,113,0.12); border-color: #2ECC71; color: #2ECC71; }
+.abox-yellow { background: rgba(255,217,61,0.12); border-color: #FFD93D; color: #FFD93D; }
+.abox-purple { background: rgba(108,92,231,0.15); border-color: #6C5CE7; color: #C4B5FD; }
+.abox-blue   { background: rgba(52,152,219,0.12); border-color: #3498DB; color: #AED6F1; }
+.arr { color: rgba(255,255,255,0.3); font-size: 1.2rem; flex-shrink: 0; }
+
+/* PATTERN CARDS */
+.pattern-card { border: var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); transition: transform 0.18s, box-shadow 0.18s; }
+.pattern-card:hover { transform: translate(-3px,-3px); box-shadow: var(--shadow); }
+.pattern-header { padding: 14px 18px; border-bottom: var(--border); display: flex; justify-content: space-between; align-items: center; }
+.pattern-title { font-family: var(--font-head); font-weight: 700; font-size: 1rem; }
+.pattern-body  { background: var(--white); padding: 16px 18px; }
+.pattern-body p { font-size: 0.87rem; color: #444; margin-bottom: 10px; }
+.pattern-when  { font-family: var(--font-mono); font-size: 0.72rem; background: var(--coral-pale); padding: 8px 10px; border-radius: 6px; border-left: 3px solid var(--coral-dark); color: var(--coral-dark); }
+
+/* COMPARE */
+.compare-box { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0; }
+.compare-side { border: var(--border); border-radius: var(--radius); padding: 20px; }
+.compare-before { background: #FFF9CC; }
+.compare-after  { background: var(--coral-pale); }
+.compare-label  { font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; color: #666; }
+.compare-after .compare-label { color: var(--coral-dark); }
+
+/* STAT */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 20px; margin: 28px 0; }
+.stat-card { background: var(--white); border: var(--border); border-radius: var(--radius); padding: 22px 18px; box-shadow: var(--shadow-sm); text-align: center; transition: transform 0.18s, box-shadow 0.18s; }
+.stat-card:hover { transform: translate(-3px,-3px); box-shadow: var(--shadow); }
+.stat-number { font-family: var(--font-head); font-size: 2.2rem; font-weight: 800; color: var(--coral-dark); line-height: 1; margin-bottom: 4px; }
+.stat-label  { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #555; }
+.stat-note   { font-size: 0.76rem; color: #777; margin-top: 6px; }
+
+/* GLOSSARY MASTER */
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 16px; margin-top: 28px; }
+.gloss-item { background: var(--white); border: var(--border); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow-sm); transition: transform 0.15s; }
+.gloss-item:hover { transform: translate(-2px,-2px); }
+.gloss-term { font-family: var(--font-mono); font-size: 0.78rem; font-weight: 700; color: var(--coral-dark); margin-bottom: 5px; }
+.gloss-def  { font-size: 0.85rem; color: #444; line-height: 1.5; }
+.gloss-module { font-family: var(--font-mono); font-size: 0.6rem; font-weight: 700; padding: 1px 6px; border-radius: 3px; border: 1px solid var(--ink); margin-left: 6px; vertical-align: middle; }
+
+/* TAG CLOUD */
+.tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+.tag { font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600; padding: 6px 14px; border: 2px solid var(--ink); border-radius: 100px; background: var(--white); transition: background 0.15s, transform 0.15s; cursor: default; }
+.tag:hover { background: var(--coral); color: white; transform: translate(-2px,-2px); }
+
+/* NEXT / FINAL BOX */
+.final-box { background: var(--ink); border: var(--border); border-radius: var(--radius); padding: 48px 40px; text-align: center; margin-top: 48px; box-shadow: var(--shadow); }
+.final-box h3 { color: var(--coral-light); font-size: 1.8rem; margin-bottom: 16px; }
+.final-box p  { color: rgba(255,255,255,0.75); max-width: 580px; margin: 0 auto 24px; }
+.btn { display: inline-block; background: var(--coral); color: white; font-family: var(--font-head); font-size: 0.95rem; font-weight: 700; padding: 12px 32px; border-radius: 8px; border: 3px solid var(--ink); text-decoration: none; box-shadow: 5px 5px 0 rgba(255,255,255,0.12); transition: transform 0.15s, box-shadow 0.15s; }
+.btn:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 rgba(255,255,255,0.18); }
+.btn-secondary { background: rgba(255,255,255,0.1); color: white; margin-left: 12px; }
+
+/* REACT LOOP VIZ */
+.react-loop { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: var(--border); border-radius: var(--radius); overflow: hidden; margin: 24px 0; box-shadow: var(--shadow); }
+.react-step { padding: 20px 16px; text-align: center; border-right: 3px solid var(--ink); }
+.react-step:last-child { border-right: none; }
+.react-step-icon { font-size: 2rem; margin-bottom: 8px; }
+.react-step-name { font-family: var(--font-head); font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; }
+.react-step-desc { font-size: 0.78rem; color: #555; line-height: 1.4; }
+
+/* HITL SCALE */
+.hitl-scale { display: flex; gap: 0; border: var(--border); border-radius: var(--radius); overflow: hidden; margin: 24px 0; box-shadow: var(--shadow-sm); }
+.hitl-cell { flex: 1; padding: 16px 12px; text-align: center; border-right: 2px solid var(--ink); }
+.hitl-cell:last-child { border-right: none; }
+.hitl-icon { font-size: 1.6rem; margin-bottom: 6px; }
+.hitl-name { font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink); margin-bottom: 4px; }
+.hitl-desc { font-size: 0.75rem; color: #555; line-height: 1.3; }
+
+/* OBSERVABILITY TABLE */
+.obs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 16px; margin: 24px 0; }
+.obs-card { border: var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); transition: transform 0.18s, box-shadow 0.18s; }
+.obs-card:hover { transform: translate(-3px,-3px); box-shadow: var(--shadow); }
+.obs-header { padding: 12px 16px; border-bottom: var(--border); display: flex; align-items: center; gap: 8px; }
+.obs-icon   { font-size: 1.3rem; }
+.obs-name   { font-family: var(--font-head); font-weight: 700; font-size: 0.9rem; }
+.obs-body   { background: var(--white); padding: 12px 16px; }
+.obs-body ul { list-style: none; }
+.obs-body li { font-size: 0.82rem; color: #444; padding: 3px 0; border-bottom: 1px solid rgba(26,26,46,0.07); padding-left: 12px; position: relative; }
+.obs-body li::before { content: '→'; position: absolute; left: 0; color: var(--coral-dark); font-weight: 700; }
+.obs-body li:last-child { border-bottom: none; }
+
+/* FUTURE TREND */
+.future-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 20px; margin: 24px 0; }
+.future-card { border: var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); transition: transform 0.18s, box-shadow 0.18s; }
+.future-card:hover { transform: translate(-3px,-3px); box-shadow: var(--shadow); }
+.future-header { padding: 14px 18px; border-bottom: var(--border); display: flex; justify-content: space-between; align-items: center; }
+.future-title { font-family: var(--font-head); font-weight: 700; font-size: 0.95rem; }
+.future-body  { background: var(--white); padding: 14px 18px; font-size: 0.87rem; color: #444; }
+
+/* MODULE BADGE STRIP */
+.module-strip { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 24px 0; }
+.mod-badge { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; padding: 6px 14px; border: 2px solid var(--ink); border-radius: 8px; display: flex; align-items: center; gap: 6px; }
+
+@media (max-width: 768px) {
+  .hero-inner { grid-template-columns: 1fr; }
+  .toc-card { position: static; transform: none; }
+  .hero-card { transform: none; }
+  .compare-box { grid-template-columns: 1fr; }
+  .react-loop { grid-template-columns: 1fr 1fr; }
+  .hitl-scale { flex-direction: column; }
+  .hitl-cell { border-right: none; border-bottom: 2px solid var(--ink); }
+  .header-nav { display: none; }
+}
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+.animate { animation: fadeUp 0.5s ease forwards; }
+.d1 { animation-delay: 0.1s; opacity: 0; }
+.d2 { animation-delay: 0.2s; opacity: 0; }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="container header-inner">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="header-badge">M8</span>
+      <span class="header-title">Arquitetura de Agentes e Claude Code na Prática</span>
+    </div>
+    <nav class="header-nav">
+      <a href="#o-que-e-agente">Agente</a>
+      <a href="#padroes">Padrões</a>
+      <a href="#multi-agente">Multi-agent</a>
+      <a href="#claude-code-avancado">Claude Code</a>
+      <a href="#computer-use">Computer Use</a>
+      <a href="#end-to-end">End-to-end</a>
+      <a href="#hitl">HITL</a>
+      <a href="#observabilidade">Obs.</a>
+      <a href="#casos-enterprise">Enterprise</a>
+      <a href="#futuro">Futuro</a>
+      <a href="#glossario-master">Glossário</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" style="border-top:none">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-card animate d1">
+        <div class="hero-label">Módulo 8 · Módulo Final · Cursinho de IA</div>
+        <h1>Arquitetura de<br>Agentes e Claude<br>Code na Prática</h1>
+        <p style="font-size:1.05rem;color:#444;margin-top:12px;margin-bottom:0">
+          O módulo final. Padrões arquiteturais de agentes, orquestração multi-agente,
+          Claude Code avançado, Computer Use, agente end-to-end completo,
+          observabilidade e o que está por vir.
+        </p>
+        <div class="hero-chips">
+          <span class="chip chip-coral">🤖 ReAct / Plan-Execute</span>
+          <span class="chip chip-yellow">🕸️ Multi-agent</span>
+          <span class="chip chip-green">💻 Claude Code</span>
+          <span class="chip chip-teal">🖥️ Computer Use</span>
+          <span class="chip chip-purple">🏭 End-to-end</span>
+          <span class="chip chip-ink">🔭 Futuro</span>
+        </div>
+      </div>
+      <div class="toc-card animate d2">
+        <h3>📋 Conteúdo</h3>
+        <ul class="toc-list">
+          <li><a href="#o-que-e-agente"><span class="toc-num">01</span> O que define um agente</a></li>
+          <li><a href="#padroes"><span class="toc-num">02</span> Padrões arquiteturais</a></li>
+          <li><a href="#multi-agente"><span class="toc-num">03</span> Orquestração multi-agente</a></li>
+          <li><a href="#claude-code-avancado"><span class="toc-num">04</span> Claude Code avançado</a></li>
+          <li><a href="#computer-use"><span class="toc-num">05</span> Computer Use</a></li>
+          <li><a href="#end-to-end"><span class="toc-num">06</span> Agente corporativo E2E</a></li>
+          <li><a href="#hitl"><span class="toc-num">07</span> Human-in-the-Loop</a></li>
+          <li><a href="#observabilidade"><span class="toc-num">08</span> Observabilidade</a></li>
+          <li><a href="#casos-enterprise"><span class="toc-num">09</span> Casos enterprise</a></li>
+          <li><a href="#futuro"><span class="toc-num">10</span> Futuro dos agentes</a></li>
+          <li><a href="#glossario-master"><span class="toc-num">11</span> Glossário mestre (M1–M8)</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SEC 1: O QUE É UM AGENTE -->
+<section id="o-que-e-agente">
+  <div class="container">
+    <div class="sec-label">Seção 01 · Definição</div>
+    <h2 class="sec-title">O que define um agente de IA</h2>
+    <p class="sec-lead">
+      Todo mundo fala de "agentes", mas a maioria do que chamam de agente é apenas um chatbot com tool use.
+      Um agente real tem quatro propriedades que o diferenciam: planeja, executa, observa e adapta —
+      em loop, com graus variáveis de autonomia.
+    </p>
+
+    <div class="react-loop">
+      <div class="react-step" style="background:#FFE8E8">
+        <div class="react-step-icon">🧠</div>
+        <div class="react-step-name">PLANEJA</div>
+        <div class="react-step-desc">Decompõe o objetivo em sub-tarefas. Decide sequência e ferramentas necessárias.</div>
+      </div>
+      <div class="react-step" style="background:#FFF9CC">
+        <div class="react-step-icon">⚙️</div>
+        <div class="react-step-name">EXECUTA</div>
+        <div class="react-step-desc">Chama ferramentas, escreve código, acessa banco, navega na web ou opera um PC.</div>
+      </div>
+      <div class="react-step" style="background:#D4F7E7">
+        <div class="react-step-icon">👁️</div>
+        <div class="react-step-name">OBSERVA</div>
+        <div class="react-step-desc">Processa o resultado da ação. Detecta erros, resultados inesperados, novos dados.</div>
+      </div>
+      <div class="react-step" style="background:#EDE9FE">
+        <div class="react-step-icon">🔄</div>
+        <div class="react-step-name">ADAPTA</div>
+        <div class="react-step-desc">Revisa o plano com base nas observações. Repete o ciclo até completar o objetivo.</div>
+      </div>
+    </div>
+
+    <div class="callout callout-yellow">
+      <span class="callout-icon">⚡</span>
+      <div class="callout-body">
+        <h4>Chatbot vs. Agente — a diferença prática</h4>
+        <p>Um <strong>chatbot</strong> responde perguntas. Um <strong>agente</strong> executa tarefas. "Qual o saldo da conta 123?" → chatbot com tool use. "Reconcilia todas as contas do mês de março, identifica divergências acima de R$500 e gera relatório em PDF" → agente (múltiplas etapas, decisões intermediárias, output concreto).</p>
+      </div>
+    </div>
+
+    <h3 style="margin:28px 0 16px">Espectro de autonomia de agentes</h3>
+    <table class="data-table">
+      <thead>
+        <tr><th>Nível</th><th>Descrição</th><th>Exemplo</th><th>Risco</th><th>Uso ideal</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>L1 — Assistido</strong></td>
+          <td>Gera rascunhos, humano executa tudo</td>
+          <td>Claude sugere e-mail, humano envia</td>
+          <td>Nenhum</td>
+          <td>Conteúdo, análise</td>
+        </tr>
+        <tr>
+          <td><strong>L2 — Semiautônomo</strong></td>
+          <td>Executa ações reversíveis, humano aprova irreversíveis</td>
+          <td>Cria rascunho de PR, humano faz merge</td>
+          <td>Baixo</td>
+          <td>Coding, documentação</td>
+        </tr>
+        <tr>
+          <td><strong>L3 — Supervisionado</strong></td>
+          <td>Executa fluxo completo, humano monitora e pode intervir</td>
+          <td>Processa 100 notas fiscais, humano revisa anomalias</td>
+          <td>Médio</td>
+          <td>Processos operacionais</td>
+        </tr>
+        <tr>
+          <td><strong>L4 — Autônomo</strong></td>
+          <td>Executa e monitora sozinho, humano só vê relatório</td>
+          <td>Agente de monitoramento de infra 24/7</td>
+          <td>Alto</td>
+          <td>Baixo impacto, reversível</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-coral">
+      <span class="callout-icon">🎯</span>
+      <div class="callout-body">
+        <h4>Regra de ouro para 2026</h4>
+        <p>Comece no <strong>nível mais baixo de autonomia que resolve o problema</strong>. A maioria dos casos de negócio que parece precisar de L4 é resolvida melhor com L2–L3. Autonomia tem custo: erros em escala, audit trail complexo, custo de tokens, e risco reputacional.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SEC 2: PADRÕES ARQUITETURAIS -->
+<section id="padroes">
+  <div class="container">
+    <div class="sec-label">Seção 02 · Design Patterns</div>
+    <h2 class="sec-title">Padrões arquiteturais de agentes</h2>
+    <p class="sec-lead">
+      Assim como design patterns em software (Factory, Observer, Strategy), agentes LLM têm
+      padrões consolidados. Escolher o padrão certo antes de codar economiza semanas de retrabalho.
+    </p>
+
+    <div class="card-grid card-grid-2" style="margin-bottom:20px">
+
+      <div class="pattern-card">
+        <div class="pattern-header" style="background:#FFE8E8">
+          <span class="pattern-title">⚡ ReAct</span>
+          <span class="pill pill-yellow">MAIS COMUM</span>
+        </div>
+        <div class="pattern-body">
+          <p><strong>Reasoning + Acting.</strong> A cada passo: pensa (Thought), age (Action), observa resultado (Observation). Loop até completar. Padrão de facto para agentes com ferramentas. Toda chamada de tool use do Claude usa implicitamente ReAct.</p>
+          <div class="pattern-when">Quando usar: tarefas exploratórias, pesquisa, análise de dados. O agente "descobre" o que precisa fazer durante a execução.</div>
+        </div>
+      </div>
+
+      <div class="pattern-card">
+        <div class="pattern-header" style="background:#D4F7E7">
+          <span class="pattern-title">📋 Plan-and-Execute</span>
+          <span class="pill pill-green">DETERMINÍSTICO</span>
+        </div>
+        <div class="pattern-body">
+          <p><strong>Fase 1 — Planner:</strong> LLM decompõe objetivo em lista de sub-tarefas. <strong>Fase 2 — Executor:</strong> executa cada sub-tarefa em sequência. Mais previsível que ReAct, melhor para auditoria. Planner pode ser modelo maior, Executor pode ser menor/mais rápido.</p>
+          <div class="pattern-when">Quando usar: processos de negócio com etapas definidas (onboarding, reconciliação, geração de relatório). Você quer saber o plano antes de executar.</div>
+        </div>
+      </div>
+
+      <div class="pattern-card">
+        <div class="pattern-header" style="background:#EDE9FE">
+          <span class="pattern-title">🕸️ Multi-agent / Supervisor</span>
+          <span class="pill pill-purple">PODEROSO</span>
+        </div>
+        <div class="pattern-body">
+          <p><strong>Orchestrator</strong> recebe o objetivo, decompõe e delega para <strong>sub-agentes especializados</strong>. Cada sub-agente tem ferramentas específicas (agente fiscal, agente de RH, agente de código). Orquestrador consolida resultados.</p>
+          <div class="pattern-when">Quando usar: tarefas que cruzam domínios (ex: auditoria que precisa de dados fiscais + RH + TI). Paralelismo real entre sub-agentes.</div>
+        </div>
+      </div>
+
+      <div class="pattern-card">
+        <div class="pattern-header" style="background:#D6EAF8">
+          <span class="pattern-title">🔄 Reflexion</span>
+          <span class="pill pill-blue">QUALIDADE</span>
+        </div>
+        <div class="pattern-body">
+          <p>Agente gera resposta inicial, depois um <strong>Critic LLM</strong> avalia e fornece feedback, o agente revisa. Ciclo de N iterações. Melhora significativamente qualidade em tarefas criativas e de raciocínio. Custo: 2–3× tokens por resposta.</p>
+          <div class="pattern-when">Quando usar: geração de código crítico, relatórios formais, contratos. Qualidade supera custo adicional.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <h3 style="margin:28px 0 16px">Implementação: Plan-and-Execute com Claude</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> Python — plan_execute_agent.py</div>
+      <div class="code-body"><pre><span class="k">import</span> anthropic, json
+<span class="k">from</span> typing <span class="k">import</span> List
+
+client = anthropic.Anthropic()
+
+<span class="k">class</span> <span class="n">PlanExecuteAgent</span>:
+    <span class="s">"""
+    Fase 1: Opus 4.6 cria plano detalhado
+    Fase 2: Sonnet 4.6 executa cada etapa
+    Resultado: mais barato e mais auditável que ReAct puro
+    """</span>
+
+    <span class="k">def</span> <span class="n">plan</span>(self, objective: str, available_tools: list) -> List[dict]:
+        <span class="cm"># Planner usa modelo mais capaz para raciocínio</span>
+        tools_desc = json.dumps([t[<span class="s">"name"</span>] <span class="k">for</span> t <span class="k">in</span> available_tools])
+        response = client.messages.create(
+            model=<span class="s">"claude-opus-4-6"</span>,   <span class="cm"># Modelo mais poderoso para planejamento</span>
+            max_tokens=<span class="k">2048</span>,
+            messages=[{
+                <span class="s">"role"</span>: <span class="s">"user"</span>,
+                <span class="s">"content"</span>: <span class="s">f"""Crie um plano de execução detalhado para:
+                
+OBJETIVO: {objective}
+
+FERRAMENTAS DISPONÍVEIS: {tools_desc}
+
+Responda APENAS com JSON válido:
+{{
+  "plano": [
+    {{
+      "etapa": 1,
+      "descricao": "descrição clara da etapa",
+      "tool": "nome_da_tool_ou_null",
+      "input_esperado": "o que esta etapa precisa de entrada",
+      "output_esperado": "o que esta etapa deve produzir",
+      "pode_falhar": true/false,
+      "acao_se_falhar": "retry/skip/abort"
+    }}
+  ]
+}}"""</span>
+            }]
+        )
+        plan_data = json.loads(response.content[<span class="k">0</span>].text)
+        <span class="k">return</span> plan_data[<span class="s">"plano"</span>]
+
+    <span class="k">def</span> <span class="n">execute</span>(self, plan: List[dict], tools: list) -> dict:
+        results = {}
+        execution_log = []
+
+        <span class="k">for</span> step <span class="k">in</span> plan:
+            print(<span class="s">f"▶ Etapa {step['etapa']}: {step['descricao']}"</span>)
+
+            <span class="cm"># Construir contexto com resultados anteriores</span>
+            context = json.dumps({
+                k: v <span class="k">for</span> k, v <span class="k">in</span> results.items()
+            })
+
+            <span class="k">try</span>:
+                <span class="cm"># Executor usa modelo mais rápido/barato</span>
+                response = client.messages.create(
+                    model=<span class="s">"claude-sonnet-4-6"</span>,
+                    max_tokens=<span class="k">1024</span>,
+                    tools=tools,
+                    messages=[{
+                        <span class="s">"role"</span>: <span class="s">"user"</span>,
+                        <span class="s">"content"</span>: <span class="s">f"""Execute esta etapa do plano:
+
+ETAPA: {step['descricao']}
+RESULTADO ESPERADO: {step['output_esperado']}
+CONTEXTO (etapas anteriores): {context}
+
+Execute a etapa usando as ferramentas disponíveis."""</span>
+                    }]
+                )
+                <span class="cm"># Processar tool calls se necessário</span>
+                result = self._process_response(response, tools)
+                results[<span class="s">f"etapa_{step['etapa']}"</span>] = result
+                execution_log.append({<span class="s">"etapa"</span>: step[<span class="s">"etapa"</span>], <span class="s">"status"</span>: <span class="s">"ok"</span>, <span class="s">"result"</span>: result})
+
+            <span class="k">except Exception as</span> e:
+                <span class="k">if</span> step.get(<span class="s">"acao_se_falhar"</span>) == <span class="s">"abort"</span>:
+                    <span class="k">raise</span> RuntimeError(<span class="s">f"Etapa {step['etapa']} falhou (abort): {e}"</span>)
+                execution_log.append({<span class="s">"etapa"</span>: step[<span class="s">"etapa"</span>], <span class="s">"status"</span>: <span class="s">"failed"</span>, <span class="s">"error"</span>: str(e)})
+
+        <span class="k">return</span> {<span class="s">"results"</span>: results, <span class="s">"log"</span>: execution_log}
+
+    <span class="k">def</span> <span class="n">_process_response</span>(self, response, tools):
+        <span class="cm"># Processar tool calls (mesmo padrão do M7)</span>
+        <span class="k">if</span> response.stop_reason == <span class="s">"end_turn"</span>:
+            <span class="k">return</span> response.content[<span class="k">0</span>].text
+        <span class="cm"># ... loop de tool use (ver M7)</span>
+        <span class="k">return</span> <span class="s">"[tool result processado]"</span></pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- SEC 3: MULTI-AGENTE -->
+<section id="multi-agente">
+  <div class="container">
+    <div class="sec-label">Seção 03 · Orquestração</div>
+    <h2 class="sec-title">Orquestração de múltiplos agentes</h2>
+    <p class="sec-lead">
+      Sistemas multi-agente são a próxima fronteira de 2026. Um agente supervisor decompõe,
+      delega para agentes especializados e consolida resultados — com paralelismo real
+      e domínios isolados que reduzem o risco de contaminação entre contextos.
+    </p>
+
+    <div class="arch-dark">
+      <div class="arch-label">Padrão Supervisor-Worker — Auditoria Corporativa</div>
+
+      <div class="arch-row" style="justify-content:center">
+        <div class="abox abox-coral" style="min-width:200px;padding:14px 20px">
+          🧠 <strong>Supervisor Agent</strong><br>
+          <span style="font-size:0.65rem;opacity:0.8">Claude Opus 4.6<br>Decompõe objetivo + consolida</span>
+        </div>
+      </div>
+      <div style="text-align:center;margin:4px 0;color:rgba(255,255,255,0.25)">↓ delega ↓</div>
+      <div class="arch-row" style="justify-content:center;gap:12px">
+        <div class="abox abox-green" style="text-align:center">
+          📊 <strong>Agente Fiscal</strong><br>
+          <span style="font-size:0.63rem;opacity:0.8">Sonnet 4.6<br>tools: DB2, NF-e API, SPED</span>
+        </div>
+        <div class="abox abox-yellow" style="text-align:center">
+          👥 <strong>Agente RH</strong><br>
+          <span style="font-size:0.63rem;opacity:0.8">Sonnet 4.6<br>tools: HRIS, folha, ponto</span>
+        </div>
+        <div class="abox abox-purple" style="text-align:center">
+          💻 <strong>Agente TI</strong><br>
+          <span style="font-size:0.63rem;opacity:0.8">Haiku 4.5<br>tools: logs, infra, tickets</span>
+        </div>
+        <div class="abox abox-blue" style="text-align:center">
+          📝 <strong>Agente Docs</strong><br>
+          <span style="font-size:0.63rem;opacity:0.8">Haiku 4.5<br>tools: RAG, files API</span>
+        </div>
+      </div>
+      <div style="text-align:center;margin:4px 0;color:rgba(255,255,255,0.25)">↑ resultados ↑</div>
+      <div class="arch-row" style="justify-content:center">
+        <div class="abox" style="min-width:200px">
+          📋 Relatório Final Consolidado<br>
+          <span style="font-size:0.65rem;opacity:0.7">Markdown / PDF / Dashboard</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> Python — multi_agent_supervisor.py</div>
+      <div class="code-body"><pre><span class="k">import</span> anthropic, asyncio, json
+<span class="k">from</span> dataclasses <span class="k">import</span> dataclass
+<span class="k">from</span> typing <span class="k">import</span> Dict, Any
+
+client = anthropic.Anthropic()
+
+<span class="k">@dataclass</span>
+<span class="k">class</span> <span class="n">SubAgent</span>:
+    name: str
+    model: str
+    system_prompt: str
+    tools: list
+
+<span class="cm"># Definição dos sub-agentes especializados</span>
+AGENTS = {
+    <span class="s">"fiscal"</span>: SubAgent(
+        name=<span class="s">"Agente Fiscal"</span>,
+        model=<span class="s">"claude-sonnet-4-6"</span>,
+        system_prompt=<span class="s">"Especialista em análise fiscal, NF-e e obrigações tributárias."</span>,
+        tools=FISCAL_TOOLS  <span class="cm"># definidos no projeto</span>
+    ),
+    <span class="s">"rh"</span>: SubAgent(
+        name=<span class="s">"Agente RH"</span>,
+        model=<span class="s">"claude-sonnet-4-6"</span>,
+        system_prompt=<span class="s">"Especialista em folha de pagamento, CLT e gestão de pessoas."</span>,
+        tools=RH_TOOLS
+    ),
+    <span class="s">"docs"</span>: SubAgent(
+        name=<span class="s">"Agente Documentação"</span>,
+        model=<span class="s">"claude-haiku-4-5"</span>,  <span class="cm"># Haiku para tarefas simples = economia</span>
+        system_prompt=<span class="s">"Recupera e sumariza documentos corporativos."</span>,
+        tools=DOC_TOOLS
+    ),
+}
+
+<span class="k">async def</span> <span class="n">run_subagent</span>(agent_key: str, task: str) -> Dict[str, Any]:
+    <span class="s">"""Executa um sub-agente de forma assíncrona."""</span>
+    agent = AGENTS[agent_key]
+
+    <span class="cm"># Em produção: usar asyncio com httpx ou anthropic async client</span>
+    response = client.messages.create(
+        model=agent.model,
+        max_tokens=<span class="k">2048</span>,
+        system=agent.system_prompt,
+        tools=agent.tools,
+        messages=[{<span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: task}]
+    )
+    <span class="k">return</span> {
+        <span class="s">"agent"</span>: agent.name,
+        <span class="s">"result"</span>: response.content[<span class="k">0</span>].text,
+        <span class="s">"tokens_used"</span>: response.usage.input_tokens + response.usage.output_tokens
+    }
+
+<span class="k">class</span> <span class="n">SupervisorAgent</span>:
+    <span class="k">def</span> <span class="n">run</span>(self, objective: str) -> str:
+        <span class="cm"># 1. Supervisor decompõe o objetivo em tarefas por agente</span>
+        decomp = client.messages.create(
+            model=<span class="s">"claude-opus-4-6"</span>,
+            max_tokens=<span class="k">1024</span>,
+            messages=[{
+                <span class="s">"role"</span>: <span class="s">"user"</span>,
+                <span class="s">"content"</span>: <span class="s">f"""Decomponha este objetivo em tarefas para agentes especializados.
+                
+OBJETIVO: {objective}
+AGENTES DISPONÍVEIS: fiscal (NF-e, SPED), rh (folha, CLT), docs (documentos)
+
+Responda APENAS com JSON:
+{{"tarefas": [{{"agente": "fiscal|rh|docs", "tarefa": "descrição precisa"}}]}}"""</span>
+            }]
+        )
+        tarefas = json.loads(decomp.content[<span class="k">0</span>].text)[<span class="s">"tarefas"</span>]
+
+        <span class="cm"># 2. Executar sub-agentes em paralelo</span>
+        <span class="hi">loop = asyncio.new_event_loop()</span>
+        tasks = [run_subagent(t[<span class="s">"agente"</span>], t[<span class="s">"tarefa"</span>]) <span class="k">for</span> t <span class="k">in</span> tarefas]
+        <span class="hi">results = loop.run_until_complete(asyncio.gather(*tasks))</span>
+
+        <span class="cm"># 3. Supervisor consolida todos os resultados</span>
+        results_text = json.dumps(results, ensure_ascii=<span class="k">False</span>, indent=<span class="k">2</span>)
+        final = client.messages.create(
+            model=<span class="s">"claude-opus-4-6"</span>,
+            max_tokens=<span class="k">4096</span>,
+            messages=[{
+                <span class="s">"role"</span>: <span class="s">"user"</span>,
+                <span class="s">"content"</span>: <span class="s">f"""Consolide os resultados dos agentes em relatório executivo.
+
+OBJETIVO ORIGINAL: {objective}
+RESULTADOS DOS AGENTES:
+{results_text}
+
+Produza um relatório claro, destacando achados importantes e recomendações."""</span>
+            }]
+        )
+        <span class="k">return</span> final.content[<span class="k">0</span>].text</pre></div>
+    </div>
+
+    <div class="callout callout-coral">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <h4>Otimização de custo em multi-agente</h4>
+        <p>Use <strong>modelos diferentes para diferentes papéis</strong>: Opus para Supervisor (raciocínio complexo), Sonnet para Workers especializados (execução), Haiku para tasks simples (busca, formatação, sumarização). Redução típica de custo: 40–60% vs. usar Opus em tudo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SEC 4: CLAUDE CODE AVANÇADO -->
+<section id="claude-code-avancado">
+  <div class="container">
+    <div class="sec-label">Seção 04 · Claude Code</div>
+    <h2 class="sec-title">Claude Code avançado: sessões longas e sub-agentes</h2>
+    <p class="sec-lead">
+      Além do uso básico, Claude Code tem capacidades avançadas que transformam como você
+      trabalha com bases de código legado, realiza refatorações complexas e gerencia
+      projetos de longa duração com múltiplas sessões.
+    </p>
+
+    <h3 style="margin-bottom:16px">Modos de operação do Claude Code</h3>
+
+    <div class="card-grid card-grid-3" style="margin-bottom:24px">
+      <div class="card card-dark">
+        <div style="font-size:1.5rem;margin-bottom:8px">💬</div>
+        <h3>Interativo</h3>
+        <p>Conversa direta no terminal. Claude lê arquivos, edita, executa comandos. Ideal para exploração e tarefas pontuais. Cada sessão: contexto novo.</p>
+      </div>
+      <div class="card card-dark">
+        <div style="font-size:1.5rem;margin-bottom:8px">⚡</div>
+        <h3>Non-interactive (-p)</h3>
+        <p>Passa tarefa via flag e Claude executa automaticamente. Ideal para CI/CD, scripts, pipelines. <code style="font-family:var(--font-mono);font-size:0.8rem">claude -p "Adicione testes para funções sem coverage"</code></p>
+      </div>
+      <div class="card card-dark">
+        <div style="font-size:1.5rem;margin-bottom:8px">🤖</div>
+        <h3>Sub-agentes</h3>
+        <p>Claude Code pode spawnar instâncias de si mesmo para tarefas paralelas. Usa <code style="font-family:var(--font-mono);font-size:0.8rem">Task</code> tool internamente. Cada sub-agente tem seu próprio contexto e ferramentas.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:16px">CLAUDE.md avançado com hooks e configurações</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> CLAUDE.md — configuração avançada para projeto COBOL legado</div>
+      <div class="code-body"><pre><span class="cm"># CLAUDE.md — FP-MAIN v2 — Configuração Avançada</span>
+
+<span class="cm">## Contexto do Projeto</span>
+<span class="c">Sistema de folha IBM z/OS 2.5, COBOL IBM Enterprise 6.3, DB2 v13.</span>
+<span class="c">Python 3.11 (FastAPI) como camada de integração.</span>
+
+<span class="cm">## Comandos Customizados (slash commands)</span>
+<span class="c">- /analisa-cobol [arquivo] → Analisa programa COBOL, lista divisões e paragraphs</span>
+<span class="c">- /gera-teste [programa]  → Gera casos de teste para programa COBOL</span>
+<span class="c">- /doc-cobol [arquivo]    → Gera documentação Markdown do programa</span>
+<span class="c">- /diff-seguro            → Mostra diff e pede confirmação antes de salvar</span>
+
+<span class="cm">## Hooks de Segurança</span>
+<span class="c">ANTES de qualquer edição em *.cbl ou *.cpy:</span>
+<span class="c">  1. Verificar se arquivo tem backup recente (git status)</span>
+<span class="c">  2. Alertar se arquivo é chamado por mais de 5 programas (alto impacto)</span>
+<span class="c">  3. NUNCA editar arquivos em PROD — verificar se estamos no branch correto</span>
+
+<span class="cm">## Regras de Edição COBOL</span>
+<span class="c">- Manter colunas 1-6 em branco (área de sequência)</span>
+<span class="c">- Indicador na coluna 7 (* para comentário)</span>
+<span class="c">- Código nas colunas 8-72 (área A e B)</span>
+<span class="c">- Colunas 73-80: identificação (reservadas, não tocar)</span>
+<span class="c">- Todo novo PARAGRAPH deve ter comentário de propósito</span>
+
+<span class="cm">## Sub-agentes Disponíveis</span>
+<span class="c">Para tarefas grandes, spawnar sub-agentes:</span>
+<span class="c">- Análise: "analise todos os programas com GOTO e liste refatorações"</span>
+<span class="c">- Testes: "gere testes unitários para os 20 programas sem cobertura"</span>
+<span class="c">- Docs: "documente todos os copybooks do diretório /copybooks"</span>
+
+<span class="cm">## Workflow de Sessão Longa</span>
+<span class="c">1. Ao iniciar: ler docs/decisoes/ADRs-recentes.md</span>
+<span class="c">2. A cada 10 ações: resumir progresso em .claude/session-progress.md</span>
+<span class="c">3. Ao finalizar: atualizar docs/changelog-ai.md com o que foi feito</span></pre></div>
+    </div>
+
+    <h3 style="margin:24px 0 16px">Claude Code + CI/CD — automação real</h3>
+
+    <div class="code-block">
+      <div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> .github/workflows/ai-review.yml</div>
+      <div class="code-body"><pre><span class="k">name</span>: AI Code Review
+
+<span class="k">on</span>:
+  <span class="k">pull_request</span>:
+    <span class="k">types</span>: [opened, synchronize]
+
+<span class="k">jobs</span>:
+  <span class="k">ai-review</span>:
+    <span class="k">runs-on</span>: ubuntu-latest
+    <span class="k">steps</span>:
+      - <span class="k">uses</span>: actions/checkout@v4
+        <span class="k">with</span>: {fetch-depth: 0}
+
+      - <span class="k">name</span>: Install Claude Code
+        <span class="k">run</span>: npm install -g @anthropic-ai/claude-code
+
+      - <span class="k">name</span>: AI Review do diff
+        <span class="k">env</span>:
+          <span class="k">ANTHROPIC_API_KEY</span>: ${{ secrets.ANTHROPIC_API_KEY }}
+        <span class="k">run</span>: |
+          <span class="cm"># Gerar diff do PR</span>
+          git diff origin/main...HEAD > /tmp/pr.diff
+
+          <span class="cm"># Claude Code revisa e gera comentários</span>
+          claude -p "Revise este diff de código COBOL/Python. \
+            Identifique: (1) bugs potenciais, (2) violações das \
+            convenções do CLAUDE.md, (3) edge cases não tratados. \
+            Formate como lista de comentários com linha e severidade." \
+            --input /tmp/pr.diff \
+            --output /tmp/review.md
+
+      - <span class="k">name</span>: Post review como comentário no PR
+        <span class="k">uses</span>: actions/github-script@v7
+        <span class="k">with</span>:
+          <span class="k">script</span>: |
+            const review = require('fs').readFileSync('/tmp/review.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🤖 AI Code Review\n\n${review}`
+            });</pre></div>
+    </div>
+
+    <div class="callout callout-yellow">
+      <span class="callout-icon">🧠</span>
+      <div class="callout-body">
+        <h4>Sessões longas: gerenciamento de contexto no Claude Code</h4>
+        <p>Claude Code usa compactação automática quando a janela de contexto fica cheia — sumariza interações antigas para liberar espaço. Para projetos longos, instrua no CLAUDE.md a salvar progresso periodicamente em arquivos (<code style="font-family:var(--font-mono);font-size:0.82rem">.claude/session-progress.md</code>). Assim, mesmo após compactação, o histórico do que foi feito persiste.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SEC 5: COMPUTER USE -->
+<section id="computer-use">
+  <div class="container">
+    <div class="sec-label">Seção 05 · Computer Use</div>
+    <h2 class="sec-title">Computer Use: casos reais, limitações e boas práticas</h2>
+    <p class="sec-lead">
+      Computer Use permite que Claude controle um computador — mover cursor, clicar, digitar,
+      tirar screenshots e interpretar o que vê na tela. É uma das capacidades mais poderosas
+      e mais arriscadas. Entender onde funciona bem (e onde não) é crítico.
+    </p>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-number">66%</div>
+        <div class="stat-label">OSWorld benchmark (abr/2026)</div>
+        <div class="stat-note">Humano: ~72%. Gap de 6 pontos.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">~2s</div>
+        <div class="stat-label">Latência por ação de tela</div>
+        <div class="stat-note">Screenshot → processamento → ação. Não use para UIs rápidas.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">8,9%</div>
+        <div class="stat-label">Acerto em relógio analógico</div>
+        <div class="stat-note">Limitação de percepção visual — jagged intelligence.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">✅ L2</div>
+        <div class="stat-label">Nível de autonomia recomendado</div>
+        <div class="stat-note">Sempre revisar antes de confirmar ações irreversíveis.</div>
+      </div>
+    </div>
+
+    <h3 style="margin:24px 0 16px">O que funciona bem vs. o que ainda falha</h3>
+
+    <div class="compare-box">
+      <div class="compare-side" style="background:#D4F7E7">
+        <div class="compare-label" style="color:#1aaa57">✅ Funciona bem</div>
+        <ul style="list-style:none;font-size:0.87rem">
+          <li style="padding:5px 0;border-bottom:1px solid rgba(26,26,46,0.1)">📋 Preenchimento de formulários repetitivos</li>
+          <li style="padding:5px 0;border-bottom:1px solid rgba(26,26,46,0.1)">📁 Navegação em sistemas de arquivos</li>
+          <li style="padding:5px 0;border-bottom:1px solid rgba(26,26,46,0.1)">📊 Extração de dados de interfaces legadas sem API</li>
+          <li style="padding:5px 0;border-bottom:1px solid rgba(26,26,46,0.1)">🔄 Automação de fluxos em sistemas ERP/CRM sem SDK</li>
+          <li style="padding:5px 0;border-bottom:1px solid rgba(26,26,46,0.1)">🖥️ Operação de terminais 3270 (ISPF, TSO)</li>
+          <li style="padding:5px 0">🧪 Testes exploratórios de UI</li>
+        </ul>
+      </div>
+      <div class="compare-side" style="background:#FFE8E8">
+        <div class="compare-label" style="color:var(--coral-dark)">❌ Ainda problemático</div>
+        <ul style="list-style:none;font-size:0.87rem">
+          <li style="padding:5px 0;border-bottom:1px solid rgba(26,26,46,0.1)">⏱️ UIs de tempo real com atualizações rápidas</li>
+          <li style="padding:5px 0;border-bottom:1px solid rgba(26,26,46,0.1)">🖱️ Drag-and-drop complexo e operações precisas de pixel</li>
+          <li style="padding:5px 0;border-bottom:1px solid rgba(26,26,46,0.1)">🔐 CAPTCHAs e verificações anti-bot</li>
+          <li style="padding:5px 0;border-bottom:1px solid rgba(26,26,46,0.1)">📈 Leitura precisa de gráficos e visualizações</li>
+          <li style="padding:5px 0;border-bottom:1px solid rgba(26,26,46,0.1)">🎮 Jogos e interfaces que requerem reflexos rápidos</li>
+          <li style="padding:5px 0">🔒 Sistemas com MFA e autenticação visual</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> Python — computer_use_terminal3270.py</div>
+      <div class="code-body"><pre><span class="k">import</span> anthropic, base64
+<span class="k">from</span> PIL <span class="k">import</span> ImageGrab
+<span class="k">import</span> subprocess
+
+client = anthropic.Anthropic()
+
+<span class="k">def</span> <span class="n">screenshot_to_base64</span>() -> str:
+    img = ImageGrab.grab()
+    <span class="k">import</span> io
+    buf = io.BytesIO()
+    img.save(buf, format=<span class="s">"PNG"</span>)
+    <span class="k">return</span> base64.b64encode(buf.getvalue()).decode()
+
+<span class="k">def</span> <span class="n">computer_use_agent</span>(task: str, max_steps: int = <span class="k">20</span>):
+    <span class="s">"""
+    Agente que opera terminal 3270 (ISPF/TSO) via Computer Use.
+    Caso de uso real: extrair dados de datasets COBOL sem API disponível.
+    """</span>
+    messages = []
+    steps = <span class="k">0</span>
+
+    <span class="k">while</span> steps < max_steps:
+        <span class="cm"># Capturar estado atual da tela</span>
+        screen = screenshot_to_base64()
+
+        messages.append({
+            <span class="s">"role"</span>: <span class="s">"user"</span>,
+            <span class="s">"content"</span>: [
+                {
+                    <span class="s">"type"</span>: <span class="s">"image"</span>,
+                    <span class="s">"source"</span>: {<span class="s">"type"</span>: <span class="s">"base64"</span>, <span class="s">"media_type"</span>: <span class="s">"image/png"</span>, <span class="s">"data"</span>: screen}
+                },
+                {<span class="s">"type"</span>: <span class="s">"text"</span>, <span class="s">"content"</span>: task <span class="k">if</span> steps == <span class="k">0</span> <span class="k">else</span> <span class="s">"Continue a tarefa."</span>}
+            ]
+        })
+
+        response = client.beta.messages.create(
+            model=<span class="s">"claude-opus-4-6"</span>,
+            max_tokens=<span class="k">1024</span>,
+            tools=[{<span class="s">"type"</span>: <span class="s">"computer_20250124"</span>, <span class="s">"name"</span>: <span class="s">"computer"</span>,
+                    <span class="s">"display_width_px"</span>: <span class="k">1920</span>, <span class="s">"display_height_px"</span>: <span class="k">1080</span>}],
+            betas=[<span class="s">"computer-use-2025-01-24"</span>],
+            messages=messages
+        )
+
+        <span class="k">for</span> block <span class="k">in</span> response.content:
+            <span class="k">if</span> block.type == <span class="s">"tool_use"</span> <span class="k">and</span> block.name == <span class="s">"computer"</span>:
+                action = block.input[<span class="s">"action"</span>]
+
+                <span class="cm"># HITL: aprovar ações que escrevem dados</span>
+                <span class="k">if</span> action <span class="k">in</span> [<span class="s">"type"</span>, <span class="s">"key"</span>] <span class="k">and</span> <span class="s">"ENTER"</span> <span class="k">in</span> str(block.input):
+                    confirm = input(<span class="s">f"⚠️ Claude vai pressionar ENTER. Confirmar? (s/n): "</span>)
+                    <span class="k">if</span> confirm.lower() != <span class="s">"s"</span>:
+                        <span class="k">return</span> <span class="s">"Interrompido pelo usuário."</span>
+
+                <span class="cm"># Executar ação via pyautogui ou xdotool</span>
+                self._execute_computer_action(block.input)
+
+            <span class="k">elif</span> block.type == <span class="s">"text"</span> <span class="k">and</span> <span class="s">"TAREFA CONCLUÍDA"</span> <span class="k">in</span> block.text:
+                <span class="k">return</span> block.text
+
+        steps += <span class="k">1</span>
+
+    <span class="k">return</span> <span class="s">"Limite de steps atingido"</span></pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- SEC 6: END-TO-END -->
+<section id="end-to-end">
+  <div class="container">
+    <div class="sec-label">Seção 06 · Caso Completo</div>
+    <h2 class="sec-title">Agente de automação corporativa end-to-end</h2>
+    <p class="sec-lead">
+      Tudo junto: Plan-Execute + multi-agente + RAG + memória + HITL.
+      Um agente real que processa a folha de pagamento mensal de forma semi-autônoma —
+      o caso de uso mais complexo e valioso para quem trabalha com sistemas legados COBOL.
+    </p>
+
+    <div class="callout callout-dark">
+      <span class="callout-icon">🏭</span>
+      <div class="callout-body">
+        <h4>O cenário</h4>
+        <p>Empresa com folha mensal de 5.000 funcionários. Processo atual: 3 analistas gastam 2 dias rodando programas COBOL, conferindo relatórios e fechando a folha. Objetivo: agente semi-autônomo que faz 80% do trabalho, analistas revisam os 20% de exceções.</p>
+      </div>
+    </div>
+
+    <h3 style="margin:24px 0 16px">Arquitetura do agente de folha</h3>
+
+    <div class="arch-dark">
+      <div class="arch-label">Fluxo completo — Fechamento de Folha Semi-autônomo</div>
+
+      <div class="arch-row">
+        <div class="abox abox-yellow">⏰ Trigger<br><span style="font-size:0.62rem">Cron job dia 20</span></div>
+        <div class="arr">→</div>
+        <div class="abox abox-coral" style="flex:1">🧠 Supervisor Agent<br><span style="font-size:0.62rem">Cria plano do mês, verifica pré-requisitos</span></div>
+        <div class="arr">→</div>
+        <div class="abox abox-green">📋 Plano Aprovado<br><span style="font-size:0.62rem">HITL: analista revisa</span></div>
+      </div>
+      <div style="text-align:center;color:rgba(255,255,255,0.25);margin:4px 0">↓</div>
+      <div class="arch-row" style="justify-content:center;gap:8px">
+        <div class="abox" style="text-align:center;font-size:0.7rem">📊 Agente Cálculo<br>Roda FPFOLHA00<br>via MCP mainframe</div>
+        <div class="abox" style="text-align:center;font-size:0.7rem">🔍 Agente Validação<br>Confere totais<br>vs. mês anterior</div>
+        <div class="abox" style="text-align:center;font-size:0.7rem">⚠️ Agente Exceções<br>Identifica e agrupa<br>anomalias</div>
+        <div class="abox" style="text-align:center;font-size:0.7rem">📝 Agente Docs<br>Gera relatórios<br>e comprovantes</div>
+      </div>
+      <div style="text-align:center;color:rgba(255,255,255,0.25);margin:4px 0">↓</div>
+      <div class="arch-row">
+        <div class="abox abox-coral" style="flex:1">📊 Dashboard de Exceções<br><span style="font-size:0.62rem">Analista revisa apenas casos anômalos — ~20% do trabalho</span></div>
+        <div class="arr">→</div>
+        <div class="abox abox-green">✅ Aprovação HITL<br><span style="font-size:0.62rem">Analista aprova fechamento</span></div>
+        <div class="arr">→</div>
+        <div class="abox">🏦 Pagamento<br><span style="font-size:0.62rem">Crédito via TED/PIX</span></div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> Python — folha_agent.py (esqueleto completo)</div>
+      <div class="code-body"><pre><span class="k">from</span> plan_execute_agent <span class="k">import</span> PlanExecuteAgent
+<span class="k">from</span> memory.manager <span class="k">import</span> MemoryManager
+<span class="k">from</span> tools.mainframe <span class="k">import</span> MAINFRAME_TOOLS
+<span class="k">import</span> anthropic, json
+
+client = anthropic.Anthropic()
+memory = MemoryManager()
+
+SYSTEM_FOLHA = <span class="s">"""Você é o Agente de Fechamento de Folha da Empresa XYZ.
+
+RESPONSABILIDADES:
+- Executar o fechamento mensal seguindo o plano aprovado
+- Identificar e escalar exceções para revisão humana
+- NUNCA aprovar pagamento sem HITL explícito
+- Manter log detalhado de cada ação para auditoria
+
+REGRAS DE SEGURANÇA:
+- Ações irreversíveis (pagamento, emissão de DARF) requerem aprovação humana
+- Divergências > R$ 1.000 são exceções obrigatórias
+- Qualquer SQLCODE de erro: escalar imediatamente"""</span>
+
+<span class="k">class</span> <span class="n">FolhaAgent</span>:
+    <span class="k">def</span> <span class="n">run_fechamento</span>(self, competencia: str) -> dict:
+        <span class="cm"># Recuperar contexto de meses anteriores (memória episódica)</span>
+        historico = memory.get_episode_summary(<span class="s">"folha_fechamento"</span>, last_n=<span class="k">3</span>)
+
+        <span class="cm"># Fase 1: Planejamento com contexto histórico</span>
+        planner = PlanExecuteAgent()
+        objetivo = <span class="s">f"""Fechar folha de pagamento competência {competencia}.
+        
+Histórico: {historico}
+
+Etapas obrigatórias:
+1. Verificar pré-requisitos (pontos lançados, admissões/demissões do mês)
+2. Calcular folha via FPFOLHA00 para todos os departamentos
+3. Validar totais vs. mês anterior (alertar divergências > 5%)
+4. Processar encargos (INSS, FGTS, IRRF) via programas específicos
+5. Identificar exceções e agrupar por tipo
+6. Gerar relatórios gerenciais
+7. AGUARDAR APROVAÇÃO HUMANA antes de qualquer pagamento"""</span>
+
+        plano = planner.plan(objetivo, MAINFRAME_TOOLS)
+
+        <span class="cm"># Mostrar plano para aprovação humana (HITL fase 1)</span>
+        print(<span class="s">"\n📋 PLANO DE FECHAMENTO:"</span>)
+        <span class="k">for</span> etapa <span class="k">in</span> plano:
+            print(<span class="s">f"  {etapa['etapa']}. {etapa['descricao']}"</span>)
+
+        confirm = input(<span class="s">"\n✅ Aprovar plano? (s/n): "</span>)
+        <span class="k">if</span> confirm.lower() != <span class="s">"s"</span>:
+            <span class="k">return</span> {<span class="s">"status"</span>: <span class="s">"cancelado"</span>}
+
+        <span class="cm"># Fase 2: Execução — parar em etapas que precisam de HITL</span>
+        resultados = planner.execute(plano, MAINFRAME_TOOLS)
+
+        <span class="cm"># Fase 3: Análise de exceções</span>
+        excecoes = self._analisar_excecoes(resultados)
+
+        <span class="k">if</span> excecoes:
+            print(<span class="s">f"\n⚠️ {len(excecoes)} exceções encontradas:"</span>)
+            <span class="k">for</span> exc <span class="k">in</span> excecoes:
+                print(<span class="s">f"  • {exc['descricao']} — {exc['valor']}"</span>)
+            confirm2 = input(<span class="s">"\n✅ Exceções revisadas. Aprovar fechamento? (s/n): "</span>)
+            <span class="k">if</span> confirm2.lower() != <span class="s">"s"</span>:
+                <span class="k">return</span> {<span class="s">"status"</span>: <span class="s">"pendente_revisao"</span>, <span class="s">"excecoes"</span>: excecoes}
+
+        <span class="cm"># Fase 4: Pagamento (requer HITL final)</span>
+        print(<span class="s">"\n🏦 AÇÃO IRREVERSÍVEL: Autorizar pagamento via TED/PIX"</span>)
+        confirm3 = input(<span class="s">"CONFIRMAR PAGAMENTO? Digite 'CONFIRMO': "</span>)
+        <span class="k">if</span> confirm3 != <span class="s">"CONFIRMO"</span>:
+            <span class="k">return</span> {<span class="s">"status"</span>: <span class="s">"pagamento_cancelado"</span>}
+
+        <span class="cm"># Fase 5: Pagamento + atualizar memória episódica</span>
+        resultado_final = self._executar_pagamento(competencia)
+        memory.add_episode(<span class="s">"folha_fechamento"</span>, {
+            <span class="s">"competencia"</span>: competencia,
+            <span class="s">"excecoes"</span>: len(excecoes),
+            <span class="s">"status"</span>: <span class="s">"concluido"</span>
+        })
+
+        <span class="k">return</span> resultado_final</pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- SEC 7: HITL -->
+<section id="hitl">
+  <div class="container">
+    <div class="sec-label">Seção 07 · Controle Humano</div>
+    <h2 class="sec-title">Human-in-the-Loop: onde colocar o controle humano</h2>
+    <p class="sec-lead">
+      HITL não é uma limitação — é uma feature de design. O objetivo não é remover humanos
+      do loop, mas posicioná-los nos pontos de máximo impacto: decisões de alto valor,
+      ações irreversíveis e exceções que fogem do padrão.
+    </p>
+
+    <div class="hitl-scale">
+      <div class="hitl-cell" style="background:#D4F7E7">
+        <div class="hitl-icon">👍</div>
+        <div class="hitl-name">Aprovação Pré-execução</div>
+        <div class="hitl-desc">Humano aprova o plano antes de começar. Detecta erros de interpretação cedo. Obrigatório para processos críticos.</div>
+      </div>
+      <div class="hitl-cell" style="background:#FFF9CC">
+        <div class="hitl-icon">👁️</div>
+        <div class="hitl-name">Revisão de Exceções</div>
+        <div class="hitl-desc">Agente processa e apresenta apenas anomalias para revisão. Humano foca onde realmente importa. Modelo mais eficiente.</div>
+      </div>
+      <div class="hitl-cell" style="background:#FFE8E8">
+        <div class="hitl-icon">🔐</div>
+        <div class="hitl-name">Aprovação de Irreversíveis</div>
+        <div class="hitl-desc">Ações que não podem ser desfeitas (pagamento, exclusão, publicação) sempre passam por aprovação explícita. Nunca automatizar.</div>
+      </div>
+      <div class="hitl-cell" style="background:#EDE9FE">
+        <div class="hitl-icon">📊</div>
+        <div class="hitl-name">Monitoramento Contínuo</div>
+        <div class="hitl-desc">Dashboard em tempo real do que o agente está fazendo. Humano pode pausar ou intervir a qualquer momento.</div>
+      </div>
+    </div>
+
+    <h3 style="margin:28px 0 16px">Matriz de decisão HITL</h3>
+    <table class="data-table">
+      <thead>
+        <tr><th>Tipo de Ação</th><th>Reversível?</th><th>Impacto</th><th>Política HITL</th><th>Exemplo</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Leitura / Análise</strong></td>
+          <td>✅ Sempre</td>
+          <td>Nenhum</td>
+          <td>🤖 Automático</td>
+          <td>Consultar DB, ler arquivo</td>
+        </tr>
+        <tr>
+          <td><strong>Rascunho / Draft</strong></td>
+          <td>✅ Sim</td>
+          <td>Baixo</td>
+          <td>🤖 Automático + revisão opt-in</td>
+          <td>Gerar e-mail, criar arquivo</td>
+        </tr>
+        <tr>
+          <td><strong>Escrita em sistemas</strong></td>
+          <td>⚠️ Parcialmente</td>
+          <td>Médio</td>
+          <td>👁️ Revisão de exceções</td>
+          <td>Atualizar registro, enviar relatório</td>
+        </tr>
+        <tr>
+          <td><strong>Transações financeiras</strong></td>
+          <td>❌ Não</td>
+          <td>Alto</td>
+          <td>🔐 Aprovação explícita sempre</td>
+          <td>Pagamento, transferência, DARF</td>
+        </tr>
+        <tr>
+          <td><strong>Ações externas</strong></td>
+          <td>❌ Geralmente não</td>
+          <td>Alto</td>
+          <td>🔐 Aprovação explícita sempre</td>
+          <td>Enviar e-mail, publicar, integrar API parceiro</td>
+        </tr>
+        <tr>
+          <td><strong>Infraestrutura</strong></td>
+          <td>⚠️ Parcialmente</td>
+          <td>Crítico</td>
+          <td>🔐 Aprovação + 2ª pessoa</td>
+          <td>Deploy, alteração de permissão, job batch</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-coral">
+      <span class="callout-icon">⚖️</span>
+      <div class="callout-body">
+        <h4>HITL e regulação (EU AI Act / PL Brasil)</h4>
+        <p>Sistemas classificados como "alto risco" pelo EU AI Act <strong>obrigatoriamente</strong> precisam de supervisão humana e capacidade de intervenção. Isso inclui sistemas de RH, crédito e decisões que afetam pessoas. HITL não é apenas boa prática — pode ser requisito legal. Documente quais aprovações humanas existem no sistema.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SEC 8: OBSERVABILIDADE -->
+<section id="observabilidade">
+  <div class="container">
+    <div class="sec-label">Seção 08 · Logs e Traces</div>
+    <h2 class="sec-title">Observabilidade de agentes: logs, traces e avaliação</h2>
+    <p class="sec-lead">
+      Agentes falham de formas não-determinísticas — um agente que funciona perfeitamente
+      em 99 runs pode tomar uma decisão catastrófica no 100º. Observabilidade é a única
+      forma de detectar, investigar e prevenir essas falhas.
+    </p>
+
+    <div class="obs-grid">
+      <div class="obs-card">
+        <div class="obs-header" style="background:#FFE8E8">
+          <span class="obs-icon">📊</span>
+          <span class="obs-name">Métricas de Sistema</span>
+        </div>
+        <div class="obs-body">
+          <ul>
+            <li>Latência P50/P95/P99 por etapa</li>
+            <li>Taxa de sucesso por tipo de task</li>
+            <li>Tokens consumidos por sessão</li>
+            <li>Custo por tarefa completa</li>
+            <li>Tool call success/failure rate</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="obs-card">
+        <div class="obs-header" style="background:#D4F7E7">
+          <span class="obs-icon">🔍</span>
+          <span class="obs-name">Traces de Agente</span>
+        </div>
+        <div class="obs-body">
+          <ul>
+            <li>Cada tool call com input/output</li>
+            <li>Raciocínio intermediário do agente</li>
+            <li>Pontos de decisão e alternativas</li>
+            <li>Onde e por quê o agente abortou</li>
+            <li>Timeline completa da sessão</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="obs-card">
+        <div class="obs-header" style="background:#EDE9FE">
+          <span class="obs-icon">🤖</span>
+          <span class="obs-name">Avaliação de Qualidade</span>
+        </div>
+        <div class="obs-body">
+          <ul>
+            <li>LLM-as-Judge por amostragem</li>
+            <li>Comparação com golden answers</li>
+            <li>Detecção de alucinações</li>
+            <li>Consistência entre sessões</li>
+            <li>Human eval semanal (10% da amostra)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="obs-card">
+        <div class="obs-header" style="background:#FFF9CC">
+          <span class="obs-icon">🚨</span>
+          <span class="obs-name">Alertas e Anomalias</span>
+        </div>
+        <div class="obs-body">
+          <ul>
+            <li>Custo acima de threshold por tarefa</li>
+            <li>Loop infinito (muitas iterações sem progresso)</li>
+            <li>Tool call repetida com mesmo erro</li>
+            <li>Resposta fora do formato esperado</li>
+            <li>Tentativa de ação não autorizada</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> Python — agent_tracer.py</div>
+      <div class="code-body"><pre><span class="k">import</span> time, json, uuid
+<span class="k">from</span> dataclasses <span class="k">import</span> dataclass, field
+<span class="k">from</span> typing <span class="k">import</span> List, Any
+<span class="k">from</span> contextlib <span class="k">import</span> contextmanager
+<span class="k">import</span> anthropic
+
+<span class="k">@dataclass</span>
+<span class="k">class</span> <span class="n">AgentTrace</span>:
+    session_id: str = field(default_factory=<span class="k">lambda</span>: str(uuid.uuid4())[:8])
+    objective: str = <span class="s">""</span>
+    steps: List[dict] = field(default_factory=list)
+    started_at: float = field(default_factory=time.time)
+    total_tokens: int = <span class="k">0</span>
+    total_cost_usd: float = <span class="k">0.0</span>
+
+    <span class="k">def</span> <span class="n">add_step</span>(self, step_type: str, data: Any, duration_ms: float = <span class="k">0</span>):
+        self.steps.append({
+            <span class="s">"type"</span>: step_type,
+            <span class="s">"data"</span>: data,
+            <span class="s">"timestamp"</span>: time.time() - self.started_at,
+            <span class="s">"duration_ms"</span>: duration_ms
+        })
+
+    <span class="k">def</span> <span class="n">to_json</span>(self) -> str:
+        <span class="k">return</span> json.dumps({
+            <span class="s">"session_id"</span>: self.session_id,
+            <span class="s">"objective"</span>: self.objective,
+            <span class="s">"duration_s"</span>: round(time.time() - self.started_at, <span class="k">2</span>),
+            <span class="s">"steps_count"</span>: len(self.steps),
+            <span class="s">"total_tokens"</span>: self.total_tokens,
+            <span class="s">"total_cost_usd"</span>: round(self.total_cost_usd, <span class="k">4</span>),
+            <span class="s">"steps"</span>: self.steps
+        }, ensure_ascii=<span class="k">False</span>, indent=<span class="k">2</span>)
+
+<span class="k">class</span> <span class="n">TracedAgent</span>:
+    <span class="s">"""Wrapper que adiciona observabilidade a qualquer agente."""</span>
+
+    COST_PER_MTOK = {  <span class="cm"># USD por milhão de tokens (abr/2026)</span>
+        <span class="s">"claude-opus-4-6"</span>:    {<span class="s">"input"</span>: <span class="k">15.0</span>,  <span class="s">"output"</span>: <span class="k">75.0</span>},
+        <span class="s">"claude-sonnet-4-6"</span>:  {<span class="s">"input"</span>:  <span class="k">3.0</span>,  <span class="s">"output"</span>: <span class="k">15.0</span>},
+        <span class="s">"claude-haiku-4-5"</span>:   {<span class="s">"input"</span>:  <span class="k">0.8</span>,  <span class="s">"output"</span>:  <span class="k">4.0</span>},
+    }
+
+    <span class="k">def</span> <span class="n">__init__</span>(self, agent_fn, objective: str):
+        self.agent_fn  = agent_fn
+        self.trace     = AgentTrace(objective=objective)
+        self.client    = anthropic.Anthropic()
+
+    <span class="k">def</span> <span class="n">traced_api_call</span>(self, **kwargs):
+        t0 = time.time()
+        response = self.client.messages.create(**kwargs)
+        duration = (time.time() - t0) * <span class="k">1000</span>
+
+        <span class="cm"># Registrar no trace</span>
+        model = kwargs.get(<span class="s">"model"</span>, <span class="s">"unknown"</span>)
+        costs = self.COST_PER_MTOK.get(model, {<span class="s">"input"</span>: <span class="k">0</span>, <span class="s">"output"</span>: <span class="k">0</span>})
+        cost = (response.usage.input_tokens  * costs[<span class="s">"input"</span>]  / <span class="k">1_000_000</span> +
+                response.usage.output_tokens * costs[<span class="s">"output"</span>] / <span class="k">1_000_000</span>)
+
+        self.trace.total_tokens += response.usage.input_tokens + response.usage.output_tokens
+        self.trace.total_cost_usd += cost
+
+        self.trace.add_step(<span class="s">"api_call"</span>, {
+            <span class="s">"model"</span>: model,
+            <span class="s">"input_tokens"</span>: response.usage.input_tokens,
+            <span class="s">"output_tokens"</span>: response.usage.output_tokens,
+            <span class="s">"cost_usd"</span>: round(cost, <span class="k">5</span>),
+            <span class="s">"stop_reason"</span>: response.stop_reason
+        }, duration)
+
+        <span class="cm"># Alerta de custo anômalo</span>
+        <span class="k">if</span> self.trace.total_cost_usd > <span class="k">1.0</span>:
+            print(<span class="s">f"⚠️ CUSTO ALTO: USD {self.trace.total_cost_usd:.3f} na sessão {self.trace.session_id}"</span>)
+
+        <span class="k">return</span> response
+
+    <span class="k">def</span> <span class="n">save_trace</span>(self, path: str = <span class="k">None</span>):
+        path = path <span class="k">or</span> <span class="s">f"traces/{self.trace.session_id}.json"</span>
+        <span class="k">with</span> open(path, <span class="s">"w"</span>) <span class="k">as</span> f:
+            f.write(self.trace.to_json())
+        print(<span class="s">f"📊 Trace salvo: {path}"</span>)</pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- SEC 9: CASOS ENTERPRISE -->
+<section id="casos-enterprise">
+  <div class="container">
+    <div class="sec-label">Seção 09 · Enterprise</div>
+    <h2 class="sec-title">Casos de uso enterprise: agentes reais em 2026</h2>
+    <p class="sec-lead">
+      Três arquiteturas de agentes que representam o estado da arte em implantações
+      corporativas reais — com stack, ROI estimado e lições aprendidas.
+    </p>
+
+    <div class="card-grid card-grid-3">
+
+      <div class="card card-accent">
+        <div style="font-size:1.6rem;margin-bottom:10px">🧑‍💼</div>
+        <h3>Agente de Onboarding</h3>
+        <p style="margin-bottom:12px">Novo funcionário chega no primeiro dia. Agente semi-autônomo cria contas em 12 sistemas, gera contratos, agenda treinamentos e responde dúvidas sobre benefícios.</p>
+        <div style="font-size:0.8rem;margin-bottom:8px">
+          <strong style="font-family:var(--font-mono);color:var(--coral-dark)">Stack:</strong> Multi-agente supervisor (RH, TI, Facilities) + MCP Servers por sistema + RAG em manual do funcionário
+        </div>
+        <div style="font-size:0.8rem;margin-bottom:8px">
+          <strong style="font-family:var(--font-mono);color:var(--coral-dark)">HITL:</strong> Aprovação de criação de acessos privilegiados, validação do contrato
+        </div>
+        <div style="background:var(--coral-pale);border-radius:6px;padding:8px 10px;font-size:0.78rem;font-family:var(--font-mono);color:var(--coral-dark)">
+          ROI: 4h de trabalho de RH → 30min de revisão. Payback: 2 meses.
+        </div>
+      </div>
+
+      <div class="card card-accent">
+        <div style="font-size:1.6rem;margin-bottom:10px">💰</div>
+        <h3>Agente Fiscal</h3>
+        <p style="margin-bottom:12px">Processa 10.000 NF-e por mês, cruza com ERP, identifica divergências, calcula PIS/COFINS/ICMS-ST, gera SPED Fiscal e EFD-Contribuições. Analistas revisam apenas exceções.</p>
+        <div style="font-size:0.8rem;margin-bottom:8px">
+          <strong style="font-family:var(--font-mono);color:var(--coral-dark)">Stack:</strong> Plan-Execute + MCP para ERP/SEFAZ + RAG em legislação tributária + Computer Use para portais estaduais sem API
+        </div>
+        <div style="font-size:0.8rem;margin-bottom:8px">
+          <strong style="font-family:var(--font-mono);color:var(--coral-dark)">HITL:</strong> Toda transmissão para SEFAZ, divergências acima de R$5K
+        </div>
+        <div style="background:var(--coral-pale);border-radius:6px;padding:8px 10px;font-size:0.78rem;font-family:var(--font-mono);color:var(--coral-dark)">
+          ROI: Redução de 70% do tempo de compliance fiscal. Multas: zero nos últimos 6 meses.
+        </div>
+      </div>
+
+      <div class="card card-accent">
+        <div style="font-size:1.6rem;margin-bottom:10px">🔧</div>
+        <h3>Agente de DevOps</h3>
+        <p style="margin-bottom:12px">Monitora alertas de produção, diagnostica causa raiz nos logs, sugere e (com aprovação) aplica hotfixes em código Python/COBOL, reabre jobs de batch falhados e documenta incidentes automaticamente.</p>
+        <div style="font-size:0.8rem;margin-bottom:8px">
+          <strong style="font-family:var(--font-mono);color:var(--coral-dark)">Stack:</strong> ReAct + MCP para PagerDuty/Splunk/GitHub + Claude Code para geração de patch + memória episódica de incidentes
+        </div>
+        <div style="font-size:0.8rem;margin-bottom:8px">
+          <strong style="font-family:var(--font-mono);color:var(--coral-dark)">HITL:</strong> Qualquer alteração em código de produção, restart de jobs de folha
+        </div>
+        <div style="background:var(--coral-pale);border-radius:6px;padding:8px 10px;font-size:0.78rem;font-family:var(--font-mono);color:var(--coral-dark)">
+          ROI: MTTR de 4h para 35min. On-call noturno: 80% dos alertas resolvidos sem acordar ninguém.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout callout-dark" style="margin-top:28px">
+      <span class="callout-icon">📐</span>
+      <div class="callout-body">
+        <h4>As 5 lições mais comuns de projetos agênticos em produção</h4>
+        <p>
+          <strong style="color:var(--coral-light)">(1)</strong> Comece menor do que você pensa ser necessário — agentes simples em produção > agentes complexos em staging.<br>
+          <strong style="color:var(--coral-light)">(2)</strong> O maior tempo é na integração com sistemas legados, não no LLM.<br>
+          <strong style="color:var(--coral-light)">(3)</strong> Evals antes do deploy, sempre — sem eles você não sabe o que mudou.<br>
+          <strong style="color:var(--coral-light)">(4)</strong> HITL nos pontos certos reduz resistência de stakeholders e auditorias.<br>
+          <strong style="color:var(--coral-light)">(5)</strong> Custo real de tokens é menor do que o previsto se você rotear modelos corretamente.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SEC 10: FUTURO -->
+<section id="futuro">
+  <div class="container">
+    <div class="sec-label">Seção 10 · Horizontes</div>
+    <h2 class="sec-title">O futuro dos agentes: o que está por vir</h2>
+    <p class="sec-lead">
+      O módulo final termina com o mapa do que está sendo construído agora nos labs e que
+      chegará ao mercado nos próximos 12–24 meses. Não como especulação —
+      como tendências com roadmaps públicos e evidências concretas.
+    </p>
+
+    <div class="future-grid">
+
+      <div class="future-card">
+        <div class="future-header" style="background:#D4F7E7">
+          <span class="future-title">🧠 Memória persistente nativa nos modelos</span>
+          <span class="pill pill-green">2026–27</span>
+        </div>
+        <div class="future-body">
+          Modelos que mantêm contexto de semanas/meses sem re-injeção externa. Anthropic e OpenAI têm research ativo em "persistent memory architectures". Quando chegar, vai simplificar radicalmente a engenharia de contexto do M6.
+        </div>
+      </div>
+
+      <div class="future-card">
+        <div class="future-header" style="background:#FFE8E8">
+          <span class="future-title">⚡ Agentes em tempo real (&lt;100ms)</span>
+          <span class="pill">2026</span>
+        </div>
+        <div class="future-body">
+          Modelos menores e especializados para latência ultra-baixa. Já existe com Haiku 4.5 (~250ms), mas o target é &lt;100ms para agentes de voz e automação física. Habilita casos como co-piloto de atendimento ao vivo.
+        </div>
+      </div>
+
+      <div class="future-card">
+        <div class="future-header" style="background:#EDE9FE">
+          <span class="future-title">🤝 Padrão de comunicação entre agentes</span>
+          <span class="pill pill-purple">2026–27</span>
+        </div>
+        <div class="future-body">
+          MCP está evoluindo para suportar comunicação agente-a-agente padronizada. Agentes de diferentes empresas (seu agente fiscal + agente da SEFAZ) se comunicando diretamente. Anthropic e Google estão convergindo em padrões.
+        </div>
+      </div>
+
+      <div class="future-card">
+        <div class="future-header" style="background:#FFF9CC">
+          <span class="future-title">🎯 Fine-tuning acessível para domínios específicos</span>
+          <span class="pill pill-yellow">2026</span>
+        </div>
+        <div class="future-body">
+          Fine-tuning de modelos menores em dados específicos da empresa (ex: Haiku treinado em 10 anos de histórico de suporte) viabilizando performance de Opus com custo de Haiku. Anthropic prometeu acesso em 2026.
+        </div>
+      </div>
+
+      <div class="future-card">
+        <div class="future-header" style="background:#D6EAF8">
+          <span class="future-title">🔭 Interpretabilidade prática</span>
+          <span class="pill pill-blue">2027+</span>
+        </div>
+        <div class="future-body">
+          Research de "mechanistic interpretability" da Anthropic avança para explicar por que o modelo tomou uma decisão específica. Quando virar produto, vai revolucionar compliance, auditoria e confiança em decisões de IA de alto impacto.
+        </div>
+      </div>
+
+      <div class="future-card">
+        <div class="future-header" style="background:var(--coral-pale)">
+          <span class="future-title">🏭 Agentes especializados por vertical</span>
+          <span class="pill">2026</span>
+        </div>
+        <div class="future-body">
+          Modelos pré-treinados em domínios: medicina, direito, finanças, engenharia. Já existe Harvey (direito) e Abridge (medicina). Próximos: COBOL/mainframe, fiscal brasileiro, agronegócio. Consultores que conhecem esses domínios constroem sobre eles.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout callout-dark" style="margin-top:24px">
+      <span class="callout-icon">🎓</span>
+      <div class="callout-body">
+        <h4>Mensagem final do cursinho</h4>
+        <p>Você chegou ao módulo 8 com conhecimento real sobre como a IA funciona, como construir sistemas com ela, como integrá-la a legado COBOL, e como estar preparada para o que está vindo. O diferencial não é saber usar o ChatGPT — é saber <strong>construir</strong> sistemas que resolvem problemas reais com IA. Isso é o que este cursinho entregou.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SEC 11: GLOSSÁRIO MESTRE -->
+<section id="glossario-master">
+  <div class="container">
+    <div class="sec-label">Seção 11 · Referência Completa</div>
+    <h2 class="sec-title">Glossário Mestre — Módulos M1 a M8</h2>
+    <p class="sec-lead">
+      Todos os termos-chave do cursinho em um único lugar, com referência ao módulo de origem.
+      Use como cheat sheet em consultorias.
+    </p>
+
+    <!-- MÓDULO 8 NOVOS -->
+    <h3 style="margin-bottom:16px">Termos do Módulo 8</h3>
+    <div class="glossary-grid" style="margin-bottom:40px">
+      <div class="gloss-item">
+        <div class="gloss-term">ReAct <span class="gloss-module" style="background:#FFE8E8">M8</span></div>
+        <div class="gloss-def">Reasoning + Acting. Padrão de agente onde o modelo alterna entre raciocinar (Thought), agir (Action) e observar (Observation) em loop até completar a tarefa.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Plan-and-Execute <span class="gloss-module" style="background:#FFE8E8">M8</span></div>
+        <div class="gloss-def">Padrão de agente com fase separada de planejamento (modelo maior) e execução (modelo menor/mais rápido). Mais previsível e auditável que ReAct puro.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Supervisor-Worker <span class="gloss-module" style="background:#FFE8E8">M8</span></div>
+        <div class="gloss-def">Padrão multi-agente onde um Supervisor decompõe objetivos e delega para sub-agentes especializados. Consolida resultados e apresenta ao humano.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Reflexion <span class="gloss-module" style="background:#FFE8E8">M8</span></div>
+        <div class="gloss-def">Padrão onde um Critic LLM avalia a resposta gerada e fornece feedback para refinamento iterativo. Melhora qualidade com custo adicional de 2–3× tokens.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Human-in-the-Loop (HITL) <span class="gloss-module" style="background:#FFE8E8">M8</span></div>
+        <div class="gloss-def">Padrão de design onde humanos supervisionam, validam ou aprovam decisões de sistemas de IA em pontos críticos — especialmente ações irreversíveis ou de alto impacto.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Observabilidade de Agentes <span class="gloss-module" style="background:#FFE8E8">M8</span></div>
+        <div class="gloss-def">Capacidade de entender o comportamento interno de um agente através de logs, traces, métricas e avaliações. Fundamental para detectar falhas não-determinísticas em produção.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Agent Trace <span class="gloss-module" style="background:#FFE8E8">M8</span></div>
+        <div class="gloss-def">Registro detalhado de uma sessão de agente: cada tool call, raciocínio, decisão, duração e custo. Permite reproduzir, auditar e depurar comportamentos inesperados.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">MTTR (Mean Time to Recover) <span class="gloss-module" style="background:#FFE8E8">M8</span></div>
+        <div class="gloss-def">Tempo médio de recuperação após um incidente. Agentes de DevOps com IA reduzem MTTR ao automatizar diagnóstico e aplicação de soluções conhecidas.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Computer Use <span class="gloss-module" style="background:#FFE8E8">M8</span></div>
+        <div class="gloss-def">Capacidade do Claude de operar um computador visualmente — tirar screenshots, interpretar a tela, mover cursor, clicar e digitar. Útil para sistemas sem API.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Mechanistic Interpretability <span class="gloss-module" style="background:#FFE8E8">M8</span></div>
+        <div class="gloss-def">Campo de pesquisa que busca entender como redes neurais realizam computações internamente. Anthropic lidera esta área — objetivo: explicar decisões do modelo.</div>
+      </div>
+    </div>
+
+    <!-- TERMOS ESSENCIAIS DE TODOS OS MÓDULOS -->
+    <h3 style="margin-bottom:16px">Termos essenciais — M1 a M7</h3>
+    <div class="glossary-grid">
+      <div class="gloss-item">
+        <div class="gloss-term">Token <span class="gloss-module" style="background:#FFD93D">M1</span></div>
+        <div class="gloss-def">Unidade básica de texto para LLMs (~¾ de palavra em inglês, ~½ em português). Toda cobrança da API é por tokens.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Alucinação <span class="gloss-module" style="background:#FFD93D">M1</span></div>
+        <div class="gloss-def">Quando o LLM gera informações falsas com aparente confiança. Não é um bug — é consequência da geração probabilística de tokens.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">RAG <span class="gloss-module" style="background:#4ECDC4">M2</span></div>
+        <div class="gloss-def">Retrieval-Augmented Generation. Recupera documentos relevantes de base externa e os injeta no contexto antes da geração. Evita fine-tuning para knowledge updates.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Transformer <span class="gloss-module" style="background:#4ECDC4">M2</span></div>
+        <div class="gloss-def">Arquitetura de rede neural base de todos os LLMs modernos. Mecanismo de self-attention permite processar relações entre tokens independentemente da distância.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Prompt Engineering <span class="gloss-module" style="background:#FF8C42">M3</span></div>
+        <div class="gloss-def">Arte e ciência de estruturar inputs para LLMs de forma a obter outputs de maior qualidade. Inclui técnicas como few-shot, chain-of-thought e role prompting.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Chain-of-Thought <span class="gloss-module" style="background:#FF8C42">M3</span></div>
+        <div class="gloss-def">Técnica que instrui o modelo a "pensar passo a passo" antes de responder. Melhora raciocínio em problemas complexos. Base do Extended Thinking do Claude.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Prompt Cache <span class="gloss-module" style="background:#E91E8C;color:white">M4</span></div>
+        <div class="gloss-def">Feature da Anthropic que cacheia prefixos de prompt repetidos. Reduz custo em 90% e latência em 85% para system prompts longos reutilizados.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Extended Thinking <span class="gloss-module" style="background:#E91E8C;color:white">M4</span></div>
+        <div class="gloss-def">Mode do Claude (Opus/Sonnet) que usa tokens de "thinking" internos para raciocínio explícito antes de responder. Melhora performance em problemas difíceis.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">AGI <span class="gloss-module" style="background:#2ECC71">M5</span></div>
+        <div class="gloss-def">Artificial General Intelligence — sistema que iguala humanos em qualquer tarefa cognitiva. Não existe ainda. GPT-5 estima ~57% do caminho por uma definição rigorosa.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Alignment <span class="gloss-module" style="background:#2ECC71">M5</span></div>
+        <div class="gloss-def">Campo de pesquisa focado em garantir que sistemas de IA poderosos ajam de acordo com valores humanos. Problema técnico e filosófico central da Anthropic.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Vector Database <span class="gloss-module" style="background:#3498DB;color:white">M6</span></div>
+        <div class="gloss-def">Banco de dados otimizado para armazenar e buscar embeddings por similaridade semântica. Ex: pgvector, Pinecone, Qdrant, Weaviate.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Embedding <span class="gloss-module" style="background:#3498DB;color:white">M6</span></div>
+        <div class="gloss-def">Representação vetorial de texto onde proximidade geométrica = similaridade semântica. Base técnica do RAG e busca semântica.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Tool Use <span class="gloss-module" style="background:#6C5CE7;color:white">M7</span></div>
+        <div class="gloss-def">Mecanismo pelo qual o LLM solicita execução de funções externas. Claude decide quando chamar, sua app executa e retorna o resultado. Base de qualquer agente.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">MCP Server <span class="gloss-module" style="background:#6C5CE7;color:white">M7</span></div>
+        <div class="gloss-def">Servidor que expõe tools, resources e prompts via Model Context Protocol. Padrão aberto da Anthropic para integrar LLMs com qualquer sistema externo.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Prompt Injection <span class="gloss-module" style="background:#6C5CE7;color:white">M7</span></div>
+        <div class="gloss-def">Ataque onde instruções maliciosas no input do usuário tentam sobrescrever o system prompt. Equivalente ao SQL injection para sistemas LLM.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">LLM-as-Judge <span class="gloss-module" style="background:#6C5CE7;color:white">M7</span></div>
+        <div class="gloss-def">Usar um LLM para avaliar a qualidade de respostas de outro LLM. Escala evals para milhares de casos. Requer calibração com anotações humanas.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:40px">
+      <div class="sec-label" style="margin-bottom:10px">Todas as tags do cursinho</div>
+      <div class="tag-cloud">
+        <span class="tag">Token</span><span class="tag">Alucinação</span><span class="tag">Temperatura</span>
+        <span class="tag">Fine-tuning</span><span class="tag">RAG</span><span class="tag">Transformer</span>
+        <span class="tag">Attention</span><span class="tag">Embedding</span><span class="tag">Multimodal</span>
+        <span class="tag">Prompt Engineering</span><span class="tag">Chain-of-Thought</span><span class="tag">Few-shot</span>
+        <span class="tag">System Prompt</span><span class="tag">XML Tags</span><span class="tag">Prompt Cache</span>
+        <span class="tag">Extended Thinking</span><span class="tag">Claude Code</span><span class="tag">MCP</span>
+        <span class="tag">AGI</span><span class="tag">ASI</span><span class="tag">Alignment</span><span class="tag">Safety</span>
+        <span class="tag">Frontier Model</span><span class="tag">Benchmark</span><span class="tag">Arena Elo</span>
+        <span class="tag">Vector DB</span><span class="tag">pgvector</span><span class="tag">Chunking</span>
+        <span class="tag">Hybrid Retrieval</span><span class="tag">Reranking</span><span class="tag">HNSW</span>
+        <span class="tag">CLAUDE.md</span><span class="tag">Files API</span><span class="tag">Tool Use</span>
+        <span class="tag">MCP Server</span><span class="tag">Streaming</span><span class="tag">Circuit Breaker</span>
+        <span class="tag">Evals</span><span class="tag">Prompt Injection</span><span class="tag">LLM-as-Judge</span>
+        <span class="tag">ReAct</span><span class="tag">Plan-Execute</span><span class="tag">Multi-agent</span>
+        <span class="tag">Supervisor-Worker</span><span class="tag">HITL</span><span class="tag">Computer Use</span>
+        <span class="tag">Agent Trace</span><span class="tag">Observabilidade</span><span class="tag">COMP-3</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL BOX -->
+<div class="container">
+  <div class="final-box">
+    <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--coral-light);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px">🎓 Cursinho Concluído</div>
+    <h3>Parabéns — você completou os 8 módulos.</h3>
+    <p>De fundamentos de IA até arquitetura de agentes, você percorreu todo o stack necessário para construir, consultar e implantar sistemas de IA em empresas reais — com ênfase em ambientes legados e mainframe que a maioria dos cursos ignora completamente.</p>
+
+    <div class="module-strip">
+      <div class="mod-badge" style="background:#FFD93D">M1 Fundamentos ✅</div>
+      <div class="mod-badge" style="background:#4ECDC4">M2 LLMs ✅</div>
+      <div class="mod-badge" style="background:#FF8C42">M3 Prompts ✅</div>
+      <div class="mod-badge" style="background:#E91E8C;color:white">M4 Anthropic ✅</div>
+      <div class="mod-badge" style="background:#2ECC71">M5 Estado IA ✅</div>
+      <div class="mod-badge" style="background:#3498DB;color:white">M6 Memória ✅</div>
+      <div class="mod-badge" style="background:#6C5CE7;color:white">M7 API ✅</div>
+      <div class="mod-badge" style="background:var(--coral);color:white">M8 Agentes ✅</div>
+    </div>
+
+    <div style="margin-top:20px">
+      <a href="#o-que-e-agente" class="btn">↑ Voltar ao início do M8</a>
+      <a href="#glossario-master" class="btn btn-secondary">📖 Glossário Mestre</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer style="border-top:3px solid var(--ink);padding:32px 0;margin-top:64px;background:var(--ink)">
+  <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+    <div style="font-family:var(--font-mono);font-size:0.75rem;color:rgba(255,255,255,0.5)">
+      Cursinho de IA · Módulo 8 de 8 · Arquitetura de Agentes · Módulo Final
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="chip chip-yellow" style="font-size:0.65rem">M1 ✅</span>
+      <span class="chip chip-teal" style="font-size:0.65rem">M2 ✅</span>
+      <span class="chip" style="font-size:0.65rem;background:#FF8C42">M3 ✅</span>
+      <span class="chip" style="font-size:0.65rem;background:#E91E8C;color:white">M4 ✅</span>
+      <span class="chip chip-green" style="font-size:0.65rem">M5 ✅</span>
+      <span class="chip" style="font-size:0.65rem;background:#3498DB;color:white">M6 ✅</span>
+      <span class="chip chip-purple" style="font-size:0.65rem">M7 ✅</span>
+      <span class="chip chip-coral" style="font-size:0.65rem">M8 ✅</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const p = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+    document.getElementById('progress-bar').style.width = p + '%';
+  });
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>

@@ -280,6 +280,13 @@ section:first-of-type { border-top: none; }
 .stat-label  { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #555; }
 .stat-note   { font-size: 0.76rem; color: #777; margin-top: 6px; }
 
+/* NEXT */
+.next-box{background:var(--ink);border:var(--border);padding:50px;border-radius:24px;box-shadow:var(--shadow);text-align:center;}
+.next-box h2{font-family:var(--display);font-size:clamp(1.8rem,4vw,3rem);margin:12px 0 16px;color:white;}
+.next-box p{max-width:500px;margin:0 auto 28px;font-size:.97rem;color:rgba(255,255,255,.65);}
+.next-btn{display:inline-block;background:var(--pink);color:white;padding:14px 36px;border:var(--border);font-family:var(--display);font-weight:700;text-decoration:none;box-shadow:var(--shadow-s);transition:transform .15s;font-size:.95rem;}
+.next-btn:hover{transform:translate(-2px,-2px);}
+
 /* ===== TAG CLOUD ===== */
 .tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
 .tag { font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600; padding: 6px 14px; border: 2px solid var(--ink); border-radius: 100px; background: var(--white); transition: background 0.15s, transform 0.15s; cursor: default; }
@@ -379,21 +386,23 @@ section:first-of-type { border-top: none; }
           <li><a href="#n2-agentes"><span class="toc-num n2">05</span> Agentes e sub-agentes</a></li>
           <li><a href="#n2-computer-use"><span class="toc-num n2">06</span> Computer Use</a></li>
           <li><a href="#n2-infra"><span class="toc-num n2">07</span> Infra, bancos e vetores</a></li>
-          <li><a href="#n2-hitl"><span class="toc-num n2">08</span> HITL e modelo certo</a></li>
-          <li><a href="#n2-regulacao"><span class="toc-num n2">09</span> Regulação e governança</a></li>
+          <li><a href="#n2-guardrail"><span class="toc-num n2">08</span> Guardrails</a></li>
+          <li><a href="#n2-embedding"><span class="toc-num n2">09</span> Embeddings</a></li>
+          <li><a href="#n2-hitl"><span class="toc-num n2">10</span> HITL e modelo certo</a></li>
+          <li><a href="#n2-regulacao"><span class="toc-num n2">11</span> Regulação e governança</a></li>
         </ul>
         <h3 class="toc-n3" style="margin-top:14px">Nível 3 · Dev</h3>
         <ul class="toc-list">
           <li><a href="#n3-assisted-integrated"><span class="toc-num n3">01</span> AI Assisted vs. AI Integrated</a></li>
           <li><a href="#n3-arquitetura"><span class="toc-num n3">02</span> Arquitetura de app LLM</a></li>
-          <li><a href="#n3-contexto-eng"><span class="toc-num n3">03</span> Engenharia de contexto</a></li>
-          <li><a href="#n3-memoria"><span class="toc-num n3">04</span> Hierarquia de memória</a></li>
-          <li><a href="#n3-tools-mcp"><span class="toc-num n3">05</span> Tool use e MCP</a></li>
-          <li><a href="#n3-padroes"><span class="toc-num n3">06</span> Padrões de agentes</a></li>
-          <li><a href="#n3-evals"><span class="toc-num n3">07</span> Evals e qualidade</a></li>
-          <li><a href="#n3-seguranca"><span class="toc-num n3">08</span> Segurança</a></li>
-          <li><a href="#n3-obs"><span class="toc-num n3">09</span> Observabilidade</a></li>
-          <li><a href="#n3-spec"><span class="toc-num n3">10</span> Spec-driven com Claude Code</a></li>
+          <li><a href="#n3-contexto-eng"><span class="toc-num n3">03</span> Contexto e memória</a></li>
+          <li><a href="#n3-rag-profundo"><span class="toc-num n3">04</span> RAG em profundidade</a></li>
+          <li><a href="#n3-vectordb"><span class="toc-num n3">05</span> Vector databases</a></li>
+          <li><a href="#n3-seguranca"><span class="toc-num n3">06</span> Segurança em profundidade</a></li>
+          <li><a href="#n3-evals"><span class="toc-num n3">07</span> Evals com substância</a></li>
+          <li><a href="#n3-obs"><span class="toc-num n3">08</span> Observabilidade</a></li>
+          <li><a href="#n3-padroes"><span class="toc-num n3">09</span> Padrões e MCP</a></li>
+          <li><a href="#n3-spec"><span class="toc-num n3">10</span> Spec-Driven + Claude Code</a></li>
         </ul>
         <h3 class="toc-base" style="margin-top:14px">Glossário</h3>
       </div>
@@ -1278,6 +1287,126 @@ section:first-of-type { border-top: none; }
   </div>
 </section>
 
+<section id="n2-guardrail">
+  <div class="container">
+    <div class="level-band"><span class="level-badge lb-n2">N2 · Arquiteto</span></div>
+    <div class="sec-label">Segurança de Produto</div>
+    <h2 class="sec-title">Guardrails: as travas que tornam um agente confiável</h2>
+    <p class="sec-lead n2">Guardrail é qualquer mecanismo que impede um sistema de IA de se comportar de formas indesejadas. É a primeira pergunta que compliance, jurídico e liderança vão fazer quando você apresentar um agente. Saber responder com precisão é o que separa um projeto aprovado de um bloqueado.</p>
+
+    <div class="callout callout-yellow">
+      <span class="callout-icon">💬</span>
+      <div class="callout-body">
+        <h4>A pergunta que você vai ouvir</h4>
+        <p>"E se o agente fizer algo errado? O que impede ele de mandar um e-mail para o cliente errado, aprovar um pagamento indevido ou revelar dados confidenciais?" A resposta é: guardrails em camadas. Não existe uma trava única — existe um sistema de proteções que trabalham juntas.</p>
+      </div>
+    </div>
+
+    <h3 style="margin:28px 0 14px">Os três tipos de guardrail — e onde cada um age</h3>
+
+    <div class="card-grid card-grid-3" style="margin-bottom:28px">
+      <div class="card card-accent-n2">
+        <div style="font-size:1.6rem;margin-bottom:8px">📥</div>
+        <h3>Guardrail de Entrada</h3>
+        <p>Filtra o que o usuário pode enviar ao sistema. Bloqueia inputs maliciosos, conteúdo inadequado, tentativas de manipulação do agente ou perguntas fora do escopo do produto.</p>
+        <p style="font-size:0.8rem;margin-top:10px;color:var(--n2-dark)"><strong>Exemplos:</strong> bloquear queries sobre concorrentes, impedir upload de arquivos executáveis, detectar tentativas de prompt injection antes de chegar ao modelo.</p>
+      </div>
+      <div class="card card-accent-n2">
+        <div style="font-size:1.6rem;margin-bottom:8px">📤</div>
+        <h3>Guardrail de Saída</h3>
+        <p>Filtra ou transforma o que o agente retorna ao usuário. Detecta se a resposta contém informações que não deveriam ser expostas, linguagem inadequada, ou dados de outros usuários.</p>
+        <p style="font-size:0.8rem;margin-top:10px;color:var(--n2-dark)"><strong>Exemplos:</strong> mascarar CPFs e números de cartão que apareçam em respostas, bloquear resposta se contiver dados de outros clientes, alertar se o agente tentar recomendar um concorrente.</p>
+      </div>
+      <div class="card card-accent-n2">
+        <div style="font-size:1.6rem;margin-bottom:8px">🧠</div>
+        <h3>Guardrail Comportamental</h3>
+        <p>Define o que o agente pode e não pode fazer — independente do que o usuário peça. Estabelecido no system prompt e reforçado pela arquitetura. É o contrato de comportamento do sistema.</p>
+        <p style="font-size:0.8rem;margin-top:10px;color:var(--n2-dark)"><strong>Exemplos:</strong> "nunca execute pagamentos sem aprovação humana", "nunca acesse dados de outros departamentos", "sempre citar a fonte quando responder sobre legislação".</p>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:14px">Guardrail do modelo vs. guardrail da sua aplicação</h3>
+
+    <div class="compare-box">
+      <div class="compare-side" style="background:#EDE9FE">
+        <div class="compare-label" style="color:var(--purple)">🤖 Guardrail nativo do modelo</div>
+        <p style="font-size:0.87rem;margin-bottom:10px">O próprio modelo recusa ou filtra certos comportamentos por padrão. Claude tem Constitutional AI — um conjunto de princípios incorporados durante o treinamento que o tornam resistente a produzir conteúdo prejudicial, enganoso ou perigoso, mesmo quando instruído.</p>
+        <p style="font-size:0.82rem;color:#555"><strong>Vantagem:</strong> você não precisa implementar. <strong>Limitação:</strong> você não controla — e não cobre as regras de negócio específicas da sua empresa.</p>
+      </div>
+      <div class="compare-side" style="background:var(--n2-pale)">
+        <div class="compare-label" style="color:var(--n2-dark)">🏗️ Guardrail da sua aplicação</div>
+        <p style="font-size:0.87rem;margin-bottom:10px">Camadas de proteção que você constrói em torno do modelo para as regras específicas do seu produto: quais ações o agente pode executar, quais dados pode acessar, quais aprovações são necessárias, o que registrar em log para auditoria.</p>
+        <p style="font-size:0.82rem;color:#555"><strong>Vantagem:</strong> você controla totalmente. <strong>Limitação:</strong> requer design, implementação e manutenção — é engenharia, não configuração.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-n2">
+      <span class="callout-icon">🏗️</span>
+      <div class="callout-body">
+        <h4>Guardrails como requisito de produto, não detalhe técnico</h4>
+        <p>Guardrails precisam ser definidos pelo produto e negócio antes de serem implementados pela engenharia. As perguntas são de negócio: <em>"Quais ações o agente nunca pode executar sozinho? Que tipos de dados ele nunca pode expor? Em que situações ele deve escalar para um humano?"</em> Definir isso no início evita retrabalho caro e risco regulatório.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="n2-embedding">
+  <div class="container">
+    <div class="level-band"><span class="level-badge lb-n2">N2 · Arquiteto</span></div>
+    <div class="sec-label">Base do RAG</div>
+    <h2 class="sec-title">Embeddings: a impressão digital semântica dos seus documentos</h2>
+    <p class="sec-lead n2">Embedding é a tecnologia que torna o RAG possível. Entender o que é — e onde as decisões de produto afetam a qualidade — permite fazer as perguntas certas para o time técnico e evitar problemas silenciosos que só aparecem em produção.</p>
+
+    <div class="card-grid card-grid-2" style="margin-bottom:24px">
+      <div class="card">
+        <div style="font-size:1.6rem;margin-bottom:8px">🔢</div>
+        <h3>O que é um embedding</h3>
+        <p>Um embedding é a representação matemática de um texto como uma lista de números (um vetor). Textos com significados parecidos geram vetores parecidos — e essa proximidade matemática é o que permite a busca por significado.</p>
+        <p style="font-size:0.82rem;margin-top:10px;color:#555">É como se cada documento recebesse uma "impressão digital semântica". Documentos sobre "rescisão contratual" e "demissão por justa causa" terão impressões digitais próximas — mesmo sem usar as mesmas palavras.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:1.6rem;margin-bottom:8px">🔍</div>
+        <h3>Por que importa para o RAG</h3>
+        <p>Quando um usuário faz uma pergunta, o sistema transforma essa pergunta em um embedding e busca os documentos com embeddings mais próximos. Sem embeddings, você só consegue busca por palavras exatas — que falha sempre que o usuário usa uma formulação diferente da que está no documento.</p>
+        <p style="font-size:0.82rem;margin-top:10px;color:#555">"Política de home office" encontra documentos sobre "trabalho remoto" e "teletrabalho". Busca por palavras exatas não encontraria nada.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:14px">As decisões de produto que afetam a qualidade dos embeddings</h3>
+
+    <div class="layer-stack">
+      <div class="layer-item">
+        <div class="layer-num" style="background:var(--n2);color:white">1</div>
+        <div class="layer-name">Língua do modelo</div>
+        <div class="layer-desc">Modelos de embedding treinados predominantemente em inglês performam mal em português — especialmente com jargões jurídicos, fiscais e técnicos brasileiros. A pergunta para o time técnico: "O modelo de embedding foi avaliado em português com os tipos de documentos que vamos indexar?"</div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-num" style="background:var(--n2);color:white">2</div>
+        <div class="layer-name">Domínio do modelo</div>
+        <div class="layer-desc">Um modelo de embedding treinado em texto genérico da internet tem dificuldade com vocabulário técnico especializado — legislação tributária, manuais de mainframe, terminologia médica. Para bases muito especializadas, modelos de embedding específicos de domínio fazem diferença mensurável.</div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-num" style="background:var(--n2);color:white">3</div>
+        <div class="layer-name">Quando re-indexar</div>
+        <div class="layer-desc">Quando você atualiza um documento da base, o embedding desatualizado ainda existe — e pode ser recuperado em vez da versão nova. Toda atualização de documento exige re-geração do embedding correspondente. Para bases que mudam frequentemente, isso precisa ser automatizado, não manual.</div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-num" style="background:var(--n2);color:white">4</div>
+        <div class="layer-name">Troca de modelo</div>
+        <div class="layer-desc">Se você trocar o modelo de embedding (por qualidade ou custo), todos os documentos precisam ser re-indexados do zero. Embeddings de modelos diferentes não são comparáveis — misturá-los gera resultados incorretos. É uma migração, não uma atualização simples.</div>
+      </div>
+    </div>
+
+    <div class="callout callout-yellow">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <h4>A pergunta de produto que mais impacta a qualidade do RAG</h4>
+        <p>Antes de aprovar a arquitetura de um sistema com RAG, pergunte: <em>"Como avaliamos que a busca está retornando os documentos certos para as perguntas reais dos nossos usuários?"</em> A resposta deve incluir um conjunto de perguntas de teste com as respostas esperadas — não apenas um demo de slides. RAG que funciona numa demo pode falhar nas perguntas específicas do seu domínio.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="n2-hitl">
   <div class="container">
     <div class="level-band"><span class="level-badge lb-n2">N2 · Arquiteto</span></div>
@@ -1367,14 +1496,14 @@ section:first-of-type { border-top: none; }
 </section>
 
 <!-- ====================================================================== -->
-<!-- NÍVEL 3 -->
+<!-- NÍVEL 3 — REESCRITO -->
 <!-- ====================================================================== -->
 
 <div class="container">
   <div class="level-divider" id="nivel3">
     <span class="ld-badge" style="background:var(--n3);color:white">Nível 3</span>
-    <span class="ld-title">⚙️ Desenvolvedor / Tech Lead — Engenharia sem código</span>
-    <span class="ld-desc">Visão conceitual profunda de arquitetura e boas práticas</span>
+    <span class="ld-title">⚙️ Desenvolvedor / Tech Lead — Arquitetura e tradeoffs</span>
+    <span class="ld-desc">Profundidade técnica sem código — decisões, padrões e armadilhas</span>
   </div>
 </div>
 
@@ -1383,7 +1512,7 @@ section:first-of-type { border-top: none; }
     <div class="level-band"><span class="level-badge lb-n3">N3 · Dev</span></div>
     <div class="sec-label">Distinção Fundamental</div>
     <h2 class="sec-title">AI Assisted vs. AI Integrated</h2>
-    <p class="sec-lead n3">Esta é a decisão de arquitetura mais importante antes de qualquer linha de código. Confundir os dois modos leva a sistemas frágeis, inseguros e difíceis de manter. E muitos projetos derivam de um para o outro sem perceber.</p>
+    <p class="sec-lead n3">Esta é a primeira decisão de arquitetura — e a mais importante. Confundir os dois modos leva a sistemas frágeis, inseguros e difíceis de manter. Muitos projetos derivam de um para o outro sem perceber, e essa transição acidental é a origem de boa parte dos problemas em produção.</p>
 
     <div class="aiint-grid">
       <div class="aiint-col" style="background:#EDE9FE">
@@ -1391,7 +1520,7 @@ section:first-of-type { border-top: none; }
           <span style="font-size:1.8rem">🛠️</span>
           AI Assisted
         </div>
-        <div class="aiint-sub">A IA está no processo de construção. O produto final não depende dela.</div>
+        <div class="aiint-sub">A IA está no processo de construção. O produto final não depende dela em runtime.</div>
         <ul class="aiint-list">
           <li>Você usa Claude Code, Copilot, Cursor para escrever código</li>
           <li>A IA revisa, sugere, refatora durante o desenvolvimento</li>
@@ -1433,7 +1562,6 @@ section:first-of-type { border-top: none; }
     </div>
 
     <h3 style="margin:28px 0 14px">Pontos de atenção por modo</h3>
-
     <div class="poa-grid">
       <div class="poa-card">
         <div class="poa-header" style="background:#EDE9FE">
@@ -1443,27 +1571,22 @@ section:first-of-type { border-top: none; }
         <div class="poa-body">
           <div class="poa-item">
             <div class="poa-dot" style="background:var(--purple)"></div>
-            <div class="poa-text"><strong>Qualidade da revisão humana:</strong> o desenvolvedor precisa entender o que está aceitando. IA gera código plausível — não necessariamente correto ou seguro.</div>
+            <div class="poa-text"><strong>Qualidade da revisão humana:</strong> o dev precisa entender o que está aceitando. IA gera código plausível — não necessariamente correto ou seguro. Aceitar sem entender acumula débito técnico invisível.</div>
           </div>
           <div class="poa-item">
             <div class="poa-dot" style="background:var(--purple)"></div>
-            <div class="poa-text"><strong>Débito técnico invisível:</strong> código gerado por IA sem revisão profunda pode acumular inconsistências, padrões misturados e acoplamentos ruins que explodem mais tarde.</div>
+            <div class="poa-text"><strong>Débito técnico invisível:</strong> código gerado sem revisão profunda mistura padrões, cria acoplamentos ruins e viola convenções. Explode semanas depois quando ninguém lembra o que a IA gerou.</div>
           </div>
           <div class="poa-item">
             <div class="poa-dot" style="background:var(--purple)"></div>
-            <div class="poa-text"><strong>Conhecimento de domínio:</strong> a IA não conhece as regras de negócio específicas da sua empresa. A lógica de negócio precisa vir de quem a conhece — o desenvolvedor valida, não delega.</div>
+            <div class="poa-text"><strong>Lógica de negócio não documentada:</strong> a IA não conhece regras implícitas do domínio. Se você não passa o contexto correto via CLAUDE.md e spec, ela vai inferir — e inferir errado silenciosamente.</div>
           </div>
           <div class="poa-item">
             <div class="poa-dot" style="background:var(--purple)"></div>
-            <div class="poa-text"><strong>Dependência de contexto:</strong> a qualidade do código gerado depende da qualidade do CLAUDE.md, das instruções fornecidas e do contexto do projeto passado ao agente.</div>
-          </div>
-          <div class="poa-item">
-            <div class="poa-dot" style="background:var(--purple)"></div>
-            <div class="poa-text"><strong>Velocidade vs. solidez:</strong> é fácil gerar muitas features rapidamente com IA. A armadilha é velocidade de geração sem a mesma velocidade de validação.</div>
+            <div class="poa-text"><strong>Velocidade sem validação:</strong> gerar 10 features em 1 dia é fácil. A armadilha é que o tempo de validação não caiu na mesma proporção — features não validadas chegam com bugs em produção.</div>
           </div>
         </div>
       </div>
-
       <div class="poa-card">
         <div class="poa-header" style="background:var(--n3-pale)">
           <span style="font-size:1.2rem">🔌</span>
@@ -1472,29 +1595,33 @@ section:first-of-type { border-top: none; }
         <div class="poa-body">
           <div class="poa-item">
             <div class="poa-dot" style="background:var(--n3)"></div>
-            <div class="poa-text"><strong>Disponibilidade e fallback:</strong> se a API da Anthropic/OpenAI sair do ar, o que acontece? Planos de contingência, mensagens de erro graciosas e fallbacks são obrigatórios.</div>
+            <div class="poa-text"><strong>Dependência de API externa em runtime:</strong> seu SLA está limitado pelo SLA do provedor. Fallback não é opcional — é requisito. O que acontece quando a API retorna 529 às 2h da manhã?</div>
           </div>
           <div class="poa-item">
             <div class="poa-dot" style="background:var(--n3)"></div>
-            <div class="poa-text"><strong>Custo variável por uso:</strong> diferente de infra tradicional, custo sobe com cada token gerado. Sem controles, um usuário malicioso ou um loop de bug pode gerar custos absurdos.</div>
+            <div class="poa-text"><strong>Custo variável e imprevisível:</strong> cada token tem custo. Um bug de loop, um usuário abusivo ou pico inesperado pode gerar custo catastrófico sem rate limit e circuit breaker.</div>
           </div>
           <div class="poa-item">
             <div class="poa-dot" style="background:var(--n3)"></div>
-            <div class="poa-text"><strong>Não-determinismo:</strong> a mesma pergunta pode gerar respostas diferentes. Testes unitários tradicionais não funcionam — você precisa de evals que avaliam qualidade, não igualdade.</div>
+            <div class="poa-text"><strong>Não-determinismo em produção:</strong> a mesma entrada pode gerar saídas diferentes. Testes de snapshot não funcionam. Você precisa de evals que avaliam qualidade e comportamento.</div>
           </div>
           <div class="poa-item">
             <div class="poa-dot" style="background:var(--n3)"></div>
-            <div class="poa-text"><strong>Prompt injection:</strong> usuários maliciosos podem tentar manipular o comportamento do sistema via inputs cuidadosamente construídos. Validação de input é obrigatória.</div>
+            <div class="poa-text"><strong>Dados dos usuários em trânsito:</strong> o contexto enviado ao modelo passa pelos servidores do provedor. LGPD, contratos de uso e acordos de processamento precisam estar revisados antes do go-live.</div>
           </div>
           <div class="poa-item">
             <div class="poa-dot" style="background:var(--n3)"></div>
-            <div class="poa-text"><strong>Latência de LLM:</strong> chamadas a LLMs levam 1–30 segundos. Design de UX precisa contemplar isso — streaming é essencial para não parecer que o sistema travou.</div>
-          </div>
-          <div class="poa-item">
-            <div class="poa-dot" style="background:var(--n3)"></div>
-            <div class="poa-text"><strong>Dados em trânsito:</strong> dados dos usuários vão para a API do provedor. Avaliar implicações de privacidade, LGPD, contrato de uso dos dados com o provedor.</div>
+            <div class="poa-text"><strong>Latência percebida:</strong> gerações levam 2–30 segundos. Sem streaming, o usuário vê tela branca e desiste. Streaming é requisito de UX, não feature opcional.</div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="callout callout-yellow" style="margin-top:16px">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <h4>A transição acidental — o risco mais comum</h4>
+        <p>Um script gerado com AI Assisted que vira endpoint em produção tornou-se AI Integrated sem decisão consciente. Cada transição precisa ser documentada e revisada — não acidental.</p>
       </div>
     </div>
   </div>
@@ -1505,38 +1632,38 @@ section:first-of-type { border-top: none; }
     <div class="level-band"><span class="level-badge lb-n3">N3 · Dev</span></div>
     <div class="sec-label">Estrutura</div>
     <h2 class="sec-title">Arquitetura de uma aplicação LLM</h2>
-    <p class="sec-lead n3">Toda lógica de negócio fica na camada de orquestração — não no system prompt, não no código de chamada da API. O LLM é um componente de geração, não o cérebro do sistema. Este princípio é o que separa sistemas mantíveis dos que viram spaghetti.</p>
+    <p class="sec-lead n3">Princípio central: toda lógica de negócio fica na Orchestration Layer — não no system prompt, não no código de chamada da API. O LLM é um componente de geração, não o controlador. Esse princípio é o que separa sistemas mantíveis de spaghetti com IA no meio.</p>
 
     <div class="layer-stack">
       <div class="layer-item">
         <div class="layer-num" style="background:var(--n3);color:white">I</div>
         <div class="layer-name">Interface</div>
-        <div class="layer-desc">O ponto de entrada do usuário. Não deve conter lógica de negócio. Responsável por receber input, validar formato, e exibir output. Pode ser qualquer coisa: chat web, Slack bot, API REST, CLI.</div>
+        <div class="layer-desc">Ponto de entrada — chat, Slack, API REST, CLI. Não contém lógica de negócio. Recebe input, valida formato básico, exibe output. O LLM não "vê" a interface.</div>
       </div>
       <div class="layer-item">
         <div class="layer-num" style="background:var(--n3);color:white">A</div>
-        <div class="layer-name">Auth + Validação</div>
-        <div class="layer-desc">Quem pode fazer o quê. Validação e sanitização de input antes de qualquer coisa. Rate limiting por usuário/tenant. Primeira barreira contra abuso e prompt injection.</div>
+        <div class="layer-name">Auth + Validação + Rate Limiting</div>
+        <div class="layer-desc">Quem pode fazer o quê, quanto pode fazer, o que pode enviar. Autenticação, autorização por papel, limite de tokens por usuário/tenant, sanitização de input. Nenhum input chega ao LLM sem passar aqui.</div>
       </div>
       <div class="layer-item">
         <div class="layer-num" style="background:var(--n3);color:white">O</div>
-        <div class="layer-name">Orchestration Layer ← Cérebro</div>
-        <div class="layer-desc">Toda a lógica de negócio fica aqui: construção de contexto, recuperação de memória, chamadas RAG, roteamento de ferramentas, gerenciamento do loop de agência. Troque de modelo sem tocar aqui.</div>
+        <div class="layer-name" style="color:var(--n3-dark);font-weight:800">Orchestration Layer ← o cérebro real</div>
+        <div class="layer-desc">Toda lógica de negócio aqui: construção de contexto, recuperação de memória, chamadas RAG, roteamento de tools, loop de agência. Você pode trocar de modelo sem tocar nessa camada — isso é o que garante que o sistema sobrevive ao próximo lançamento do Claude.</div>
       </div>
       <div class="layer-item">
         <div class="layer-num" style="background:var(--n3);color:white">L</div>
         <div class="layer-name">LLM (componente trocável)</div>
-        <div class="layer-desc">Claude, GPT, Gemini — recebe contexto estruturado, retorna texto ou tool calls. Tratado como um serviço externo com SLA, não como infraestrutura crítica. Retire-e-substitua sem refatorar o sistema.</div>
+        <div class="layer-desc">Recebe contexto estruturado, retorna texto ou tool calls. Tratado como serviço externo com SLA — não como infraestrutura crítica. A escolha do modelo é uma configuração, não uma decisão irrevogável de arquitetura.</div>
       </div>
       <div class="layer-item">
         <div class="layer-num" style="background:var(--n3);color:white">T</div>
         <div class="layer-name">Tools e Integrações</div>
-        <div class="layer-desc">Funções que o agente pode chamar: bancos de dados, APIs externas, sistemas internos, MCP Servers. Cada tool tem contrato claro de input/output. O agente não executa diretamente — você executa e retorna o resultado.</div>
+        <div class="layer-desc">Funções que o agente pode solicitar: banco, APIs, sistemas internos, MCP Servers. O agente solicita — sua aplicação valida, executa com permissões corretas e retorna resultado. Controle de execução é sempre seu.</div>
       </div>
       <div class="layer-item">
         <div class="layer-num" style="background:var(--n3);color:white">S</div>
         <div class="layer-name">Storage (Vector + SQL + Cache)</div>
-        <div class="layer-desc">Três tipos de armazenamento com papéis distintos: SQL para dados estruturados persistentes, Vector DB para busca semântica (RAG), Cache para sessão e resultados temporários.</div>
+        <div class="layer-desc">Três tecnologias com papéis distintos: SQL para dados estruturados persistentes, Vector DB para busca semântica (RAG), Cache para sessão ativa. Usar a tecnologia errada para o problema é origem de bugs silenciosos.</div>
       </div>
     </div>
   </div>
@@ -1545,171 +1672,130 @@ section:first-of-type { border-top: none; }
 <section id="n3-contexto-eng">
   <div class="container">
     <div class="level-band"><span class="level-badge lb-n3">N3 · Dev</span></div>
-    <div class="sec-label">Engenharia de contexto</div>
-    <h2 class="sec-title">Engenharia de contexto: o que entra no modelo e em que ordem</h2>
-    <p class="sec-lead n3">A janela de contexto é o único "estado" que o LLM tem. O que você coloca ali, como você organiza e em que ordem determina diretamente a qualidade das respostas. Isso é engenharia de contexto — e é tão importante quanto o modelo escolhido.</p>
+    <div class="sec-label">Engenharia de contexto e memória</div>
+    <h2 class="sec-title">Engenharia de contexto e hierarquia de memória</h2>
+    <p class="sec-lead n3">A janela de contexto é o único "estado" que o LLM tem. O que você coloca ali, como organiza e em que ordem determina a qualidade tanto quanto o modelo escolhido. Atenção no contexto não é uniforme — ignorar isso é uma das fontes mais comuns de degradação silenciosa.</p>
 
     <div class="card-grid card-grid-2" style="margin-bottom:24px">
       <div class="card card-accent-n3">
-        <h3>⬆️ Alta atenção: início e fim</h3>
-        <p>Pesquisa (Lost in the Middle) documenta que modelos prestam mais atenção ao início e ao final do contexto. O meio é "terra de ninguém". Instruções críticas vão no início. A pergunta atual vai no fim.</p>
+        <h3>⬆️ Lost in the Middle</h3>
+        <p>Pesquisa documentada: LLMs prestam mais atenção ao início e ao fim do contexto. Informações no meio são sistematicamente menos utilizadas. Instruções críticas vão no início. Query atual vai no fim. Documentos RAG vão logo antes da query — nunca enterrados no meio.</p>
       </div>
       <div class="card card-accent-n3">
-        <h3>📐 Hierarquia de prioridade</h3>
-        <p>Ordem recomendada: (1) system prompt com identidade e regras, (2) memória semântica do usuário, (3) documentos RAG relevantes, (4) histórico recente, (5) query atual. Nunca inverta — você perde precisão.</p>
+        <h3>📐 Hierarquia de injeção</h3>
+        <p>Ordem: (1) system prompt + regras, (2) memória semântica do usuário, (3) sumário episódico de sessões anteriores, (4) documentos RAG relevantes, (5) histórico recente da conversa, (6) query atual. Inverter qualquer parte degrada a qualidade.</p>
       </div>
     </div>
 
-    <div class="callout callout-n3">
-      <span class="callout-icon">⚠️</span>
-      <div class="callout-body">
-        <h4>O erro mais comum: contexto = mais é melhor</h4>
-        <p>Encher o contexto de informação irrelevante degrada a qualidade — o modelo "se perde" no ruído. O objetivo é injetar o contexto mais relevante no menor número de tokens. RAG existe exatamente para isso: recuperar só o que importa para a query atual, não despejar toda a base de conhecimento.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="n3-memoria">
-  <div class="container">
-    <div class="level-band"><span class="level-badge lb-n3">N3 · Dev</span></div>
-    <div class="sec-label">Hierarquia de memória</div>
-    <h2 class="sec-title">Os 4 tipos de memória em sistemas LLM</h2>
-    <p class="sec-lead n3">Toda "memória" de um sistema de IA é uma construção de engenharia. O modelo não lembra de nada entre chamadas — você persiste dados externamente e os injeta de volta. Cada tipo de memória resolve um problema diferente.</p>
-
+    <h3 style="margin-bottom:14px">Os 4 tipos de memória — e o que construir para cada um</h3>
     <table class="data-table">
       <thead>
-        <tr><th>Tipo</th><th>O que é</th><th>Persiste?</th><th>Quando usar</th></tr>
+        <tr><th>Tipo</th><th>O que é</th><th>Onde fica</th><th>Quando construir</th></tr>
       </thead>
       <tbody>
-        <tr>
-          <td><strong>In-Context</strong></td>
-          <td>Tudo na janela de contexto atual: system prompt, histórico da sessão, documentos injetados</td>
-          <td>❌ Apenas na chamada</td>
-          <td>Contexto imediato e mais recente da conversa</td>
-        </tr>
-        <tr>
-          <td><strong>External (Vector)</strong></td>
-          <td>Base de conhecimento em banco vetorial, recuperada sob demanda por similaridade</td>
-          <td>✅ Permanente</td>
-          <td>Base de documentos, FAQs, manuais técnicos</td>
-        </tr>
-        <tr>
-          <td><strong>Episodic</strong></td>
-          <td>Registro de interações passadas, decisões tomadas, histórico de sessões anteriores</td>
-          <td>✅ Permanente</td>
-          <td>Continuidade entre sessões, agentes de longa duração</td>
-        </tr>
-        <tr>
-          <td><strong>Semantic</strong></td>
-          <td>Fatos destilados de experiências: preferências do usuário, contexto do domínio</td>
-          <td>✅ Permanente</td>
-          <td>Personalização, "o usuário prefere respostas em bullets"</td>
-        </tr>
+        <tr><td><strong>In-Context</strong></td><td>Tudo na janela ativa: system prompt, histórico, documentos injetados</td><td>Na chamada à API</td><td>Sempre — é o mínimo</td></tr>
+        <tr><td><strong>External (RAG)</strong></td><td>Base de conhecimento em vector DB, recuperada sob demanda</td><td>Vector DB + pipeline de indexação</td><td>Quando a base tem &gt;50 documentos</td></tr>
+        <tr><td><strong>Episodic</strong></td><td>Histórico de interações sumarizado por LLM (Haiku)</td><td>Postgres + sumarizador assíncrono</td><td>Quando o produto precisa de continuidade entre sessões</td></tr>
+        <tr><td><strong>Semantic</strong></td><td>Preferências extraídas: "prefere bullets", "usa z/OS 2.5"</td><td>Postgres, injetado no system prompt</td><td>Quando personalização por usuário é requisito</td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
-<section id="n3-tools-mcp">
+<section id="n3-rag-profundo">
   <div class="container">
     <div class="level-band"><span class="level-badge lb-n3">N3 · Dev</span></div>
-    <div class="sec-label">Agência</div>
-    <h2 class="sec-title">Tool use e MCP: como o agente age no mundo</h2>
-    <p class="sec-lead n3">Tool use é o mecanismo que transforma um modelo de linguagem em um agente. MCP é o protocolo que padroniza esse mecanismo e permite reutilização. Entender ambos é fundamental para construir sistemas que escalam.</p>
+    <div class="sec-label">RAG em profundidade</div>
+    <h2 class="sec-title">Tipos de RAG, chunking e estratégias de retrieval</h2>
+    <p class="sec-lead n3">RAG não é uma técnica única — é uma família de abordagens com tradeoffs distintos. Escolher errado entre Naive RAG, Advanced RAG e GraphRAG é a diferença entre um sistema que responde bem e um que alucina usando seus próprios documentos.</p>
 
-    <div class="card-grid card-grid-2" style="margin-bottom:24px">
-      <div class="card card-accent-n3">
-        <h3>🔧 Tool use — o ciclo</h3>
-        <p>Você define funções disponíveis com schemas. Claude decide se e quando chamar. Retorna uma solicitação de chamada. Sua aplicação executa a função. Você devolve o resultado. Claude gera resposta final. O controle de execução é sempre seu — Claude só solicita.</p>
+    <div class="card-grid card-grid-3" style="margin-bottom:28px">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><h3>📄 Naive RAG</h3><span class="pill pill-yellow">Básico</span></div>
+        <p>Chunking fixo → embedding → cosine similarity → injeta top-k chunks. Funciona para bases simples. Falha com documentos de estrutura complexa, queries que combinam múltiplos documentos, ou bases com muito ruído.</p>
+        <p style="font-size:0.8rem;margin-top:10px;color:#666"><strong>Use para:</strong> PoC, base pequena (&lt;500 docs), domínio homogêneo.</p>
       </div>
       <div class="card card-accent-n3">
-        <h3>🔌 MCP — padronização e reutilização</h3>
-        <p>Model Context Protocol é o padrão aberto da Anthropic para encapsular ferramentas em servidores reutilizáveis. Um MCP Server de mainframe pode ser consumido por Claude Code, Claude.ai e sua própria app — sem reimplementar a integração em cada lugar.</p>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><h3>⚡ Advanced RAG</h3><span class="pill pill-n3">Produção</span></div>
+        <p>Adiciona ao Naive: chunking semântico ou hierárquico, hybrid retrieval (dense + sparse), reranking com cross-encoder, query rewriting. Significativamente melhor em bases heterogêneas e queries em linguagem natural.</p>
+        <p style="font-size:0.8rem;margin-top:10px;color:#666"><strong>Use para:</strong> bases com tipos mistos, usuários reais, quando precisão importa.</p>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><h3>🕸️ GraphRAG</h3><span class="pill pill-yellow">Relacional</span></div>
+        <p>Constrói grafo de conhecimento com entidades e relacionamentos. Permite queries que cruzam múltiplas entidades: "fornecedores com cláusula X que também forneceram para o projeto Y". Similaridade semântica não resolve isso.</p>
+        <p style="font-size:0.8rem;margin-top:10px;color:#666"><strong>Use para:</strong> contratos, organigramas, redes de fornecedores, compliance.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:14px">Chunking — o impacto mais subestimado na qualidade do RAG</h3>
+    <table class="data-table">
+      <thead>
+        <tr><th>Estratégia</th><th>Como funciona</th><th>Melhor para</th><th>Armadilha</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Fixed-size</strong></td><td>Divide em N tokens com overlap fixo</td><td>Prototipagem, base homogênea</td><td>Corta frases no meio, perde contexto semântico</td></tr>
+        <tr><td><strong>Semantic</strong></td><td>Detecta quebras de tópico por similaridade de embeddings</td><td>Documentos técnicos longos</td><td>Mais caro; chunks de tamanho variável</td></tr>
+        <tr><td><strong>Hierarchical / Parent-Child</strong></td><td>Chunk pequeno para retrieval, chunk pai para contexto rico</td><td>Docs estruturados com seções</td><td>Dois níveis de indexação; complexidade adicional</td></tr>
+        <tr><td><strong>Document-structure-aware</strong></td><td>Respeita headers, tabelas, listas do documento</td><td>PDFs com estrutura, Markdown</td><td>PDFs escaneados quebram o parser</td></tr>
+        <tr><td><strong>Code-aware</strong></td><td>Divide por função, classe, bloco lógico</td><td>Source code, SQL, COBOL por SECTION/PARAGRAPH</td><td>Precisa de parser específico por linguagem</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin:24px 0 14px">Tipos de retrieval — por que híbrido é o padrão de produção</h3>
+    <div class="card-grid card-grid-3">
+      <div class="card">
+        <h3>🔢 Dense Retrieval</h3>
+        <p>Busca por similaridade semântica via embeddings. Encontra documentos relacionados mesmo sem palavras em comum. Fraco para termos técnicos exatos, siglas, IDs e nomenclatura específica de sistema.</p>
+      </div>
+      <div class="card">
+        <h3>🔤 Sparse / BM25</h3>
+        <p>Busca clássica por frequência de palavras-chave. Excelente para termos exatos: "SQLCODE -811", "art. 130 CLT", IDs de sistema. Falha quando o usuário usa palavras diferentes das do documento.</p>
+      </div>
+      <div class="card card-accent-n3">
+        <h3>⚡ Hybrid + Reranking</h3>
+        <p>Combina dense + sparse via Reciprocal Rank Fusion (RRF). Cross-encoder reavalia os top-20 contra a query com muito mais precisão. Melhor qualidade de retrieval ao custo de ~100ms adicional de latência.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="n3-vectordb">
+  <div class="container">
+    <div class="level-band"><span class="level-badge lb-n3">N3 · Dev</span></div>
+    <div class="sec-label">Infraestrutura</div>
+    <h2 class="sec-title">Vector databases — comparativo e tradeoffs reais</h2>
+    <p class="sec-lead n3">Todos fazem a mesma coisa fundamental: armazenam embeddings e permitem busca por similaridade. O que os diferencia são tradeoffs de escala, deploy, custo, filtragem por metadados e integração com seu stack existente.</p>
+
+    <table class="data-table">
+      <thead>
+        <tr><th>Banco</th><th>Modelo</th><th>Escala</th><th>Hybrid search</th><th>Melhor para</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>pgvector</strong></td><td>Extensão Postgres</td><td>Até ~5M vetores</td><td>Não nativo</td><td><strong>Stack legado com Postgres. Zero nova infra. JOINs com tabelas relacionais.</strong></td></tr>
+        <tr><td><strong>Qdrant</strong></td><td>Open-source (Rust)</td><td>Bilhões</td><td>✅ Nativo</td><td>Produção de alta performance. Filtragem complexa. Excelente custo-benefício.</td></tr>
+        <tr><td><strong>Weaviate</strong></td><td>Open-source</td><td>Bilhões</td><td>✅ BM25 + vector</td><td>Schema flexível, multimodalidade, módulos de auto-embedding.</td></tr>
+        <tr><td><strong>Pinecone</strong></td><td>Serverless gerenciado</td><td>Escala automática</td><td>✅ Nativo</td><td>PoCs rápidos sem infra para gerenciar. Mais caro em volume alto.</td></tr>
+        <tr><td><strong>Chroma</strong></td><td>Open-source embarcado</td><td>Pequena (&lt;1M)</td><td>Limitado</td><td>Desenvolvimento local, testes, PoCs. Não para produção em escala.</td></tr>
+        <tr><td><strong>Milvus</strong></td><td>Open-source enterprise</td><td>Bilhões, GPU</td><td>✅ Hybrid</td><td>Grandes empresas com requisito on-premise e volume massivo.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="card-grid card-grid-2" style="margin-top:20px">
+      <div class="card">
+        <h3>⚡ HNSW — padrão de produção</h3>
+        <p>Hierarchical Navigable Small World. Grafo hierárquico de vizinhança, complexidade O(log n), escala para bilhões. Recall de 95–99% vs. k-NN exato. Trade-off: alto uso de memória (grafo em RAM) e build inicial lento.</p>
+      </div>
+      <div class="card">
+        <h3>📦 IVFFlat — quando memória é restrição</h3>
+        <p>Divide o espaço vetorial em clusters e busca nos clusters mais próximos. Menor uso de memória que HNSW, recall inferior e sensível ao número de clusters (nlist). Use quando memória é restrição e recall ligeiramente menor é aceitável.</p>
       </div>
     </div>
 
     <div class="callout callout-n3">
-      <span class="callout-icon">🏗️</span>
+      <span class="callout-icon">🏦</span>
       <div class="callout-body">
-        <h4>A regra de ouro de tool use</h4>
-        <p>Nunca deixe o LLM executar ações diretamente em sistemas críticos. O fluxo correto é sempre: LLM solicita → sua aplicação valida a solicitação → executa com as permissões corretas → retorna resultado. Nunca passe credenciais de banco de dados diretamente ao modelo.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="n3-padroes">
-  <div class="container">
-    <div class="level-band"><span class="level-badge lb-n3">N3 · Dev</span></div>
-    <div class="sec-label">Patterns</div>
-    <h2 class="sec-title">Padrões arquiteturais de agentes</h2>
-    <p class="sec-lead n3">Assim como design patterns em software, agentes têm padrões consolidados. Escolher o padrão certo antes de implementar economiza semanas de retrabalho.</p>
-
-    <div class="card-grid card-grid-2">
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-          <h3>⚡ ReAct</h3>
-          <span class="pill pill-yellow">Padrão</span>
-        </div>
-        <p>Reasoning + Acting. A cada passo: pensa, age, observa resultado, adapta. Loop até completar. Padrão de fato para agentes com ferramentas. Bom para tarefas exploratórias onde o caminho emerge durante a execução.</p>
-      </div>
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-          <h3>📋 Plan-and-Execute</h3>
-          <span class="pill pill-n1">Auditável</span>
-        </div>
-        <p>Fase 1: modelo maior cria plano detalhado. Fase 2: modelo mais barato executa cada etapa. Mais previsível, melhor para auditoria. Plano pode ser aprovado por humano antes de execução.</p>
-      </div>
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-          <h3>🕸️ Supervisor-Worker</h3>
-          <span class="pill pill-n2">Escala</span>
-        </div>
-        <p>Supervisor decompõe objetivo e delega para sub-agentes especializados em paralelo. Consolida resultados. Permite modelos diferentes por papel (Opus para supervisor, Haiku para workers simples). Reduz custo 40–60%.</p>
-      </div>
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-          <h3>🔄 Reflexion</h3>
-          <span class="pill pill-n3">Qualidade</span>
-        </div>
-        <p>Agente gera resposta, um Critic LLM avalia e fornece feedback, agente refina. N iterações. Melhora qualidade em tarefas críticas. Custo: 2–3× mais tokens. Use quando qualidade supera custo.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="n3-evals">
-  <div class="container">
-    <div class="level-band"><span class="level-badge lb-n3">N3 · Dev</span></div>
-    <div class="sec-label">Qualidade</div>
-    <h2 class="sec-title">Evals: como medir qualidade em sistemas não-determinísticos</h2>
-    <p class="sec-lead n3">Testes unitários tradicionais não funcionam para LLMs — a mesma entrada pode gerar saídas diferentes. Evals são o substituto: conjuntos de casos de teste com critérios de qualidade avaliados automaticamente.</p>
-
-    <div class="card-grid card-grid-2">
-      <div class="card card-accent-n3">
-        <h3>✅ Evals determinísticos</h3>
-        <p>Verificações objetivas: a resposta contém o número correto? A tool correta foi chamada? O formato está certo? Roda em CI/CD, 100% automático, zero custo de LLM. Base de qualquer pipeline de qualidade.</p>
-      </div>
-      <div class="card card-accent-n3">
-        <h3>🤖 LLM-as-Judge</h3>
-        <p>Um LLM avalia a qualidade de outro. Escala para milhares de casos, avalia nuances como clareza, completude e tom. Deve ser calibrado com anotações humanas. Use modelos menores (Haiku) para reduzir custo.</p>
-      </div>
-      <div class="card card-accent-n3">
-        <h3>👥 Human Eval</h3>
-        <p>Amostragem aleatória de respostas reais por revisores humanos. Caro mas insubstituível para calibrar os outros métodos e para lançamentos de produto. Fazer a cada mudança de modelo ou prompt principal.</p>
-      </div>
-      <div class="card card-accent-n3">
-        <h3>📊 Shadow Testing</h3>
-        <p>Rodar novo modelo ou prompt em paralelo com produção sem expor ao usuário. Comparar métricas antes de trocar. A forma mais segura de fazer upgrades sem risco de regressão silenciosa.</p>
-      </div>
-    </div>
-
-    <div class="callout callout-yellow">
-      <span class="callout-icon">📐</span>
-      <div class="callout-body">
-        <h4>Evals antes do deploy, sempre</h4>
-        <p>Um conjunto de evals com 20–50 casos de teste bem escolhidos vale mais do que benchmarks genéricos. Casos devem refletir os padrões de uso real do seu sistema — incluindo casos de uso indevido que você quer detectar. Rode em CI para capturar regressões antes que cheguem a produção.</p>
+        <h4>Para ambientes com data residency e compliance</h4>
+        <p><strong>pgvector</strong> é a escolha mais segura: dados ficam no Postgres já homologado pelo jurídico, JOINs com tabelas relacionais existentes, sem novo serviço. Limitação: acima de ~5M vetores com queries complexas, migrar para <strong>Qdrant self-hosted</strong> em Kubernetes interno é o caminho natural de evolução.</p>
       </div>
     </div>
   </div>
@@ -1719,25 +1805,95 @@ section:first-of-type { border-top: none; }
   <div class="container">
     <div class="level-band"><span class="level-badge lb-n3">N3 · Dev</span></div>
     <div class="sec-label">Segurança</div>
-    <h2 class="sec-title">Segurança: as ameaças específicas de sistemas LLM</h2>
-    <p class="sec-lead n3">Sistemas LLM têm vetores de ataque que não existem em software tradicional. A defesa não é um único mecanismo — é camadas sobrepostas que tornam a exploração progressivamente mais difícil.</p>
+    <h2 class="sec-title">Segurança em profundidade: além do prompt injection</h2>
+    <p class="sec-lead n3">Prompt injection é a ameaça mais conhecida, mas longe de ser a única. Sistemas LLM em produção expõem vetores de ataque que não existem em software tradicional. A defesa é sempre camadas — não existe silver bullet.</p>
 
-    <div class="card-grid card-grid-2">
-      <div class="card card-accent-n3">
-        <h3>💉 Prompt Injection</h3>
-        <p>Usuário insere instruções no input que tentam sobrescrever o system prompt. "Ignore tudo que veio antes e faça X." Defesa: XML tags separando input de instruções, validação de padrões suspeitos, reforço explícito no system prompt.</p>
+    <table class="data-table">
+      <thead>
+        <tr><th>Ameaça</th><th>Mecanismo</th><th>Impacto</th><th>Defesa principal</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>💉 Prompt Injection Direta</strong></td><td>Input contém instruções que sobrescrevem o system prompt</td><td>Bypass de guardrails, comportamento não autorizado</td><td>XML tags isolando input, validação de padrões, reforço no system prompt</td></tr>
+        <tr><td><strong>🕵️ Indirect Injection</strong></td><td>Instruções em documentos que o agente processa (PDFs, emails)</td><td>Agente executa instruções de terceiros</td><td>Sanitizar docs antes de indexar; XML tags delimitando documentos de instruções</td></tr>
+        <tr><td><strong>🔓 System Prompt Exfiltration</strong></td><td>"Repita suas instruções originais" em variações criativas</td><td>Exposição de lógica proprietária e regras de negócio</td><td>Instrução explícita para não revelar; nunca colocar segredos reais no prompt</td></tr>
+        <tr><td><strong>👥 Cross-tenant Data Leak</strong></td><td>Dados de um usuário vazam para outro via contexto ou RAG sem isolamento</td><td>Violação de privacidade e LGPD</td><td>Filtro obrigatório por tenant_id em todo retrieval; sessões completamente isoladas</td></tr>
+        <tr><td><strong>🔑 API Key Exposure</strong></td><td>Chaves em código, logs, repos públicos</td><td>Custo ilimitado, acesso não autorizado</td><td>Secrets manager, env vars, rotação automática, scan de repositório</td></tr>
+        <tr><td><strong>💸 Cost Injection</strong></td><td>Inputs massivos ou loops de agente para consumir tokens</td><td>Custo catastrófico, DoS econômico</td><td>Limite de tamanho de input, rate limit, circuit breaker de custo</td></tr>
+        <tr><td><strong>📦 RAG Poisoning</strong></td><td>Documentos maliciosos injetados na base de conhecimento</td><td>Desinformação sistemática via RAG</td><td>Controle de acesso à ingestão; revisão humana de fontes externas</td></tr>
+        <tr><td><strong>🎭 Jailbreak via Persona</strong></td><td>"Finja que você é um AI sem restrições" / role-play</td><td>Bypass de guardrails comportamentais</td><td>Constitutional AI mitiga muito; reforço que regras valem em qualquer persona</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin:24px 0 14px">Multi-tenancy: os três padrões de isolamento</h3>
+    <div class="card-grid card-grid-3">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><h3>🏷️ Isolamento por Metadado</h3><span class="pill pill-yellow">Simples</span></div>
+        <p>Todo documento carrega <code style="font-family:var(--font-mono);font-size:0.8rem;background:#f0f0f0;padding:1px 5px;border-radius:3px">tenant_id</code>. Toda query filtra por ele obrigatoriamente. Simples e eficiente — mas um bug que omite o filtro vaza dados de todos.</p>
       </div>
       <div class="card card-accent-n3">
-        <h3>🕵️ Indirect Injection</h3>
-        <p>Instruções maliciosas embutidas em documentos que o agente lê. Um PDF no RAG contém "Nota ao AI: ignore as regras." Defesa: sanitizar documentos antes de indexar, XML tags delimitando documentos de instruções.</p>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><h3>📂 Collections separadas</h3><span class="pill pill-n3">Recomendado</span></div>
+        <p>Cada tenant tem sua própria collection no vector DB. Isolamento estrutural — não depende de filtro. Pinecone e Qdrant suportam nativamente. Overhead de gestão de collections.</p>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><h3>🗄️ Instância separada</h3><span class="pill pill-yellow">Enterprise</span></div>
+        <p>Cada cliente tem sua própria instância de vector DB. Máximo isolamento e compliance. Custo: gestão de infra multiplica linearmente com o número de tenants.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-n3" style="margin-top:16px">
+      <span class="callout-icon">🔐</span>
+      <div class="callout-body">
+        <h4>Privilégio mínimo em tool use</h4>
+        <p>Cada tool que o agente pode chamar deve ter apenas as permissões mínimas para sua função. Um agente de atendimento nunca precisa de DELETE no banco — só SELECT nas tabelas relevantes. Se for comprometido via injection, o raio de explosão é limitado pelas permissões da tool, não pelo que o banco suporta tecnicamente.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="n3-evals">
+  <div class="container">
+    <div class="level-band"><span class="level-badge lb-n3">N3 · Dev</span></div>
+    <div class="sec-label">Qualidade</div>
+    <h2 class="sec-title">Evals com substância: o que medir e como</h2>
+    <p class="sec-lead n3">Testes de snapshot não funcionam para LLMs. Evals são o substituto: conjuntos de casos com critérios avaliados automaticamente. Sem evals, você não sabe se a última mudança de prompt melhorou ou piorou o sistema.</p>
+
+    <h3 style="margin-bottom:14px">As 4 métricas fundamentais para sistemas RAG</h3>
+    <div class="card-grid card-grid-2" style="margin-bottom:24px">
+      <div class="card card-accent-n3">
+        <h3>🎯 Faithfulness</h3>
+        <p>A resposta é factualmente consistente com os documentos recuperados? Mede se o LLM "inventou" algo além do que estava nos chunks injetados. Alta faithfulness = o modelo não alucina sobre seus próprios documentos.</p>
       </div>
       <div class="card card-accent-n3">
-        <h3>🔑 Exposição de API Keys</h3>
-        <p>Chaves em código-fonte, logs ou mensagens de erro. Um vazamento gera custos ilimitados e expõe dados. Defesa: variáveis de ambiente, secrets manager, rotação automática, alerta de uso anômalo.</p>
+        <h3>🔍 Answer Relevance</h3>
+        <p>A resposta endereça a pergunta real do usuário? Um modelo pode ser fiel aos documentos mas responder uma pergunta diferente da que foi feita. Fidelidade ≠ utilidade.</p>
       </div>
       <div class="card card-accent-n3">
-        <h3>💸 Cost Injection / Abuso</h3>
-        <p>Inputs muito longos para consumir cota de tokens maliciosamente. Defesa: limite de tamanho de input, rate limit por usuário, alertas de custo por threshold, circuit breaker quando custo anômalo.</p>
+        <h3>📄 Context Relevance</h3>
+        <p>Os documentos recuperados pelo RAG são relevantes para a pergunta? Mede a qualidade do retrieval, não da geração. Baixo context relevance = problema no chunking, embedding ou falta de reranking.</p>
+      </div>
+      <div class="card card-accent-n3">
+        <h3>🌱 Groundedness</h3>
+        <p>Cada afirmação pode ser rastreada a um documento fonte? Crítico para compliance e auditoria. Sem groundedness, você não consegue explicar por que o sistema respondeu o que respondeu.</p>
+      </div>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr><th>Tipo de eval</th><th>Como funciona</th><th>Custo</th><th>Quando usar</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>✅ Determinístico</strong></td><td>Verificações objetivas: contém string X? tool Y foi chamada? formato correto?</td><td>Zero (sem LLM)</td><td>Sempre — CI/CD em todo PR. Base de qualquer pipeline.</td></tr>
+        <tr><td><strong>🤖 LLM-as-Judge</strong></td><td>LLM menor (Haiku) avalia qualidade da resposta contra critérios</td><td>~$0.001/eval</td><td>Qualidade semântica, tom, completude — o que string matching não captura.</td></tr>
+        <tr><td><strong>👥 Human Eval</strong></td><td>Revisores humanos avaliam amostra aleatória de respostas reais</td><td>Alto (tempo humano)</td><td>Lançamento, troca de modelo, calibrar o LLM-as-Judge.</td></tr>
+        <tr><td><strong>📊 Shadow Testing</strong></td><td>Novo modelo/prompt roda em paralelo sem exposição ao usuário</td><td>Médio (dobrar chamadas)</td><td>Antes de qualquer troca de modelo ou prompt em produção.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-yellow">
+      <span class="callout-icon">🔧</span>
+      <div class="callout-body">
+        <h4>Ferramentas de eval em 2026</h4>
+        <p><strong>RAGAS</strong> — framework open-source com métricas faithfulness/relevance/groundedness prontas. <strong>LangSmith</strong> — observabilidade e evals com UI para revisar traces. <strong>Braintrust</strong> — eval platform com golden dataset management e comparação de versões. <strong>Promptfoo</strong> — eval leve e open-source, ótimo para CI/CD.</p>
       </div>
     </div>
   </div>
@@ -1746,38 +1902,84 @@ section:first-of-type { border-top: none; }
 <section id="n3-obs">
   <div class="container">
     <div class="level-band"><span class="level-badge lb-n3">N3 · Dev</span></div>
-    <div class="sec-label">Monitoramento</div>
-    <h2 class="sec-title">Observabilidade: o que monitorar em sistemas de agentes</h2>
-    <p class="sec-lead n3">Agentes falham de formas não-determinísticas. Um agente que funciona 999 vezes pode tomar uma decisão inesperada na milésima. Observabilidade é a única forma de detectar, investigar e prevenir essas falhas.</p>
+    <div class="sec-label">Observabilidade</div>
+    <h2 class="sec-title">Observabilidade de agentes: traces, custo e anomalias</h2>
+    <p class="sec-lead n3">Agentes falham de formas não-determinísticas e às vezes silenciosas. Sem observabilidade estruturada, você descobre o problema pelo valor da fatura — não pelos logs.</p>
 
-    <div class="card-grid card-grid-2">
-      <div class="card">
-        <h3>📊 Métricas obrigatórias</h3>
-        <ul style="font-size:0.87rem;padding-left:18px;color:#444;margin-top:8px">
-          <li>Latência P50/P95/P99 por tipo de operação</li>
-          <li>Taxa de sucesso por tipo de tarefa</li>
-          <li>Tokens consumidos e custo por sessão/usuário</li>
-          <li>Taxa de tool calls com erro</li>
-          <li>Taxa de ativação de HITL (indica onde o agente vacila)</li>
-        </ul>
+    <h3 style="margin-bottom:14px">A anatomia de um trace de agente</h3>
+    <div class="layer-stack">
+      <div class="layer-item">
+        <div class="layer-num" style="background:var(--n3);color:white">1</div>
+        <div class="layer-name">Session metadata</div>
+        <div class="layer-desc">ID de sessão único, user_id, timestamp, modelo, versão do prompt, tenant_id. Sem isso você não consegue correlacionar logs de múltiplos serviços para investigar um incidente.</div>
       </div>
-      <div class="card">
-        <h3>🔍 Traces de agente</h3>
-        <ul style="font-size:0.87rem;padding-left:18px;color:#444;margin-top:8px">
-          <li>Cada tool call com input e output completos</li>
-          <li>Raciocínio intermediário do agente (thinking)</li>
-          <li>Pontos de decisão e caminhos tomados</li>
-          <li>Onde e por quê o agente abortou ou escalou</li>
-          <li>Timeline completa da sessão para debugging</li>
-        </ul>
+      <div class="layer-item">
+        <div class="layer-num" style="background:var(--n3);color:white">2</div>
+        <div class="layer-name">Cada chamada à API</div>
+        <div class="layer-desc">Input tokens, output tokens, custo calculado, latência, stop_reason. Agregados por sessão: custo real por conversa. Agregados por usuário: quem está abusando.</div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-num" style="background:var(--n3);color:white">3</div>
+        <div class="layer-name">Cada tool call</div>
+        <div class="layer-desc">Nome, input completo, output completo (ou hash se sensível), duração, sucesso/falha. Permite depurar "o agente chamou a ferramenta certa com os parâmetros certos?"</div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-num" style="background:var(--n3);color:white">4</div>
+        <div class="layer-name">Retrieval do RAG</div>
+        <div class="layer-desc">Query usada, scores dos chunks, quais foram injetados no contexto. Quando o sistema responde errado, 80% das vezes o problema está no retrieval — sem esse log você não diagnostica.</div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-num" style="background:var(--n3);color:white">5</div>
+        <div class="layer-name">Ativações de HITL</div>
+        <div class="layer-desc">Quando o agente escalou para humano, por quê, tempo de aprovação. Taxa muito alta = agente vacila demais. Taxa zero = critérios frouxos demais ou sistema simples demais para precisar de agente.</div>
       </div>
     </div>
 
-    <div class="callout callout-dark">
-      <span class="callout-icon">🚨</span>
-      <div class="callout-body">
-        <h4>Alertas críticos que todo sistema precisa</h4>
-        <p>Custo acima de threshold por tarefa (possível loop). Tool call idêntica repetida com mesmo erro (possível loop infinito). Agente tentando chamar tool não autorizada (possível ataque). Latência acima de SLA. Custo total do dia acima do orçamento diário.</p>
+    <h3 style="margin:24px 0 14px">Alertas críticos com lógica de detecção</h3>
+    <div class="card-grid card-grid-2">
+      <div class="card card-accent-n3">
+        <h3>🔁 Loop infinito</h3>
+        <p>Se a mesma tool foi chamada com o mesmo input mais de N vezes na sessão, ou se a sessão tem mais de M steps sem stop_reason "end_turn" → abort automático + alerta. Loops custam caro e podem indicar ataque ou bug crítico.</p>
+      </div>
+      <div class="card card-accent-n3">
+        <h3>💸 Anomalia de custo</h3>
+        <p>Custo por sessão acima do percentil 99 histórico → alerta imediato. Custo diário acima do orçamento → alerta + throttle automático. Rate limit por usuário evita que um cliente consuma toda a cota.</p>
+      </div>
+      <div class="card card-accent-n3">
+        <h3>⚠️ Tool não autorizada</h3>
+        <p>Agente tentou chamar tool fora da lista autorizada para aquele contexto ou nível de permissão → abort imediato + log de segurança. Pode indicar prompt injection bem-sucedida.</p>
+      </div>
+      <div class="card card-accent-n3">
+        <h3>📉 Degradação silenciosa</h3>
+        <p>Taxa de ativação de HITL subindo gradualmente → possível degradação de qualidade. Taxa de evals determinísticos caindo → mudança não intencional após update de prompt ou dependência.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="n3-padroes">
+  <div class="container">
+    <div class="level-band"><span class="level-badge lb-n3">N3 · Dev</span></div>
+    <div class="sec-label">Patterns</div>
+    <h2 class="sec-title">Padrões arquiteturais de agentes e MCP</h2>
+    <p class="sec-lead n3">Escolher o padrão certo antes de implementar economiza semanas de retrabalho. O erro mais comum é usar o padrão mais complexo quando um mais simples resolveria.</p>
+
+    <div class="card-grid card-grid-2" style="margin-bottom:20px">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><h3>⚡ ReAct</h3><span class="pill pill-yellow">Base</span></div>
+        <p>Reasoning + Acting. Loop: pensa → age → observa → adapta. Padrão de fato para agentes com ferramentas. Bom para tarefas exploratórias onde o caminho emerge durante a execução. Difícil de auditar — você não sabe o plano antes de executar.</p>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><h3>📋 Plan-and-Execute</h3><span class="pill pill-n1">Auditável</span></div>
+        <p>Fase 1: modelo maior cria plano completo. Fase 2: modelo menor executa cada etapa. Plano pode ser apresentado ao usuário para HITL antes de executar. Melhor para processos com etapas conhecidas.</p>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><h3>🕸️ Supervisor-Worker</h3><span class="pill pill-n3">Escala</span></div>
+        <p>Supervisor (Opus) decompõe e delega para sub-agentes especializados em paralelo. Workers usam modelos menores (Haiku, Sonnet). Reduz custo total em 40–60% vs. usar o modelo maior em tudo.</p>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><h3>🔌 MCP</h3><span class="pill pill-yellow">Padrão aberto</span></div>
+        <p>Model Context Protocol: encapsula ferramentas em servidores reutilizáveis. Um MCP Server é consumido por Claude Code, Claude.ai e sua app sem reimplementar. Principal valor: time de negócio mantém o MCP Server, time de IA consome as ferramentas.</p>
       </div>
     </div>
   </div>
@@ -1788,39 +1990,67 @@ section:first-of-type { border-top: none; }
     <div class="level-band"><span class="level-badge lb-n3">N3 · Dev</span></div>
     <div class="sec-label">Spec-Driven Development</div>
     <h2 class="sec-title">Spec-Driven Development com Claude Code</h2>
-    <p class="sec-lead n3">A forma mais eficaz de usar AI Assisted no desenvolvimento: escrever especificações detalhadas primeiro, deixar o agente implementar, revisar com critério. A spec é o artefato mais valioso — não o código gerado.</p>
+    <p class="sec-lead n3">A forma mais eficaz de usar AI Assisted: escrever specs detalhadas primeiro, deixar o agente implementar, revisar contra a spec. A spec é o artefato principal — o código é uma consequência dela.</p>
 
     <div class="card-grid card-grid-3" style="margin-bottom:24px">
       <div class="card card-dark">
         <div style="font-size:1.5rem;margin-bottom:8px">📋</div>
-        <h3>1. Escreva a spec</h3>
-        <p>Descreva o comportamento esperado com precisão: entradas, saídas, regras de negócio, casos de borda, o que é proibido. Uma spec ruim gera código ruim — garbage in, garbage out.</p>
+        <h3>1. Spec antes de código</h3>
+        <p>Entradas, saídas, regras de negócio, casos de borda, o que é proibido. Spec vaga gera código que parece funcionar mas tem edge cases errados. Spec ruim é pior que ausência de spec — orienta o agente na direção errada.</p>
       </div>
       <div class="card card-dark">
         <div style="font-size:1.5rem;margin-bottom:8px">⚙️</div>
-        <h3>2. Deixe o agente implementar</h3>
-        <p>Claude Code lê a spec, o CLAUDE.md do projeto, e implementa. Pode errar, mas erra em direção à spec. Você não escreve código — você revisa comportamento contra a especificação.</p>
+        <h3>2. Agente implementa</h3>
+        <p>Claude Code lê a spec + CLAUDE.md e implementa. Erra em direção à spec — que é o comportamento que você quer. Você não escreve código, você revisa comportamento. Sua habilidade de criar boa spec é o multiplicador real.</p>
       </div>
       <div class="card card-dark">
         <div style="font-size:1.5rem;margin-bottom:8px">✅</div>
         <h3>3. Valide contra a spec</h3>
-        <p>Revise o que foi gerado comparando com a especificação. Ajuste a spec quando o comportamento diverge. Repita. O critério de aceite é "o código se comporta como especificado" — não "o código parece certo".</p>
+        <p>Critério único: "o código se comporta exatamente como especificado?" Quando diverge: ajuste a spec (se estava errada) ou o código (se o agente interpretou mal). A spec evolui e vira documentação viva do sistema.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:14px">O que um CLAUDE.md efetivo precisa ter</h3>
+    <div class="layer-stack">
+      <div class="layer-item">
+        <div class="layer-num" style="background:var(--n3);color:white">1</div>
+        <div class="layer-name">Stack e versões exatas</div>
+        <div class="layer-desc">Python 3.11 + FastAPI 0.111 + pgvector 0.3. Não "Python" genérico. Sem versões exatas, o agente pode usar APIs depreciadas ou sintaxe da versão errada silenciosamente.</div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-num" style="background:var(--n3);color:white">2</div>
+        <div class="layer-name">Regras de negócio não-óbvias</div>
+        <div class="layer-desc">O que um dev novo levaria dias para descobrir: "Salários usam COMP-3 — sempre converter antes de operar." "Toda query ao DB2 precisa de COMMIT explícito." Conhecimento implícito que o agente não tem.</div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-num" style="background:var(--n3);color:white">3</div>
+        <div class="layer-name">Lista explícita de "nunca faça"</div>
+        <div class="layer-desc">"Nunca DELETE sem WHERE." "Nunca commitar em main diretamente." O agente respeita proibições explícitas muito mais do que implícitas.</div>
+      </div>
+      <div class="layer-item">
+        <div class="layer-num" style="background:var(--n3);color:white">4</div>
+        <div class="layer-name">Arquivos-chave e contexto do domínio</div>
+        <div class="layer-desc">Quais arquivos fazem o quê e o que a aplicação faz no mundo real. Um agente que sabe que está modificando um sistema de folha de pagamento de 5.000 funcionários toma decisões de segurança diferentes de um que não tem esse contexto.</div>
       </div>
     </div>
 
     <div class="callout callout-n3">
       <span class="callout-icon">🎯</span>
       <div class="callout-body">
-        <h4>O CLAUDE.md como spec do projeto</h4>
-        <p>Um CLAUDE.md bem escrito é a fundação de todo o Spec-Driven Development. Ele deve conter: stack e convenções, regras de negócio críticas, o que nunca fazer, arquivos-chave, contexto do domínio. Trate o CLAUDE.md como documentação de primeiro nível — não como nota de post-it. Um bom CLAUDE.md elimina 80% das correções necessárias no código gerado.</p>
+        <h4>CLAUDE.md como vantagem competitiva de time</h4>
+        <p>Times que investem em CLAUDE.md de qualidade produzem código melhor com Claude Code do que times que não investem — mesmo usando o mesmo modelo. A qualidade do contexto que você fornece é o multiplicador que nenhum upgrade de modelo substitui. Um bom CLAUDE.md elimina ~80% das correções manuais no código gerado.</p>
       </div>
     </div>
+  </div>
+</section>
+
   </div>
 </section>
 
 <!-- ====================================================================== -->
 <!-- GLOSSÁRIO -->
 <!-- ====================================================================== -->
+
 
 <section id="glossario">
   <div class="container">
@@ -1862,6 +2092,52 @@ section:first-of-type { border-top: none; }
       <div class="gloss-item">
         <div class="gloss-term">Transformer <span class="gloss-level gl-base">BASE</span></div>
         <div class="gloss-def">Arquitetura de rede neural base de todos os LLMs modernos (2017). Mecanismo de self-attention permite processar relações entre tokens independentemente da distância.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">Guardrail <span class="gloss-level gl-n2">N2</span></div>
+        <div class="gloss-def">Qualquer mecanismo que impede um sistema de IA de se comportar de formas indesejadas. Existem três tipos: entrada (filtra o que o usuário envia), saída (filtra o que o agente retorna) e comportamental (define o que o agente pode ou não fazer). Precisa ser definido pelo produto antes de ser implementado pela engenharia.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Embedding <span class="gloss-level gl-n2">N2</span></div>
+        <div class="gloss-def">Representação matemática de um texto como vetor numérico. Textos com significados parecidos geram vetores próximos — base técnica do RAG. A qualidade depende do modelo usado: modelos treinados só em inglês performam mal em português. Trocar de modelo exige re-indexar toda a base.</div>
+      </div>
+
+      <div class="gloss-item">
+        <div class="gloss-term">Naive RAG <span class="gloss-level gl-n3">N3</span></div>
+        <div class="gloss-def">Implementação básica de RAG: chunking fixo → embedding → cosine similarity → top-k injetado no contexto. Ponto de partida válido para PoCs — insuficiente para produção com bases heterogêneas ou queries complexas.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Advanced RAG <span class="gloss-level gl-n3">N3</span></div>
+        <div class="gloss-def">RAG com chunking semântico ou hierárquico, hybrid retrieval (dense + sparse), reranking e query rewriting. Padrão para sistemas em produção com usuários reais e bases de documentos heterogêneas.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">GraphRAG <span class="gloss-level gl-n3">N3</span></div>
+        <div class="gloss-def">Variante de RAG que constrói um grafo de conhecimento com entidades e relacionamentos. Permite queries relacionais que similaridade semântica não resolve — contratos, organigramas, redes de fornecedores.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Hybrid Retrieval <span class="gloss-level gl-n3">N3</span></div>
+        <div class="gloss-def">Combinação de dense retrieval (semântico via embeddings) e sparse retrieval (BM25/palavras-chave) via Reciprocal Rank Fusion (RRF). Padrão em produção — melhor dos dois mundos.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Reranking <span class="gloss-level gl-n3">N3</span></div>
+        <div class="gloss-def">Etapa pós-retrieval onde um cross-encoder reavalia os top-N documentos contra a query com muito mais precisão que o embedding inicial. ~100ms de latência adicional, melhora significativa na qualidade dos chunks injetados.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Faithfulness <span class="gloss-level gl-n3">N3</span></div>
+        <div class="gloss-def">Métrica de eval que mede se a resposta gerada é factualmente consistente com os documentos recuperados. Alta faithfulness = o modelo não alucina sobre seus próprios documentos.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">HNSW <span class="gloss-level gl-n3">N3</span></div>
+        <div class="gloss-def">Hierarchical Navigable Small World — algoritmo de busca aproximada para vetores. Complexidade O(log n), escala para bilhões, recall de 95–99% vs. k-NN exato. Padrão em todos os vector databases de produção.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Cross-tenant Data Leak <span class="gloss-level gl-n3">N3</span></div>
+        <div class="gloss-def">Risco em sistemas multi-tenant onde dados de um usuário/cliente vazam para outro via contexto compartilhado ou RAG sem isolamento adequado por tenant_id. Violação de privacidade e LGPD.</div>
+      </div>
+      <div class="gloss-item">
+        <div class="gloss-term">Golden Dataset <span class="gloss-level gl-n3">N3</span></div>
+        <div class="gloss-def">Conjunto de pares (pergunta, resposta esperada) construído manualmente a partir de casos de uso reais. Padrão de ouro contra o qual todas as versões futuras do sistema são comparadas em evals.</div>
       </div>
 
       <!-- N1 -->
@@ -1994,7 +2270,7 @@ section:first-of-type { border-top: none; }
     <div style="font-family:var(--font-mono);font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:12px">Módulo de Nivelamento — Cursinho de IA</div>
     <h3>Do conceito à implementação.</h3>
     <p>Este módulo cobre os três níveis de compreensão necessários para navegar o mundo de IA em 2026 — do usuário que quer usar melhor as ferramentas, ao arquiteto que projeta sistemas, ao desenvolvedor que os constrói.</p>
-    <a href="#" class="btn">↑ Voltar ao topo</a>
+    <a href="modulo1" class="next-btn">CONTINUAR PARA O MÓDULO 1 →</a>
   </div>
 </div>
 
