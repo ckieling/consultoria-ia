@@ -280,13 +280,6 @@ section:first-of-type { border-top: none; }
 .stat-label  { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #555; }
 .stat-note   { font-size: 0.76rem; color: #777; margin-top: 6px; }
 
-/* NEXT */
-.next-box{background:var(--ink);border:var(--border);padding:50px;border-radius:24px;box-shadow:var(--shadow);text-align:center;}
-.next-box h2{font-family:var(--display);font-size:clamp(1.8rem,4vw,3rem);margin:12px 0 16px;color:white;}
-.next-box p{max-width:500px;margin:0 auto 28px;font-size:.97rem;color:rgba(255,255,255,.65);}
-.next-btn{display:inline-block;background:var(--pink);color:white;padding:14px 36px;border:var(--border);font-family:var(--display);font-weight:700;text-decoration:none;box-shadow:var(--shadow-s);transition:transform .15s;font-size:.95rem;}
-.next-btn:hover{transform:translate(-2px,-2px);}
-
 /* ===== TAG CLOUD ===== */
 .tag-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
 .tag { font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600; padding: 6px 14px; border: 2px solid var(--ink); border-radius: 100px; background: var(--white); transition: background 0.15s, transform 0.15s; cursor: default; }
@@ -373,9 +366,12 @@ section:first-of-type { border-top: none; }
           <li><a href="#n1-trabalho"><span class="toc-num n1">01</span> O que muda no meu trabalho</a></li>
           <li><a href="#n1-ferramentas"><span class="toc-num n1">02</span> Ferramentas disponíveis</a></li>
           <li><a href="#n1-prompts"><span class="toc-num n1">03</span> Como dar bons prompts</a></li>
-          <li><a href="#n1-limites"><span class="toc-num n1">04</span> Limites reais da IA</a></li>
-          <li><a href="#n1-agentes"><span class="toc-num n1">05</span> Agentes: IA que faz coisas</a></li>
-          <li><a href="#n1-estado"><span class="toc-num n1">06</span> Estado da IA em 2026</a></li>
+          <li><a href="#n1-como-pensa"><span class="toc-num n1">04</span> Como a IA "pensa"</a></li>
+          <li><a href="#n1-limites"><span class="toc-num n1">05</span> Limites reais da IA</a></li>
+          <li><a href="#n1-agentes"><span class="toc-num n1">06</span> IA agêntica</a></li>
+          <li><a href="#n1-multimodal"><span class="toc-num n1">07</span> Além do texto</a></li>
+          <li><a href="#n1-exemplos-negocios"><span class="toc-num n1">08</span> Exemplos nos negócios</a></li>
+          <li><a href="#n1-estado"><span class="toc-num n1">09</span> Estado da IA em 2026</a></li>
         </ul>
         <h3 class="toc-n2" style="margin-top:14px">Nível 2 · Arquiteto</h3>
         <ul class="toc-list">
@@ -751,7 +747,7 @@ section:first-of-type { border-top: none; }
   <div class="level-divider" id="nivel1">
     <span class="ld-badge" style="background:var(--n1)">Nível 1</span>
     <span class="ld-title">👤 Usuário — O que muda no meu trabalho e como usar bem</span>
-    <span class="ld-desc">Sem necessidade de conhecimento técnico</span>
+    <span class="ld-desc">Sem necessidade de conhecimento técnico prévio</span>
   </div>
 </div>
 
@@ -767,31 +763,37 @@ section:first-of-type { border-top: none; }
         <div style="font-size:1.5rem;margin-bottom:8px">🧮</div>
         <h3>Financeiro / Contabilidade</h3>
         <p>Conciliação assistida, análise de extratos, geração de relatórios, identificação de anomalias. O analista foca em interpretação e decisões — não em montar planilhas.</p>
+        <p style="font-size:0.78rem;margin-top:10px;color:var(--n1-dark)"><strong>IAs indicadas:</strong> Claude (análise), ChatGPT (relatórios), Perplexity (pesquisa tributária)</p>
       </div>
       <div class="card card-accent-n1">
         <div style="font-size:1.5rem;margin-bottom:8px">⚖️</div>
         <h3>Jurídico / Compliance</h3>
         <p>Revisão de contratos, pesquisa de jurisprudência, resumo de documentos longos, verificação de conformidade. Advogado júnior produz como sênior. Sênior foca em estratégia.</p>
+        <p style="font-size:0.78rem;margin-top:10px;color:var(--n1-dark)"><strong>IAs indicadas:</strong> Claude (contratos longos), Perplexity (jurisprudência), NotebookLM (análise de documentos)</p>
       </div>
       <div class="card card-accent-n1">
         <div style="font-size:1.5rem;margin-bottom:8px">👥</div>
         <h3>RH</h3>
         <p>Triagem de currículos, geração de JDs, onboarding automatizado, políticas em linguagem clara, análise de pesquisas de clima. Foco humano em cultura e pessoas.</p>
+        <p style="font-size:0.78rem;margin-top:10px;color:var(--n1-dark)"><strong>IAs indicadas:</strong> Claude (redação e análise), Fathom (resumo de entrevistas), ChatGPT (triagem)</p>
       </div>
       <div class="card card-accent-n1">
         <div style="font-size:1.5rem;margin-bottom:8px">📦</div>
         <h3>Logística / Operação</h3>
-        <p>Previsão de demanda, otimização de rotas, relatórios operacionais automatizados. IA não move caixas — mas decide como mover de forma mais inteligente.</p>
+        <p>Previsão de demanda, otimização de rotas, relatórios operacionais automatizados, análise de fornecedores. IA não move caixas — mas decide como mover de forma mais inteligente.</p>
+        <p style="font-size:0.78rem;margin-top:10px;color:var(--n1-dark)"><strong>IAs indicadas:</strong> ChatGPT (análises), Claude (relatórios), Perplexity (pesquisa de mercado)</p>
       </div>
       <div class="card card-accent-n1">
         <div style="font-size:1.5rem;margin-bottom:8px">📣</div>
         <h3>Marketing / Vendas</h3>
-        <p>Geração de conteúdo em escala, personalização de comunicação, análise de campanhas, scripts de vendas. Diferencial: estratégia e voz autoral — não a produção em massa.</p>
+        <p>Geração de conteúdo em escala, personalização de comunicação, análise de campanhas, scripts de vendas, criação de imagens para posts. Diferencial: estratégia e voz autoral.</p>
+        <p style="font-size:0.78rem;margin-top:10px;color:var(--n1-dark)"><strong>IAs indicadas:</strong> Claude/ChatGPT (texto), Midjourney/Canva IA (imagens), Gamma (apresentações)</p>
       </div>
       <div class="card card-accent-n1">
         <div style="font-size:1.5rem;margin-bottom:8px">💻</div>
         <h3>TI / Desenvolvimento</h3>
         <p>Geração e revisão de código, documentação automática, debugging assistido, explicação de sistemas legados. Desenvolvedor com IA entrega 3–5× mais — mas precisa revisar o que a IA produz.</p>
+        <p style="font-size:0.78rem;margin-top:10px;color:var(--n1-dark)"><strong>IAs indicadas:</strong> Claude Code, GitHub Copilot, Cursor (coding)</p>
       </div>
     </div>
   </div>
@@ -809,40 +811,48 @@ section:first-of-type { border-top: none; }
         <h3>🤖 Assistentes Gerais</h3>
         <p style="margin-bottom:10px">Para praticamente qualquer tarefa de texto, análise ou criação:</p>
         <ul style="font-size:0.87rem;padding-left:20px;color:#444">
-          <li><strong>Claude (Anthropic)</strong> — Análise, redação longa, código, seguir instruções complexas</li>
-          <li><strong>ChatGPT (OpenAI)</strong> — Uso geral, ecossistema de plugins</li>
-          <li><strong>Gemini (Google)</strong> — Integrado ao Google Workspace</li>
-          <li><strong>Grok (xAI)</strong> — Integrado ao X, dados em tempo real</li>
+          <li><strong>Claude (Anthropic)</strong> — análise profunda, documentos longos, seguir instruções complexas, raciocínio. Melhor para textos corporativos.</li>
+          <li><strong>ChatGPT (OpenAI)</strong> — uso geral, ecossistema amplo, plugins e integrações</li>
+          <li><strong>Gemini (Google)</strong> — integrado ao Google Workspace (Docs, Sheets, Gmail)</li>
+          <li><strong>Grok (xAI)</strong> — integrado ao X/Twitter, acesso a dados em tempo real</li>
         </ul>
       </div>
       <div class="card">
         <h3>🔍 Pesquisa e Conhecimento</h3>
         <p style="margin-bottom:10px">Para buscar, sintetizar e manter-se atualizado:</p>
         <ul style="font-size:0.87rem;padding-left:20px;color:#444">
-          <li><strong>Perplexity</strong> — Pesquisa com fontes citadas, tempo real</li>
-          <li><strong>NotebookLM (Google)</strong> — Upload de documentos próprios + Q&A</li>
-          <li><strong>Claude Projects</strong> — Base de conhecimento persistente por projeto</li>
+          <li><strong>Perplexity</strong> — pesquisa com fontes citadas, informações em tempo real</li>
+          <li><strong>NotebookLM (Google)</strong> — upload de seus documentos e Q&A sobre eles</li>
+          <li><strong>Claude Projects</strong> — base de conhecimento persistente por projeto</li>
         </ul>
       </div>
       <div class="card">
-        <h3>🎨 Criação Visual</h3>
-        <p style="margin-bottom:10px">Para gerar e editar imagens e apresentações:</p>
+        <h3>🎨 Criação Visual e Apresentações</h3>
+        <p style="margin-bottom:10px">Para gerar imagens, designs e slides:</p>
         <ul style="font-size:0.87rem;padding-left:20px;color:#444">
-          <li><strong>Midjourney / Flux</strong> — Imagens de alta qualidade</li>
-          <li><strong>Canva + IA</strong> — Design assistido com templates</li>
-          <li><strong>Gamma</strong> — Apresentações geradas automaticamente</li>
-          <li><strong>Adobe Firefly</strong> — Edição de imagens com IA, licença segura</li>
+          <li><strong>Midjourney / Flux / Ideogram</strong> — imagens de alta qualidade por descrição</li>
+          <li><strong>Canva com IA</strong> — design assistido com templates inteligentes</li>
+          <li><strong>Gamma</strong> — apresentações geradas automaticamente a partir de texto</li>
+          <li><strong>Adobe Firefly</strong> — edição de imagens com IA, licença comercial segura</li>
         </ul>
       </div>
       <div class="card">
-        <h3>🎵 Áudio, Vídeo e Produtividade</h3>
-        <p style="margin-bottom:10px">Para automatizar tarefas específicas:</p>
+        <h3>🎵 Produtividade e Reuniões</h3>
+        <p style="margin-bottom:10px">Para automatizar tarefas do dia a dia:</p>
         <ul style="font-size:0.87rem;padding-left:20px;color:#444">
-          <li><strong>ElevenLabs</strong> — Vozes sintéticas de alta qualidade</li>
-          <li><strong>Fathom / Fireflies</strong> — Resumo automático de reuniões</li>
-          <li><strong>Runway / Kling</strong> — Geração de vídeo</li>
-          <li><strong>GitHub Copilot</strong> — Coding assistido no IDE</li>
+          <li><strong>Fathom / Fireflies</strong> — transcrição e resumo automático de reuniões</li>
+          <li><strong>ElevenLabs</strong> — vozes sintéticas de alta qualidade em português</li>
+          <li><strong>Synthesia</strong> — vídeos com apresentadores virtuais sem gravar</li>
+          <li><strong>GitHub Copilot</strong> — coding assistido diretamente no editor de código</li>
         </ul>
+      </div>
+    </div>
+
+    <div class="callout callout-n1" style="margin-top:8px">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <h4>Claude tem planos gratuito e pago — qual usar?</h4>
+        <p>O plano gratuito do Claude já é poderoso para uso diário. O plano Pro (US$20/mês) libera acesso ao Opus (modelo mais avançado), mais mensagens, e Claude Projects — onde você cria uma base de conhecimento permanente para o assistente usar em todas as conversas. Para uso profissional intenso, o Pro se paga rapidamente.</p>
       </div>
     </div>
   </div>
@@ -852,14 +862,14 @@ section:first-of-type { border-top: none; }
   <div class="container">
     <div class="level-band"><span class="level-badge lb-n1">N1 · Usuário</span></div>
     <div class="sec-label">Uso efetivo</div>
-    <h2 class="sec-title">Como dar bons prompts</h2>
-    <p class="sec-lead n1">A diferença entre um resultado medíocre e um excelente geralmente está em como você faz a pergunta. Não é ciência — é comunicação clara.</p>
+    <h2 class="sec-title">Como dar bons prompts — e por que isso muda tudo</h2>
+    <p class="sec-lead n1">A diferença entre um resultado medíocre e um excelente geralmente está em como você faz a pergunta. "Prompt engineering" é o nome técnico para isso — mas é basicamente comunicação clara com contexto suficiente.</p>
 
     <div class="compare-box">
       <div class="compare-side compare-before" style="background:#FFE8E8">
         <div class="compare-label" style="color:var(--n3-dark)">❌ Prompt fraco</div>
         <p style="font-size:0.9rem;font-style:italic">"Escreve um e-mail pro cliente"</p>
-        <p style="font-size:0.82rem;color:#666;margin-top:8px">Resultado: e-mail genérico, tom errado, sem contexto do cliente, tamanho aleatório.</p>
+        <p style="font-size:0.82rem;color:#666;margin-top:8px">Resultado: e-mail genérico, tom errado, sem contexto do cliente, tamanho aleatório, nenhuma personalização.</p>
       </div>
       <div class="compare-side" style="background:var(--n1-pale)">
         <div class="compare-label" style="color:var(--n1-dark)">✅ Prompt efetivo</div>
@@ -870,24 +880,84 @@ section:first-of-type { border-top: none; }
     <h3 style="margin:24px 0 14px">Os 4 elementos de um bom prompt</h3>
     <div class="layer-stack">
       <div class="layer-item">
-        <div class="layer-num">1</div>
+        <div class="layer-num" style="background:var(--n1);color:var(--ink)">1</div>
         <div class="layer-name">🎭 Papel / Contexto</div>
-        <div class="layer-desc">Quem você quer que a IA seja? "Você é um especialista em tributação brasileira" ou "Atue como um editor de textos corporativos" ajuda o modelo a calibrar o nível de resposta.</div>
+        <div class="layer-desc">"Você é um especialista em tributação brasileira" ou "Atue como um editor de textos corporativos". Definir o papel ajuda o modelo a calibrar o nível, o tom e o vocabulário da resposta.</div>
       </div>
       <div class="layer-item">
-        <div class="layer-num">2</div>
-        <div class="layer-name">📋 Tarefa clara</div>
-        <div class="layer-desc">O que exatamente você quer? Seja específico: "resuma em 5 bullets" é melhor que "resuma". "Liste os pontos de risco" é melhor que "analise".</div>
+        <div class="layer-num" style="background:var(--n1);color:var(--ink)">2</div>
+        <div class="layer-name">📋 Tarefa clara e específica</div>
+        <div class="layer-desc">"Resuma em 5 bullets" é melhor que "resuma". "Liste os riscos jurídicos" é melhor que "analise". Quanto mais específico o verbo e o escopo, mais útil o resultado.</div>
       </div>
       <div class="layer-item">
-        <div class="layer-num">3</div>
+        <div class="layer-num" style="background:var(--n1);color:var(--ink)">3</div>
         <div class="layer-name">🌍 Contexto relevante</div>
-        <div class="layer-desc">Quem é o destinatário? Qual o objetivo? Que informações a IA precisa saber para fazer um bom trabalho? Quanto mais contexto útil, melhor o resultado.</div>
+        <div class="layer-desc">Quem é o destinatário? Qual o objetivo? Que informações a IA precisa para fazer um bom trabalho? Quanto mais contexto útil você fornece, menos reescritas você precisa fazer.</div>
       </div>
       <div class="layer-item">
-        <div class="layer-num">4</div>
+        <div class="layer-num" style="background:var(--n1);color:var(--ink)">4</div>
         <div class="layer-name">📐 Formato esperado</div>
-        <div class="layer-desc">Bullet points, tabela, texto corrido, lista numerada? Qual o tamanho esperado? Em qual tom? Especificar o formato elimina metade das reescritas.</div>
+        <div class="layer-desc">Bullet points, tabela, texto corrido, lista numerada? Qual o tamanho? Em qual tom? Especificar o formato elimina metade das reescritas e poupa tempo.</div>
+      </div>
+    </div>
+
+    <h3 style="margin:28px 0 14px">Técnicas que fazem diferença imediata</h3>
+    <div class="card-grid card-grid-3">
+      <div class="card card-accent-n1">
+        <h3>🧠 Peça para pensar passo a passo</h3>
+        <p>Para problemas complexos, adicione "pense passo a passo antes de responder" ou "explique seu raciocínio". Isso ativa o que os técnicos chamam de <em>chain of thought</em> — o modelo "raciocina" antes de concluir, e os resultados são significativamente melhores em análises e cálculos.</p>
+      </div>
+      <div class="card card-accent-n1">
+        <h3>📝 Dê exemplos do que você quer</h3>
+        <p>Se você tem um exemplo do estilo ou formato que quer, cole no prompt: "escreva no estilo deste parágrafo:" + exemplo. Mostrar é mais eficaz que descrever. Os técnicos chamam isso de <em>few-shot prompting</em> — e funciona muito bem para padronizar tom e formato.</p>
+      </div>
+      <div class="card card-accent-n1">
+        <h3>🔄 Itere, não reescreva do zero</h3>
+        <p>Se o resultado não ficou certo, não apague e comece de novo. Continue na mesma conversa: "Ficou bom, mas o tom está muito formal. Reescreva mais próximo de uma conversa profissional." O modelo tem todo o contexto anterior — use isso a seu favor.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-yellow">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <h4>Cuidado com conversas muito longas — o efeito "lost in the middle"</h4>
+        <p>Quando uma conversa fica muito longa, o modelo começa a "esquecer" o que foi dito no início — especialmente as instruções e contexto. Se você perceber que as respostas estão perdendo qualidade ou ignorando combinados anteriores, comece uma nova conversa e recapitule o contexto essencial. Isso não é bug — é uma característica de como os LLMs funcionam.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="n1-como-pensa">
+  <div class="container">
+    <div class="level-band"><span class="level-badge lb-n1">N1 · Usuário</span></div>
+    <div class="sec-label">Como a IA pensa</div>
+    <h2 class="sec-title">Como a IA "pensa" — o que você precisa saber para usar melhor</h2>
+    <p class="sec-lead n1">Você não precisa saber programar para entender como a IA funciona. Mas entender alguns conceitos básicos muda completamente a forma como você interage com ela — e evita frustrações.</p>
+
+    <div class="card-grid card-grid-2" style="margin-bottom:24px">
+      <div class="card">
+        <h3>🎲 A IA não "sabe" — ela prediz</h3>
+        <p>Um LLM não consulta um banco de dados de fatos. Ele gera a resposta mais provável com base em padrões do treinamento. Por isso às vezes erra com confiança — o padrão mais provável não é sempre o correto. Trate a IA como um especialista brilhante que às vezes confabula: verifique o que importa.</p>
+      </div>
+      <div class="card">
+        <h3>🌡️ Temperatura — criatividade vs. precisão</h3>
+        <p>Os modelos têm um parâmetro de "temperatura" que controla o quanto a resposta é criativa (alta temperatura) ou precisa e consistente (baixa temperatura). Para textos criativos, temperatura alta é melhor. Para análises jurídicas ou fiscais, você quer temperatura baixa — respostas mais conservadoras e consistentes.</p>
+      </div>
+      <div class="card">
+        <h3>📅 A IA tem uma data de corte</h3>
+        <p>O modelo foi treinado até uma data específica. Ele não sabe o que aconteceu depois disso. Para informações recentes (mudanças de legislação, notícias, cotações), use ferramentas com busca em tempo real como Perplexity ou Claude com web search ativado — não confie na memória do modelo para isso.</p>
+      </div>
+      <div class="card">
+        <h3>🧠 Cada conversa começa do zero</h3>
+        <p>O modelo não lembra de você entre conversas diferentes. Tudo que ele "sabe" sobre você está na conversa atual. Por isso Claude Projects é poderoso: você define um contexto permanente (quem você é, como trabalha, preferências) que é injetado em todas as conversas daquele projeto.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-n1">
+      <span class="callout-icon">🎯</span>
+      <div class="callout-body">
+        <h4>A "zona morta" do contexto</h4>
+        <p>Imagine que você entrega um relatório de 100 páginas para um assistente e pede para ele responder uma pergunta sobre a página 50. Ele vai ter dificuldade em prestar atenção nessa parte do meio — tende a focar mais no início e no fim do documento. Isso acontece com LLMs também: <strong>informações no meio de textos muito longos são menos lembradas</strong>. Dica prática: coloque as informações mais importantes no início ou no final do que você compartilha.</p>
       </div>
     </div>
   </div>
@@ -898,32 +968,32 @@ section:first-of-type { border-top: none; }
     <div class="level-band"><span class="level-badge lb-n1">N1 · Usuário</span></div>
     <div class="sec-label">Limites</div>
     <h2 class="sec-title">O que a IA não faz bem — limites reais</h2>
-    <p class="sec-lead n1">Usar a IA bem inclui saber quando não usar. O entusiasmo inicial com IA leva muita gente a confiar em resultados que não deveriam ser confiados.</p>
+    <p class="sec-lead n1">Usar a IA bem inclui saber quando não usar. O entusiasmo inicial leva muita gente a confiar em resultados que não deveriam ser confiados — com consequências reais.</p>
 
     <div class="card-grid card-grid-2">
       <div class="card card-accent-n3">
         <h3>📅 Informações recentes e em tempo real</h3>
-        <p>LLMs têm uma data de corte de treinamento. Não sabem o que aconteceu ontem, não consultam sites em tempo real (a menos que tenham ferramentas de busca). Sempre pergunte "quando foi o treinamento?" para informações sensíveis ao tempo.</p>
+        <p>LLMs têm data de corte de treinamento. Não sabem o que aconteceu ontem. Para informações sensíveis ao tempo (mudanças de alíquota, nova legislação, cotações), use Perplexity ou ative web search no Claude. Verifique sempre a data dos dados usados.</p>
       </div>
       <div class="card card-accent-n3">
-        <h3>🔢 Cálculos complexos</h3>
-        <p>LLMs são ruins em matemática precisa — especialmente com números grandes ou muitas etapas. Para cálculos críticos, peça à IA para mostrar o raciocínio passo a passo e valide independentemente. Use ferramentas com calculadora integrada.</p>
+        <h3>🔢 Cálculos precisos e complexos</h3>
+        <p>LLMs são fracos em matemática com muitas etapas — especialmente com números grandes. Para cálculos críticos (folha de pagamento, tributos, projeções financeiras), peça ao modelo para mostrar o raciocínio passo a passo e valide independentemente. Use Excel para cálculos, IA para análise.</p>
       </div>
       <div class="card card-accent-n3">
         <h3>📚 Dados específicos da sua empresa</h3>
-        <p>A IA não conhece o seu ERP, seus contratos, seu histórico de clientes, suas políticas internas. Para isso você precisa de sistemas que conectem a IA aos seus dados (RAG, integrações). Sem esse contexto, as respostas serão genéricas.</p>
+        <p>A IA não conhece seu ERP, seus contratos, seu histórico de clientes, suas políticas internas. Sem esse contexto, as respostas são genéricas. Solução: cole as informações relevantes no prompt, use NotebookLM com seus documentos, ou um sistema com RAG configurado.</p>
       </div>
       <div class="card card-accent-n3">
         <h3>⚖️ Decisões que exigem responsabilidade</h3>
-        <p>IA não pode ser responsabilizada. Em decisões de alto impacto — demissão, diagnóstico médico, sentença judicial, aprovação de crédito — a IA pode ser ferramenta de suporte, mas a decisão final precisa de um humano responsável.</p>
+        <p>IA não pode ser responsabilizada. Em decisões de alto impacto — demissão, diagnóstico médico, aprovação de crédito, parecer jurídico oficial — a IA pode ser ferramenta de suporte, mas a decisão final e a responsabilidade precisam ser de um humano.</p>
       </div>
     </div>
 
     <div class="callout callout-yellow">
       <span class="callout-icon">⚠️</span>
       <div class="callout-body">
-        <h4>A regra de ouro: verifique o que importa</h4>
-        <p>Use IA para acelerar e ampliar sua capacidade — mas valide resultados antes de usar em contextos importantes. Trate a IA como um estagiário brilhante: produtivo, criativo, mas que precisa de supervisão em tarefas críticas.</p>
+        <h4>A regra de ouro</h4>
+        <p>Trate a IA como um estagiário brilhante: produtivo, criativo, cheio de energia — mas que precisa de supervisão em tarefas críticas. Você assina o trabalho, você é responsável pelo resultado. Use IA para acelerar e ampliar sua capacidade, não para terceirizar sua responsabilidade.</p>
       </div>
     </div>
   </div>
@@ -932,41 +1002,137 @@ section:first-of-type { border-top: none; }
 <section id="n1-agentes">
   <div class="container">
     <div class="level-band"><span class="level-badge lb-n1">N1 · Usuário</span></div>
-    <div class="sec-label">Agentes</div>
-    <h2 class="sec-title">Agentes: a IA que faz coisas, não só responde</h2>
-    <p class="sec-lead n1">Até 2023, a IA respondia perguntas. A partir de 2024, ela começou a executar tarefas. Esta é a maior mudança em curso — e vai afetar o trabalho de forma muito mais profunda que o chatbot.</p>
+    <div class="sec-label">IA Agêntica</div>
+    <h2 class="sec-title">IA Agêntica: quando a IA passa a fazer, não só responder</h2>
+    <p class="sec-lead n1">Até 2023, a IA respondia perguntas. A partir de 2024, ela começou a executar tarefas — navegar na web, operar sistemas, escrever e rodar código, enviar e-mails. Isso é IA agêntica: o modelo age no mundo real em seu nome.</p>
 
     <div class="compare-box">
       <div class="compare-side" style="background:#FFF9CC">
         <div class="compare-label">🤖 Chatbot (antes)</div>
-        <p style="font-size:0.9rem"><strong>Você pergunta, ele responde.</strong><br>
-        "Como faço para pedir férias?" → Explica o processo.<br>
-        O trabalho ainda é todo seu.</p>
+        <p style="font-size:0.9rem"><strong>Você pergunta, ele responde.</strong><br><br>
+        "Como faço para reconciliar as contas do mês?"<br>→ Explica o processo. O trabalho ainda é todo seu.</p>
       </div>
       <div class="compare-side" style="background:var(--n1-pale)">
         <div class="compare-label" style="color:var(--n1-dark)">🚀 Agente (agora)</div>
-        <p style="font-size:0.9rem"><strong>Você dá o objetivo, ele executa.</strong><br>
-        "Processe as solicitações de férias de março" → Agente lê os pedidos, verifica o saldo, envia para aprovação, notifica os funcionários, atualiza o sistema.<br>
-        Você revisa as exceções.</p>
+        <p style="font-size:0.9rem"><strong>Você dá o objetivo, ele executa.</strong><br><br>
+        "Reconcilie as contas de março e me mande um relatório com as divergências."<br>→ Agente acessa o sistema, compara os dados, identifica diferenças, gera o relatório e envia. Você revisa o resultado.</p>
       </div>
     </div>
 
-    <h3 style="margin:24px 0 14px">Exemplos de agentes que já existem em 2026</h3>
-    <div class="card-grid card-grid-3">
-      <div class="card">
+    <h3 style="margin:24px 0 14px">Agentes que já existem e você pode usar em 2026</h3>
+    <div class="card-grid card-grid-2">
+      <div class="card card-accent-n1">
         <div style="font-size:1.5rem;margin-bottom:8px">💻</div>
-        <h3>Claude Code / Copilot</h3>
-        <p>Escreve código, corrige bugs, faz refatorações, roda testes. Desenvolvedores com agentes de código entregam 3–5× mais.</p>
+        <h3>Claude Code — agente de desenvolvimento</h3>
+        <p>Escreve código, corrige bugs, refatora sistemas, roda testes, documenta. Um desenvolvedor com Claude Code entrega 3–5× mais do que sem ele. Acessa o repositório de código, entende o contexto do projeto e faz alterações reais — não só sugere.</p>
       </div>
-      <div class="card">
+      <div class="card card-accent-n1">
+        <div style="font-size:1.5rem;margin-bottom:8px">🤝</div>
+        <h3>Claude Cowork — agente de desktop</h3>
+        <p>Ferramenta da Anthropic que opera seu computador visualmente — abre programas, preenche formulários, copia e cola entre sistemas, navega em sites. Especialmente útil para tarefas repetitivas em sistemas que não têm integração direta.</p>
+      </div>
+      <div class="card card-accent-n1">
         <div style="font-size:1.5rem;margin-bottom:8px">🌐</div>
         <h3>Agentes Web (Operator, Mariner)</h3>
-        <p>Navega em sites, preenche formulários, faz pesquisas, compra produtos. Age no navegador como um humano.</p>
+        <p>OpenAI Operator e Google Mariner navegam na web como um humano — preenchem formulários em portais governamentais, fazem pesquisas, extraem dados de sites, compram produtos. Ainda em fase inicial mas já em uso real.</p>
+      </div>
+      <div class="card card-accent-n1">
+        <div style="font-size:1.5rem;margin-bottom:8px">🖥️</div>
+        <h3>Computer Use — IA que opera qualquer sistema</h3>
+        <p>Claude consegue "ver" a tela do seu computador e operar qualquer software — mesmo sistemas legados sem API. Vê o que está na tela, clica nos botões certos, digita os dados. Útil para automatizar tarefas em sistemas antigos que não têm integração moderna.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-yellow">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <h4>Agentes não trabalham sozinhos — e não devem</h4>
+        <p>Os melhores sistemas agênticos de 2026 são <strong>semi-autônomos</strong>: o agente faz o trabalho pesado e traz para você apenas as exceções, decisões importantes e ações irreversíveis. Você não aprova cada clique — você aprova o plano e revisa os resultados. A automação inteligente mantém o humano no controle onde importa.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="n1-multimodal">
+  <div class="container">
+    <div class="level-band"><span class="level-badge lb-n1">N1 · Usuário</span></div>
+    <div class="sec-label">Além do texto</div>
+    <h2 class="sec-title">IA para além do texto: imagem, vídeo, voz e apresentações</h2>
+    <p class="sec-lead n1">A IA generativa não é só para escrever. Em 2026, você pode gerar imagens profissionais, vídeos com apresentadores virtuais, vozes sintéticas realistas e apresentações completas — a partir de uma descrição em texto.</p>
+
+    <div class="card-grid card-grid-3">
+      <div class="card">
+        <div style="font-size:1.5rem;margin-bottom:8px">🎨</div>
+        <h3>Imagens e Design</h3>
+        <p><strong>Midjourney</strong> — qualidade fotográfica e artística. Melhor para marketing e criação. <strong>Canva IA</strong> — design assistido com templates, mais fácil para iniciantes. <strong>Adobe Firefly</strong> — licença comercial segura, integrado ao Photoshop.</p>
+        <p style="font-size:0.8rem;margin-top:10px;color:#666">Caso de uso: criar imagens para posts, apresentações, materiais de vendas sem precisar de designer.</p>
       </div>
       <div class="card">
-        <div style="font-size:1.5rem;margin-bottom:8px">🖥️</div>
-        <h3>Computer Use</h3>
-        <p>Controla qualquer software visualmente — sem precisar de API. Clica, digita, navega em sistemas legados.</p>
+        <div style="font-size:1.5rem;margin-bottom:8px">🎬</div>
+        <h3>Vídeo e Apresentações</h3>
+        <p><strong>Synthesia</strong> — vídeos com apresentadores virtuais em português, sem câmera ou gravação. <strong>Gamma</strong> — apresentações profissionais geradas de um texto em segundos. <strong>Runway/Kling</strong> — geração de vídeo a partir de imagens ou descrições.</p>
+        <p style="font-size:0.8rem;margin-top:10px;color:#666">Caso de uso: treinamentos corporativos, onboarding em vídeo, pitches sem precisar gravar.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:1.5rem;margin-bottom:8px">🎙️</div>
+        <h3>Voz e Reuniões</h3>
+        <p><strong>ElevenLabs</strong> — vozes sintéticas em português com emoção, para narração de vídeos e e-learning. <strong>Fathom / Fireflies</strong> — gravam e resumem reuniões automaticamente, gerando ata com próximos passos. <strong>NotebookLM</strong> — cria podcasts de áudio dos seus documentos.</p>
+        <p style="font-size:0.8rem;margin-top:10px;color:#666">Caso de uso: eliminar atas manuais, criar conteúdo de áudio sem locutor.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="n1-exemplos-negocios">
+  <div class="container">
+    <div class="level-band"><span class="level-badge lb-n1">N1 · Usuário</span></div>
+    <div class="sec-label">Na prática</div>
+    <h2 class="sec-title">IA nos negócios: exemplos reais com ferramentas indicadas</h2>
+    <p class="sec-lead n1">Nada substitui ver como funciona na prática. Aqui estão fluxos reais que equipes estão usando hoje — com qual ferramenta usar em cada etapa.</p>
+
+    <div class="card-grid card-grid-2">
+      <div class="card" style="border-top:5px solid var(--n1)">
+        <h3>📄 Análise de contrato de fornecedor</h3>
+        <ol style="font-size:0.87rem;padding-left:18px;color:#444;margin-top:8px">
+          <li style="margin-bottom:6px">Cole o contrato no <strong>Claude</strong> e peça: "Liste as cláusulas de risco, multas e obrigações da nossa parte"</li>
+          <li style="margin-bottom:6px">Peça um resumo executivo para o gestor em menos de 200 palavras</li>
+          <li style="margin-bottom:6px">Pergunte: "Quais pontos devo negociar com base nas práticas do mercado?"</li>
+          <li>Use <strong>Perplexity</strong> para verificar legislação citada no contrato</li>
+        </ol>
+        <p style="font-size:0.78rem;color:var(--n1-dark);margin-top:12px"><strong>Tempo antes:</strong> 3–4h | <strong>Com IA:</strong> 30min de revisão</p>
+      </div>
+
+      <div class="card" style="border-top:5px solid var(--n2)">
+        <h3>📊 Relatório gerencial mensal</h3>
+        <ol style="font-size:0.87rem;padding-left:18px;color:#444;margin-top:8px">
+          <li style="margin-bottom:6px">Exporte os dados do sistema em CSV ou cole os números no <strong>ChatGPT ou Claude</strong></li>
+          <li style="margin-bottom:6px">Peça: "Identifique as 3 variações mais relevantes e explique em linguagem executiva"</li>
+          <li style="margin-bottom:6px">Solicite o relatório já formatado para apresentação</li>
+          <li>Use <strong>Gamma</strong> para gerar a apresentação do relatório automaticamente</li>
+        </ol>
+        <p style="font-size:0.78rem;color:var(--n2-dark);margin-top:12px"><strong>Tempo antes:</strong> 1 dia | <strong>Com IA:</strong> 2–3h</p>
+      </div>
+
+      <div class="card" style="border-top:5px solid var(--purple)">
+        <h3>🎓 Treinamento corporativo</h3>
+        <ol style="font-size:0.87rem;padding-left:18px;color:#444;margin-top:8px">
+          <li style="margin-bottom:6px">Use <strong>Claude</strong> para criar o roteiro e o conteúdo do treinamento</li>
+          <li style="margin-bottom:6px">Use <strong>Gamma</strong> para transformar o conteúdo em apresentação visual</li>
+          <li style="margin-bottom:6px">Use <strong>Synthesia</strong> para gravar o treinamento com apresentador virtual em português</li>
+          <li>Use <strong>NotebookLM</strong> para criar material de consulta e Q&A sobre o conteúdo</li>
+        </ol>
+        <p style="font-size:0.78rem;color:var(--purple);margin-top:12px"><strong>Tempo antes:</strong> 2 semanas | <strong>Com IA:</strong> 2 dias</p>
+      </div>
+
+      <div class="card" style="border-top:5px solid var(--n3)">
+        <h3>📧 Campanha de prospecção</h3>
+        <ol style="font-size:0.87rem;padding-left:18px;color:#444;margin-top:8px">
+          <li style="margin-bottom:6px">Use <strong>Perplexity</strong> para pesquisar o perfil da empresa-alvo</li>
+          <li style="margin-bottom:6px">Use <strong>Claude</strong> para criar e-mail personalizado com base na pesquisa</li>
+          <li style="margin-bottom:6px">Use <strong>Midjourney</strong> para criar imagem de destaque do e-mail</li>
+          <li>Peça ao Claude variações do e-mail para diferentes perfis de decisor (CEO, CFO, TI)</li>
+        </ol>
+        <p style="font-size:0.78rem;color:var(--n3-dark);margin-top:12px"><strong>Tempo antes:</strong> 1h por e-mail | <strong>Com IA:</strong> 15min</p>
       </div>
     </div>
   </div>
@@ -977,7 +1143,7 @@ section:first-of-type { border-top: none; }
     <div class="level-band"><span class="level-badge lb-n1">N1 · Usuário</span></div>
     <div class="sec-label">Contexto</div>
     <h2 class="sec-title">Estado da IA em 2026: onde estamos na curva</h2>
-    <p class="sec-lead n1">A IA generativa está sendo adotada mais rápido que qualquer tecnologia anterior — mais rápido que a internet, os smartphones, os PCs. Mas velocidade não é uniformidade.</p>
+    <p class="sec-lead n1">A IA generativa está sendo adotada mais rápido que qualquer tecnologia anterior — mais rápido que a internet e os smartphones. Mas velocidade não é uniformidade. Nem todo setor, nem toda empresa, nem toda função está no mesmo ponto.</p>
 
     <div class="stat-grid">
       <div class="stat-card">
@@ -992,21 +1158,37 @@ section:first-of-type { border-top: none; }
       </div>
       <div class="stat-card">
         <div class="stat-number" style="color:var(--purple)">66%</div>
-        <div class="stat-label">Tarefas de PC autônomas (OSWorld)</div>
-        <div class="stat-note">Era 12% em 2024. Humano: 72%. Gap: 6 pontos.</div>
+        <div class="stat-label">Tarefas de PC feitas autonomamente</div>
+        <div class="stat-note">Era 12% em 2024. Humano faz 72%. Gap de só 6 pontos.</div>
       </div>
       <div class="stat-card">
         <div class="stat-number" style="color:var(--n3-dark)">37%</div>
         <div class="stat-label">Gap benchmark → produção real</div>
-        <div class="stat-note">Supervisão humana ainda é crítica. IA não é plug-and-play.</div>
+        <div class="stat-note">IA ainda não é plug-and-play. Supervisão humana é crítica.</div>
       </div>
     </div>
 
-    <div class="callout callout-n1">
+    <h3 style="margin:28px 0 14px">Os maiores modelos de IA em 2026</h3>
+    <div class="card-grid card-grid-3">
+      <div class="card card-dark">
+        <h3>🔵 Claude (Anthropic)</h3>
+        <p>Melhor para: análise profunda, documentos longos, raciocínio complexo, textos corporativos. Modelos: Opus (mais poderoso), Sonnet (equilíbrio), Haiku (rápido e barato).</p>
+      </div>
+      <div class="card card-dark">
+        <h3>🟢 ChatGPT (OpenAI)</h3>
+        <p>Maior base de usuários. GPT-5 é poderoso e versátil. Melhor ecossistema de integrações e plugins. DALL-E para imagens integrado. Boa escolha para uso geral.</p>
+      </div>
+      <div class="card card-dark">
+        <h3>🔴 Gemini (Google)</h3>
+        <p>Melhor integração com Google Workspace (Docs, Sheets, Gmail). Maior janela de contexto do mercado. Ideal para quem já usa o ecossistema Google no trabalho.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-n1" style="margin-top:24px">
       <span class="callout-icon">🎯</span>
       <div class="callout-body">
         <h4>O que isso significa para você</h4>
-        <p>Estamos no começo de uma transformação que vai durar décadas. As pessoas que aprenderem a trabalhar com IA agora têm vantagem real — não porque a IA é perfeita, mas porque entender seus limites é tão valioso quanto saber seus poderes. O momento de aprender é este.</p>
+        <p>Estamos no começo de uma transformação que vai durar décadas. As pessoas que aprenderem a trabalhar com IA agora têm vantagem real — não porque a IA é perfeita, mas porque entender seus limites é tão valioso quanto saber seus poderes. <strong>O momento de aprender é este.</strong></p>
       </div>
     </div>
   </div>
@@ -2270,7 +2452,7 @@ section:first-of-type { border-top: none; }
     <div style="font-family:var(--font-mono);font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:12px">Módulo de Nivelamento — Cursinho de IA</div>
     <h3>Do conceito à implementação.</h3>
     <p>Este módulo cobre os três níveis de compreensão necessários para navegar o mundo de IA em 2026 — do usuário que quer usar melhor as ferramentas, ao arquiteto que projeta sistemas, ao desenvolvedor que os constrói.</p>
-    <a href="modulo1" class="next-btn">CONTINUAR PARA O MÓDULO 1 →</a>
+    <a href="#" class="btn">↑ Voltar ao topo</a>
   </div>
 </div>
 
