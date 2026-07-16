@@ -159,6 +159,8 @@ footer{margin-top:80px;border-top:1px solid var(--line);padding-top:22px;font-fa
   <div class="navlabel">Arquitetura</div>
   <a href="#componentes">Componentes</a>
   <a href="#fluxos">Fluxos & Diagrama</a>
+  <a href="#decisoes">Decisões Críticas</a>
+  <a href="#topologias">Variações de Topologia</a>
   <div class="navlabel">Segurança</div>
   <a href="#tese">Tese central</a>
   <a href="#camadas">As 5 camadas</a>
@@ -168,7 +170,7 @@ footer{margin-top:80px;border-top:1px solid var(--line);padding-top:22px;font-fa
 <main>
 
 <header class="hero">
-  <div class="kicker"><span>GT de IA</span><span>·</span><b>ARQUITETURA + SEGURANÇA</b><span>·</span><span>PRINCÍPIOS NORTEADORES</span></div>
+  <div class="kicker"><span>PESQUISA</span><span>·</span><b>ARQUITETURA + SEGURANÇA</b><span>·</span><span>PRINCÍPIOS NORTEADORES</span></div>
   <h1>Arquitetura e Segurança em aplicações com IA</h1>
   <p class="lede">Princípios norteadores para qualquer desenvolvimento com LLMs — agnósticos de caso de uso. A arquitetura define os <strong>pontos de controle</strong>; a segurança define <strong>o que controlar em cada ponto</strong>.</p>
   <div class="boundary-strip" aria-hidden="true">
@@ -189,14 +191,90 @@ footer{margin-top:80px;border-top:1px solid var(--line);padding-top:22px;font-fa
   <p class="sub">Nem todo projeto usa todos os componentes, mas estes são os blocos recorrentes de qualquer aplicação baseada em LLM. Conhecê-los pelo nome padroniza o vocabulário entre as equipes do GT.</p>
 
   <div class="grid2">
-    <div class="card"><span class="tag">Entrada</span><h4>Interface do usuário</h4><p>Canal de entrada da pergunta: chat web, app móvel, API, WhatsApp, integração embutida num sistema existente.</p></div>
-    <div class="card"><span class="tag">Cérebro da aplicação</span><h4>Orquestrador</h4><p>Recebe a pergunta, decide o fluxo, chama ferramentas, monta o contexto e devolve a resposta. É onde vivem as regras de negócio — e a segurança. Ex.: LangChain, LlamaIndex, LangGraph ou código próprio.</p></div>
-    <div class="card"><span class="tag">Geração</span><h4>LLM</h4><p>O modelo de linguagem que processa o contexto e gera a resposta. Via API (Anthropic, OpenAI, Google) ou on-premises (Llama, Mistral, Qwen).</p></div>
-    <div class="card"><span class="tag">Memória semântica</span><h4>Camada de Retrieval</h4><p>Recupera a informação que alimenta o contexto. O <strong>Vector DB</strong> (pgvector, Qdrant, Weaviate) é a implementação mais comum, mas não a única: busca lexical (BM25), SQL, grafos e APIs também são retrieval. Padrão mais robusto: <strong>híbrido</strong> (BM25 + vetorial com fusão RRF).</p></div>
-    <div class="card"><span class="tag">Conhecimento</span><h4>Base de conhecimento / fontes</h4><p>Documentos, PDFs, bases estruturadas e APIs internas que alimentam o contexto das respostas.</p></div>
-    <div class="card"><span class="tag">Identidade</span><h4>Autenticação & autorização</h4><p>Controla quem acessa o quê. Idealmente integrado ao IAM corporativo já existente (SSO/OIDC).</p></div>
-    <div class="card"><span class="tag">Visibilidade</span><h4>Logging & observabilidade</h4><p>Registra interações, mede qualidade, detecta anomalias e sustenta auditoria. Ex.: Langfuse, LangSmith ou solução própria.</p></div>
-    <div class="card"><span class="tag">Legado</span><h4>Sistemas de negócio</h4><p>ERP, CRM, help-desk e demais sistemas que o LLM consulta ou aciona por meio de ferramentas (tools).</p></div>
+
+    <div class="card">
+      <span class="tag">Entrada</span>
+      <h4>Interface do usuário</h4>
+      <p>O canal por onde o usuário interage com a aplicação. A interface não precisa ser um produto desenvolvido do zero — pode ser um canal já existente ou uma integração dentro de um sistema em uso.</p>
+      <p><strong>Chat web próprio:</strong> desenvolvido com React, Vue ou similar, rodando no seu servidor. Oferece controle total sobre UX, autenticação e integração com o orquestrador. Exige desenvolvimento.</p>
+      <p><strong>WhatsApp e Telegram:</strong> via API de bots (WhatsApp Business API, Telegram Bot API). Baixa fricção para o usuário final — ele já usa o app. Boa opção para atendimento e suporte, com limitações de formatação e controle de sessão.</p>
+      <p><strong>Slack / Microsoft Teams:</strong> ideal para equipes internas. Fácil de prototipar, bom para workflows de revisão e notificação. Limita o alcance a usuários da ferramenta.</p>
+      <p><strong>Integração em sistema existente:</strong> o componente de chat é embutido via iframe, widget ou componente dentro de um ERP, CRM ou portal já em uso. A melhor UX corporativa — o usuário não sai do sistema que já conhece.</p>
+      <p><strong>API REST / batch:</strong> sem interface humana. O sistema aciona o LLM programaticamente para processar lotes de dados, gerar relatórios ou alimentar outro sistema.</p>
+    </div>
+
+    <div class="card">
+      <span class="tag">Cérebro da aplicação</span>
+      <h4>Orquestrador</h4>
+      <p>O componente central que recebe a entrada, decide o fluxo de execução, chama ferramentas, monta o contexto e devolve a resposta. É onde vivem as regras de negócio — e onde a segurança é aplicada. O LLM não decide nada sobre fluxo; o orquestrador é que faz isso.</p>
+      <p><strong>Frameworks de código</strong> como LangChain, LlamaIndex e LangGraph oferecem abstrações prontas para encadeamento de chamadas, gerenciamento de memória e chamada de ferramentas. São as opções mais completas para aplicações com lógica de agente.</p>
+      <p><strong>Plataformas low-code</strong> como n8n, Zapier e Make permitem montar fluxos visualmente. São adequadas para automação de dados estruturados e integração entre sistemas, mas têm limitações sérias para orquestrar raciocínio com LLM — abordadas em detalhe na seção 1.3.</p>
+      <p><strong>Código próprio</strong> oferece controle máximo, mas exige que a equipe construa do zero o que os frameworks já entregam. Faz sentido quando os requisitos são muito específicos.</p>
+    </div>
+
+    <div class="card">
+      <span class="tag">Geração</span>
+      <h4>LLM (Large Language Model)</h4>
+      <p>O modelo de linguagem que processa o contexto montado pelo orquestrador e gera a resposta. É o único componente que efetivamente "entende" linguagem natural — todos os outros componentes preparam, filtram e entregam; o LLM é quem gera.</p>
+      <p><strong>Via API de provedores:</strong> Anthropic Claude, OpenAI GPT, Google Gemini. O modelo roda na infraestrutura do provedor — você envia o prompt, recebe a resposta. Custo por token, sem custo de infra, atualizado pelo provedor. Requer avaliar a política de dados de cada provedor (ver seção de segurança).</p>
+      <p><strong>On-premises (open weights):</strong> Llama (Meta), Mistral, Qwen (Alibaba), Gemma (Google). O modelo roda na sua infraestrutura. Nenhum dado sai para servidores externos. Exige investimento em hardware (GPU) e operação. Modelos menores (7B–14B parâmetros) rodam em hardware mais acessível com qualidade razoável; modelos maiores exigem infraestrutura significativa.</p>
+      <p><strong>Como escolher:</strong> a principal variável é a sensibilidade dos dados. Se os dados que chegam ao modelo são confidenciais e o contrato com o provedor não garante zero data retention, on-premises é o caminho. Para dados não sensíveis, API é mais rápido, mais barato operacionalmente e com modelos mais atualizados.</p>
+    </div>
+
+    <div class="card">
+      <span class="tag">Conhecimento</span>
+      <h4>Base de conhecimento / fontes</h4>
+      <p>O conjunto de informações que alimenta as respostas do LLM — os dados brutos, onde estão, em que formato e como são tornados acessíveis ao orquestrador. Não é um componente único: pode ser um repositório de documentos, um banco relacional, uma API externa ou qualquer combinação disso.</p>
+      <p><strong>Documentos não estruturados:</strong> PDFs, Word, páginas web, artigos, manuais, runbooks. A forma como são acessados depende da estratégia escolhida (ver abaixo).</p>
+      <p><strong>Dados estruturados:</strong> tabelas em banco relacional, planilhas, CSVs. Consultáveis diretamente via SQL ou carregáveis no contexto como tabela.</p>
+      <p><strong>APIs e sistemas externos:</strong> dados em tempo real — status, saldo, cotação. Não são indexados previamente; são chamados no momento da pergunta.</p>
+      <p>A escolha de <strong>como tornar a base acessível</strong> define a complexidade de toda a solução. Há três estratégias:</p>
+      <p><strong>① Pipeline de ingestão próprio:</strong> documentos passam por extração de texto → chunking → geração de embeddings (se vetorial) ou indexação full-text (se BM25) → gravação no banco de índices. Oferece controle total sobre permissões por chunk, retrieval híbrido e observabilidade. É o caminho mais complexo e o mais flexível.</p>
+      <p><strong>② Contexto longo (sem ingestão):</strong> o documento inteiro é enviado diretamente no contexto do LLM a cada chamada. Sem chunking, sem indexação, sem infraestrutura de busca. Claude aceita até 200k tokens, Gemini até 1M. Ideal para documentos únicos ou sessões pontuais onde precisão total importa mais que custo. Não escala para bases com centenas de documentos.</p>
+      <p><strong>③ Retrieval gerenciado pelo provedor:</strong> upload do documento para a API do provedor (OpenAI File Search, AWS Bedrock Knowledge Bases), que gerencia internamente o chunking, embedding e retrieval. Sem infraestrutura de Vector DB. Adequado quando se quer RAG operacionalmente simples e os dados podem ficar no provedor. Menos controle sobre permissões por chunk e observabilidade do que foi recuperado.</p>
+      <p><strong>Desafio crítico:</strong> manter a base <strong>atualizada, versionada e auditável</strong>. Um documento desatualizado gera respostas desatualizadas — e o LLM não avisa. A gestão da base é um processo contínuo, não uma carga única.</p>
+    </div>
+
+    <div class="card">
+      <span class="tag">Recuperação de conhecimento</span>
+      <h4>Camada de Retrieval</h4>
+      <p>Dado que a base de conhecimento está preparada e acessível, a camada de retrieval é o mecanismo que — no momento da pergunta — decide <em>o que recuperar</em> e devolve ao orquestrador para compor o contexto. <strong>RAG não é sinônimo de banco vetorial</strong>: o mecanismo pode ser qualquer um dos abaixo.</p>
+      <p><strong>Busca vetorial (embeddings):</strong> converte textos em vetores numéricos e recupera por similaridade semântica. Encontra documentos com o mesmo <em>significado</em> mesmo que as palavras sejam diferentes. Ferramentas: pgvector, Qdrant, Weaviate, Pinecone. Requer pipeline de ingestão vetorial (estratégia ①).</p>
+      <p><strong>Busca lexical (BM25 / full-text search):</strong> recupera por correspondência exata de palavras. Superior ao vetorial para termos técnicos exatos — siglas, códigos de erro, números de documento, nomes próprios. Disponível nativamente no PostgreSQL (<code>tsvector</code>) e no Elasticsearch. Requer pipeline de ingestão com indexação full-text (estratégia ①).</p>
+      <p><strong>Consulta SQL estruturada:</strong> o orquestrador (ou o LLM via text-to-SQL) gera uma query e retorna resultados estruturados diretamente do banco relacional. Sem embedding, sem similaridade. Adequado para dados numéricos, datas, agregações. Requer controle de escopo rigoroso — text-to-SQL sem restrições é um risco de exfiltração.</p>
+      <p><strong>Consulta a API externa em tempo real:</strong> o orquestrador chama uma API e injeta o resultado no contexto. Usado quando o dado não pode estar pré-indexado porque muda constantemente.</p>
+      <p><strong>Retrieval híbrido:</strong> executa BM25 e vetorial em paralelo, funde os resultados (Reciprocal Rank Fusion — RRF) e opcionalmente aplica um re-ranker. É o padrão recomendado quando se usa pipeline próprio, pois combina precisão lexical com abrangência semântica.</p>
+      <p class="note" style="margin-top:10px;font-size:13.5px"><strong>Nota:</strong> quando a estratégia de acesso é ② (contexto longo) ou ③ (retrieval gerenciado), esta camada é absorvida — no caso ② não há retrieval, o documento vai inteiro; no caso ③ o provedor executa o retrieval internamente e devolve os trechos relevantes.</p>
+    </div>
+
+    <div class="card">
+      <span class="tag">Identidade</span>
+      <h4>Autenticação & autorização</h4>
+      <p>Controla <em>quem</em> pode acessar o sistema e <em>o que</em> cada usuário pode ver. Em aplicações com LLM, esse componente tem uma particularidade crítica: o modelo responde com tudo que foi colocado no contexto — então a autorização precisa acontecer <strong>antes</strong> do LLM, na camada de retrieval.</p>
+      <p><strong>Autenticação:</strong> idealmente integrada ao IAM corporativo existente via SSO (OAuth 2.0, OIDC, SAML), evitando credenciais paralelas. MFA para funcionalidades sensíveis. Sessões com expiração curta — conversas longas acumulam contexto.</p>
+      <p><strong>Autorização no retrieval:</strong> cada chunk indexado carrega metadados de permissão (departamento, nível, papel). O filtro de autorização entra na query da camada de retrieval — antes do ranking por similaridade — garantindo que o usuário só receba documentos que poderia ver diretamente.</p>
+      <p><strong>O modelo nunca decide autorização:</strong> delegar ao LLM a decisão de "devo ou não responder isso para este usuário" é uma falha de design. Autorização é determinística e pertence à aplicação.</p>
+    </div>
+
+    <div class="card">
+      <span class="tag">Visibilidade</span>
+      <h4>Logging & observabilidade</h4>
+      <p>Registra interações, mede qualidade, detecta anomalias e sustenta auditoria. Em sistemas com LLM, observabilidade vai além do log de erros — é entender <em>por que</em> o modelo deu uma resposta, quais documentos foram recuperados, e se o sistema está melhorando ou piorando ao longo do tempo.</p>
+      <p><strong>O que registrar:</strong> a pergunta original, o contexto montado (chunks recuperados + metadados), a resposta gerada, o tempo de resposta, o custo em tokens, e — quando disponível — o feedback do usuário.</p>
+      <p><strong>Métricas de qualidade:</strong> relevância dos chunks recuperados, fidelidade da resposta à fonte (reduz alucinação), taxa de respostas rejeitadas ou escaladas, latência por etapa (retrieval vs geração).</p>
+      <p><strong>Ferramentas especializadas:</strong> Langfuse e LangSmith foram construídas especificamente para rastrear traces de LLM (cadeia de chamadas, prompt completo, resposta). Alternativa: instrumentar com OpenTelemetry e enviar para o stack de observabilidade já existente.</p>
+      <p><strong>Por que importa para segurança:</strong> o log de quais documentos foram recuperados para cada usuário é a base da auditoria de acesso (Camada 1 de segurança).</p>
+    </div>
+
+    <div class="card">
+      <span class="tag">Legado</span>
+      <h4>Sistemas de negócio</h4>
+      <p>ERP, CRM, help-desk, sistemas de tickets, e-mail, calendário — qualquer sistema existente que o LLM pode consultar ou acionar via ferramentas (tools). A integração com sistemas legados é frequentemente o que transforma um chatbot em um agente útil.</p>
+      <p><strong>Modos de integração:</strong> consulta (read-only, o agente lê dados do sistema para compor a resposta), ação (o agente executa algo no sistema — cria registro, abre chamado, envia mensagem), e notificação (o sistema externo aciona o pipeline de IA como trigger).</p>
+      <p><strong>Ações requerem cautela:</strong> quando o agente pode <em>escrever</em> em sistemas externos, o risco de Excessive Agency (Camada 4 de segurança) entra em jogo. Ações irreversíveis ou de alto impacto devem sempre ter aprovação humana explícita antes da execução.</p>
+      <p><strong>A IA não substitui o sistema:</strong> é mais produtivo pensar a IA como uma camada que <em>economiza o usuário de navegar pelo sistema</em> — ela lê, resume, preenche — do que como um substituto do sistema em si. Integrações bem desenhadas mantêm o sistema legado como fonte de verdade.</p>
+    </div>
+
   </div>
 </section>
 
@@ -243,14 +321,15 @@ footer{margin-top:80px;border-top:1px solid var(--line);padding-top:22px;font-fa
       <text x="813" y="216" text-anchor="middle" font-size="10.5" fill="#71809296">API ou on-premises</text>
       <text x="813" y="240" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#B3402A">fora da fronteira</text>
 
-      <!-- vector db -->
+      <!-- camada de retrieval -->
       <g>
-        <rect x="330" y="330" width="180" height="86" rx="10" fill="#fff" stroke="#C9D2DC"/>
-        <ellipse cx="368" cy="360" rx="16" ry="6" fill="none" stroke="#166B60" stroke-width="1.8"/>
-        <path d="M352 360 v22 a16 6 0 0 0 32 0 v-22" fill="none" stroke="#166B60" stroke-width="1.8"/>
-        <text x="435" y="366" text-anchor="middle" font-size="12.5" font-weight="600" fill="#141F2C">Camada de Retrieval</text>
-        <text x="435" y="384" text-anchor="middle" font-size="9.5" fill="#71809296">vetorial · BM25 · SQL · híbrido</text>
-        <text x="435" y="399" text-anchor="middle" font-size="9.5" fill="#166B60">filtro de permissão em todos</text>
+        <rect x="330" y="320" width="180" height="100" rx="10" fill="#fff" stroke="#C9D2DC"/>
+        <ellipse cx="358" cy="344" rx="12" ry="5" fill="none" stroke="#166B60" stroke-width="1.6"/>
+        <path d="M346 344 v18 a12 5 0 0 0 24 0 v-18" fill="none" stroke="#166B60" stroke-width="1.6"/>
+        <text x="420" y="342" text-anchor="middle" font-size="12.5" font-weight="600" fill="#141F2C">Camada de</text>
+        <text x="420" y="358" text-anchor="middle" font-size="12.5" font-weight="600" fill="#141F2C">Retrieval</text>
+        <text x="420" y="376" text-anchor="middle" font-size="9.5" fill="#71809296">vetorial · BM25 · SQL · híbrido</text>
+        <text x="420" y="392" text-anchor="middle" font-size="9" fill="#166B60">filtro de permissão em todos</text>
       </g>
 
       <!-- sistemas legados -->
@@ -288,11 +367,17 @@ footer{margin-top:80px;border-top:1px solid var(--line);padding-top:22px;font-fa
 
   <h3>Sentido e meios dos fluxos</h3>
   <table>
-    <tr><th>Fluxo</th><th>Sentido</th><th>Meio típico</th></tr>
-    <tr><td>Pergunta → resposta (síncrono)</td><td>Usuário → Interface → Orquestrador → LLM → volta</td><td>HTTPS/REST ou gRPC; streaming (SSE) para resposta progressiva</td></tr>
-    <tr><td>Recuperação RAG</td><td>Orquestrador → Vector DB → Orquestrador</td><td>Driver de banco (ex.: psycopg + pgvector) ou cliente nativo (Qdrant, Weaviate)</td></tr>
-    <tr><td>Ações em sistemas legados</td><td>Orquestrador → ERP/CRM/help-desk (via tools)</td><td>APIs REST internas, webhooks, filas</td></tr>
-    <tr><td>Ingestão de conhecimento (assíncrono)</td><td>Fontes → pipeline → Vector DB</td><td>Jobs agendados ou filas (RabbitMQ/Kafka) para volume; roda offline</td></tr>
+    <tr><th>Fluxo</th><th>Sentido</th><th>Meio típico</th><th>Observação</th></tr>
+    <tr><td>Pergunta → resposta (síncrono)</td><td>Usuário → Interface → Orquestrador → LLM → volta</td><td>HTTPS/REST ou gRPC; streaming (SSE) para resposta progressiva</td><td>Tempo real; usuário aguarda</td></tr>
+    <tr><td>Recuperação vetorial</td><td>Orquestrador → Vector DB → Orquestrador</td><td>psycopg + pgvector, cliente Qdrant/Weaviate</td><td>Busca por similaridade semântica; requer embedding da query em tempo real</td></tr>
+    <tr><td>Recuperação lexical (BM25)</td><td>Orquestrador → banco full-text → Orquestrador</td><td>PostgreSQL tsvector/tsquery, Elasticsearch API</td><td>Busca por palavras exatas; sem embedding; superior para siglas, códigos, nomes técnicos</td></tr>
+    <tr><td>Recuperação SQL</td><td>Orquestrador → banco relacional → Orquestrador</td><td>Driver SQL (psycopg, SQLAlchemy); query gerada pelo orquestrador ou por text-to-SQL</td><td>Para dados estruturados; sem indexação vetorial; requer controle de escopo rigoroso</td></tr>
+    <tr><td>Recuperação por API externa</td><td>Orquestrador → API externa → Orquestrador</td><td>HTTPS/REST; resultado injetado diretamente no contexto</td><td>Dado em tempo real (status, preço, saldo); não é pré-indexado</td></tr>
+    <tr><td>Ações em sistemas legados</td><td>Orquestrador → ERP/CRM/help-desk (via tools)</td><td>APIs REST internas, webhooks, filas de mensagem</td><td>Escrita no sistema; requer controle de agência (Camada 4 de segurança)</td></tr>
+    <tr><td>Ingestão de documentos para retrieval vetorial (assíncrono)</td><td>Documentos/fontes → extração → chunking → embedding → Vector DB</td><td>Jobs agendados, filas (RabbitMQ, Kafka); pipelines Python (LangChain, LlamaIndex)</td><td>Apenas para mecanismo vetorial; roda offline; pode ser incremental ou full-reload</td></tr>
+    <tr><td>Ingestão para retrieval SQL / BM25 (assíncrono)</td><td>Fontes estruturadas → ETL → banco relacional / índice full-text</td><td>ETL próprio, n8n, Airbyte; SQL bulk insert; atualização de índice full-text</td><td>Sem geração de embeddings; o dado já é estruturado ou extraído de documentos</td></tr>
+    <tr><td>Contexto longo (sem ingestão)</td><td>Documento → contexto do prompt → LLM diretamente</td><td>API do provedor com janela grande (Claude 200k, Gemini 1M tokens); leitura direta do arquivo</td><td>Sem pipeline de indexação; simples e preciso; custo cresce linearmente com o tamanho do documento; não escala para bases grandes</td></tr>
+    <tr><td>Upload para retrieval gerenciado pelo provedor</td><td>Documento → API do provedor → retrieval interno → contexto</td><td>OpenAI File Search, AWS Bedrock Knowledge Bases, APIs similares</td><td>O provedor gerencia chunking e embedding; sem infraestrutura de Vector DB; menos controle sobre permissões e observabilidade</td></tr>
   </table>
 
   <div class="note"><b>Nem todo RAG é vetorial.</b> O "R" de RAG é agnóstico de mecanismo: busca lexical (BM25) supera a vetorial para termos exatos (códigos, siglas, números de documento); SQL resolve perguntas sobre dados estruturados; grafos resolvem perguntas sobre relações. Consequência de segurança: <strong>os filtros de autorização da Camada 1 precisam valer para todos os mecanismos de retrieval</strong> — um text-to-SQL sem controle de escopo é um vazamento esperando para acontecer.</div>
@@ -303,6 +388,110 @@ footer{margin-top:80px;border-top:1px solid var(--line);padding-top:22px;font-fa
 <hr class="sep">
 
 <!-- ================= TESE ================= -->
+
+
+<hr class="sep">
+
+<!-- ================= DECISÕES CRÍTICAS ================= -->
+<section id="decisoes">
+  <h2 style="margin-top:0">Decisões Arquiteturais Críticas</h2>
+  <p class="sub">A escolha do <strong>orquestrador</strong> é a decisão que mais impacta a viabilidade do projeto. As outras (interface, retrieval, agência) decorrem dessa.</p>
+
+  <h3>O Orquestrador: Frameworks vs Low-Code vs Código Próprio</h3>
+  <p>Você precisa escolher <strong>como seu LLM vai raciocinar, chamar ferramentas e lidar com erros</strong>. Três opções principais:</p>
+
+  <div class="tech">
+    <h4><span class="tn">ORC-1</span>Frameworks: LangChain, LlamaIndex, LangGraph</h4>
+    <p><strong>LangChain:</strong> ecossistema gigante, integração com tudo. Melhor para flexibilidade máxima. <strong>LlamaIndex:</strong> especializada em retrieval/RAG; comunidade pequena mas ativa. <strong>LangGraph:</strong> orquestração de agentes com estado explícito; excelente para agentes complexos que precisam de decisão clara.</p>
+    <p><strong>Seus casos:</strong> help-desk (LangGraph para decisão explícita: responder vs escalar); incentivos (LangChain chains); atas (LlamaIndex se complexo, n8n se simples).</p>
+  </div>
+
+  <div class="tech">
+    <h4><span class="tn">ORC-2</span>Plataformas Low-Code: n8n, Zapier, Make</h4>
+    <p><strong>Funcionam bem:</strong> automação de dados estruturados (integrar API A com B), workflows sequenciais, ingestão/ETL. <strong>Não funcionam com LLM:</strong> o modelo não consegue <em>decidir</em> qual ferramenta chamar — você descreve manualmente cada branch. Sem versionamento de prompts, logging opaco, segurança granular difícil, sem feedback loop, custo invisível.</p>
+    <div class="caveat"><b>Sincero:</b> n8n é ótimo para automação. Com LLMs, vira uma gaiola. Use-o <strong>pra ingestão e ETL, nunca pra orquestração do raciocínio</strong>. Help-desk: ❌ não use. Incentivos: ⚠️ use para ingestão, Python para análise. Atas: ⚠️ use se transcrição simples, Python se análise.</div>
+  </div>
+
+  <div class="tech">
+    <h4><span class="tn">ORC-3</span>Código Próprio</h4>
+    <p>Faz sentido quando você tem requisitos muito específicos (logging customizado, otimizações de custo) e equipe sênior. Não faz sentido se quer iterar rápido (frameworks já têm muito pronto).</p>
+  </div>
+
+  <table>
+    <tr><th>Aspecto</th><th>n8n/Low-code</th><th>LangChain</th><th>LlamaIndex</th><th>LangGraph</th><th>Próprio</th></tr>
+    <tr><td>Velocidade prototipagem</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐</td></tr>
+    <tr><td>Agentic reasoning</td><td>❌</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>Versionamento prompts</td><td>❌</td><td>⭐⭐</td><td>⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>Observabilidade</td><td>⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>Segurança granular</td><td>⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>Feedback/otimização</td><td>❌</td><td>⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>Adequado pra agentes</td><td>❌</td><td>✅</td><td>⭐⭐⭐</td><td>✅</td><td>✅</td></tr>
+    <tr><td>Adequado pra help-desk</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+  </table>
+
+  <p style="margin-top:16px"><strong>Recomendação para o GT:</strong> Help-desk → LangGraph (Python). Incentivos → LangChain (Python) + n8n (ingestão). Atas → LlamaIndex (se complexo) ou n8n + Assembly AI (se transcrição simples).</p>
+
+  <h3 style="margin-top:38px">Camada de Retrieval: Quando Usar Cada Um</h3>
+  <table>
+    <tr><th>Caso</th><th>Mecanismo</th><th>Por quê</th></tr>
+    <tr><td>Help-desk: "Como reinicio o serviço X?"</td><td>Híbrido (BM25 + vetorial)</td><td>Palavra-chave + semântica</td></tr>
+    <tr><td>Incentivos: "Qual % deduções?"</td><td>SQL + BM25</td><td>Lei é estruturada; busca é exata</td></tr>
+    <tr><td>Atas: "O que decidiu em 15/07?"</td><td>BM25 + metadados</td><td>Data é exata; conteúdo é texto</td></tr>
+  </table>
+
+  <h3 style="margin-top:38px">Agência: Quando o Agente Atua vs Responde</h3>
+  <table>
+    <tr><th>Nível</th><th>O que Faz</th><th>Segurança</th><th>Seu Caso</th></tr>
+    <tr><td>Chatbot (responde)</td><td>Recupera info, resume, devolve</td><td>Baixa→média</td><td>Atas</td></tr>
+    <tr><td>Agente read-only</td><td>Consulta sistemas</td><td>Média</td><td>Incentivos</td></tr>
+    <tr><td>Agente write</td><td>Abre chamado, cria registro</td><td>Alta→crítica</td><td>Help-desk</td></tr>
+    <tr><td>Executa código</td><td>Roda scripts, queries</td><td>Crítica</td><td>Nenhum</td></tr>
+  </table>
+</section>
+
+<hr class="sep">
+
+<!-- ================= TOPOLOGIAS ================= -->
+<section id="topologias">
+  <h2 style="margin-top:0">Variações de Topologia: Seus 3 Casos</h2>
+  <p class="sub">Cada cenário exige uma arquitetura levemente diferente. Aqui está como usar os componentes em seus casos reais.</p>
+
+  <div class="layer">
+    <header><span class="ln">CASO 1</span><h3>Agente de Help-desk</h3></header>
+    <div class="body">
+      <p><strong>Problema:</strong> triagem é lenta; muitas perguntas poderiam ser respondidas; ações manuais são repetitivas.</p>
+      <p><strong>Arquitetura:</strong> Usuário (WhatsApp/chat web) → Orquestrador (LangGraph) → LLM (API) → help-desk (abre chamado se necessário).</p>
+      <p><strong>Componentes críticos:</strong> Interface (chat web + WhatsApp) · Orquestrador (LangGraph para decisão explícita) · Retrieval (híbrido: BM25 + vetorial) · LLM (API) · Help-desk (tool).</p>
+      <p><strong>Segurança:</strong> Camada 1 (usuário vê só seus chamados) · Camada 4 (human-in-the-loop ou validação estruturada).</p>
+      <p><strong>Métricas:</strong> taxa de resolução sem escalar, tempo, satisfação.</p>
+    </div>
+  </div>
+
+  <div class="layer">
+    <header><span class="ln">CASO 2</span><h3>Monitoramento de Incentivos</h3></header>
+    <div class="body">
+      <p><strong>Problema:</strong> empresas não identificam qual incentivo se aplica. Processo é manual e exige especialista.</p>
+      <p><strong>Arquitetura:</strong> Empresa (widget embarcado) → Ingestão (n8n) → Orquestrador (LangChain) → LLM (API) → Report (PDF/Excel).</p>
+      <p><strong>Componentes críticos:</strong> Interface (widget embarcado) · Orquestrador (LangChain chains) · Retrieval (SQL + BM25) · Ingestão (n8n) · LLM (API ou on-premises) · Saída (report estruturado).</p>
+      <p><strong>Segurança:</strong> Camada 1 (empresa vê só seus dados) · Camada 3 (output auditável).</p>
+      <p><strong>Métricas:</strong> conformidade das recomendações, taxa de adoção.</p>
+    </div>
+  </div>
+
+  <div class="layer">
+    <header><span class="ln">CASO 3</span><h3>Atas de Reuniões</h3></header>
+    <div class="body">
+      <p><strong>Problema:</strong> atas tomadas manualmente; demora, incompleta, formato varia; contexto anterior é perdido.</p>
+      <p><strong>Arquitetura:</strong> Reunião (gravação) → Transcrição (Assembly AI) → Processamento (n8n ou Python) → Contexto (Retrieval) → Ata (.docx/.pdf).</p>
+      <p><strong>Componentes críticos:</strong> Interface (nenhuma — batch) · Transcrição (Assembly AI/Deepgram) · Orquestrador (n8n se simples, Python se complexo) · Retrieval (BM25 + metadados) · LLM (só se análise sofisticada).</p>
+      <p><strong>Segurança:</strong> Camada 1 (quem pode ver) · Camada 3 (não vaza confidenciais).</p>
+      <p><strong>Métricas:</strong> fidelidade, tempo economizado, taxa de completude.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
 <section id="tese">
   <div class="secnum">SEÇÃO 02 — SEGURANÇA</div>
   <h2>A tese central</h2>
@@ -326,6 +515,8 @@ footer{margin-top:80px;border-top:1px solid var(--line);padding-top:22px;font-fa
 
   <p style="margin-top:20px">É a mesma lição do SQL injection, vinte anos depois: <strong>nunca concatenar entrada não confiável com comandos</strong>. Prompt injection é o SQL injection dos LLMs — e como não existe "prepared statement" para linguagem natural, a defesa é necessariamente em camadas.</p>
 </section>
+
+<hr class="sep">
 
 <!-- ================= CAMADAS ================= -->
 <section id="camadas">
