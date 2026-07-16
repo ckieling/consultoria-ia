@@ -2,7 +2,7 @@
 
 **Princípios norteadores para qualquer desenvolvimento com LLMs**
 
-*Instituto Agregar · Noroeste-RS *
+*Instituto Agregar · Noroeste-RS*
 
 ---
 
@@ -225,6 +225,149 @@ Dois eixos distintos que não devem ser confundidos: o **fluxo de execução** (
 >
 > **Consequência de segurança:** os filtros de autorização da Camada 1 precisam valer para *todos* os mecanismos de retrieval — um text-to-SQL sem controle de escopo é um vazamento esperando para acontecer.
 
+
+---
+
+## Anatomia do Orquestrador
+
+O orquestrador é o componente mais complexo da arquitetura. Externamente, parece simples: recebe uma pergunta, devolve uma resposta. Internamente, é responsável por pelo menos oito responsabilidades distintas — e quando você usa um framework de mercado, ele está entregando parte delas; quando constrói do zero, todas são suas.
+
+Visão externa: ele conecta a interface (entrada), o LLM (geração), a camada de retrieval, os sistemas externos (tools) e seu banco interno. Tudo passa pelo orquestrador — nada vai direto ao LLM sem passar por aqui.
+
+Internamente, suas responsabilidades se dividem em quatro faixas sequenciais:
+
+```
+① ENTRADA & GUARDRAILS PRÉ-LLM
+   auth & sessão → rate limit → PII redaction → injection guard → cache lookup
+
+② MONTAGEM DO CONTEXTO
+   system prompt (versionado) → histórico → chunks RAG → resultado de tools → input encapsulado
+
+③ LOOP DE RACIOCÍNIO (ReAct)
+   roteador → executor de tools → retry & fallback → controle de loop → human-in-the-loop
+
+④ SAÍDA & GUARDRAILS PÓS-LLM
+   output validation → DLP → formatação por canal → cache store → logging
+```
+
+---
+
+### ① Gestão de Sessão e Histórico
+
+O LLM não tem memória entre chamadas. A cada requisição, o orquestrador monta do zero tudo que o modelo precisa saber. Isso exige persistência em dois níveis:
+
+**Cache de sessão (rápido, volátil):** Redis ou Memcached guardam o histórico da conversa em andamento. Acesso em milissegundos, sem persistência longa. Quando a sessão expira, o histórico some — adequado para conversas de curta duração.
+
+**Persistência longa (banco relacional):** PostgreSQL armazena histórico completo, logs de auditoria, feedback do usuário. Consultável para análise de qualidade e auditoria de segurança.
+
+**Estratégia de janela de contexto:** você não pode mandar o histórico inteiro infinitamente — o LLM tem limite de tokens e cada token custa. Três abordagens: janela deslizante (últimas N mensagens), resumo automático (o LLM resume o que ficou para trás), ou seletiva (embeddings do histórico para recuperar só o relevante). Frameworks entregam via Memory classes; em código próprio você implementa.
+
+---
+
+### ② Montagem do Contexto (Prompt Engineering)
+
+O prompt que chega ao LLM não é a pergunta do usuário — é uma composição de cinco camadas:
+
+```
+[SYSTEM PROMPT — versão 2.1 — canal: help-desk]
+Você é um assistente de suporte. Regras: ...
+
+[HISTÓRICO — últimas 4 trocas]
+Usuário: como reinicio o serviço X?
+Assistente: Para reiniciar o serviço X...
+
+[CONTEXTO RAG — chunks recuperados]
+<documentos>
+  Runbook X v3.2: O serviço pode ser reiniciado via...
+</documentos>
+
+[RESULTADO DE TOOL — se já chamou alguma]
+<tool_result name="get_ticket_status">
+  {"status": "open", "priority": "high"}
+</tool_result>
+
+[PERGUNTA ATUAL — encapsulada]
+<pergunta>{input do usuário}</pergunta>
+```
+
+---
+
+### ③ Versionamento de Prompts
+
+System prompts evoluem: você ajusta o tom, adiciona restrições, corrige comportamentos indesejados. Sem versionamento, você não sabe qual versão causou uma regressão ou melhoria.
+
+O banco interno deve guardar: identificador da versão, conteúdo completo, data de ativação, quem ativou, hash do conteúdo. Idealmente com suporte a A/B: 10% do tráfego vai para v2.1, 90% para v2.0 — você mede qual performa melhor antes de promover.
+
+---
+
+### ④ Roteamento e Loop de Raciocínio (ReAct)
+
+O padrão **ReAct** (Reason + Act) é como agentes modernos funcionam: o LLM raciocina sobre o que fazer, decide uma ação (tool, RAG, resposta direta), executa, observa o resultado, e raciocina de novo. O orquestrador controla esse loop:
+
+**Roteamento inicial:** a pergunta é simples o suficiente para resposta direta? Precisa de retrieval? Precisa de uma tool? A decisão pode ser heurística (regras) ou delegada ao LLM (que decide qual tool usar com base na descrição de cada uma).
+
+**Controle de iterações:** um agente sem limite pode entrar em loop infinito. O orquestrador define um máximo (tipicamente 5–10 iterações) e interrompe com erro gracioso se excedido.
+
+**Human-in-the-loop:** para ações irreversíveis (abrir chamado, enviar e-mail, alterar registro), o loop pausa, apresenta a ação proposta ao usuário, e só executa após confirmação explícita. LangGraph tem suporte nativo a isso via `interrupt`.
+
+---
+
+### ⑤ Retry, Fallback e Cache de Respostas
+
+**Retry:** APIs de LLM têm timeouts e erros transitórios (rate limit, sobrecarga). O orquestrador implementa retry com backoff exponencial — espera 1s, depois 2s, depois 4s — sem travar ou retornar erro imediatamente.
+
+**Fallback de modelo:** se o modelo primário falhar ou estiver lento, redirecionar para alternativo. Ex: Claude Opus falha → tenta Claude Sonnet → tenta GPT-4o. Cada fallback pode ter system prompt adaptado, pois modelos diferentes respondem diferente às mesmas instruções.
+
+**Cache de respostas:** perguntas idênticas ou semanticamente próximas não precisam acionar o LLM de novo. Cache semântico compara o embedding da pergunta com perguntas anteriores — se similaridade for alta, devolve a resposta cacheada. Reduz custo e latência significativamente em casos com perguntas repetitivas (FAQ, help-desk). Ferramentas: GPTCache, implementação própria com pgvector.
+
+> ⚠️ Cache semântico tem um risco: a resposta cacheada pode estar desatualizada. Defina TTL adequado para o domínio — informações de produto mudam semanalmente; runbooks mudam a cada deploy.
+
+---
+
+### ⑥ Guardrails de Entrada e Saída
+
+**Entrada (pré-LLM):** validação de token/sessão, rate limiting por usuário, detecção e anonimização de PII (Microsoft Presidio, NER), validação de padrões de prompt injection, verificação de tamanho do input.
+
+**Saída (pós-LLM):** validação estrutural (JSON Schema quando a resposta alimenta outro sistema), filtros DLP (CPF, cartão, chave de API), formatação por canal (WhatsApp ≠ chat web ≠ API JSON), decisão de iterar ou entregar.
+
+---
+
+### ⑦ Banco Interno do Orquestrador
+
+| Dado | Tipo de banco | Exemplo | TTL / Retenção |
+|---|---|---|---|
+| Sessão ativa / histórico recente | Cache in-memory | Redis, Memcached | Duração da sessão (30–60 min) |
+| Cache de respostas | Cache com embedding | Redis + pgvector, GPTCache | Configurável por domínio (horas a dias) |
+| Histórico de conversas | Banco relacional | PostgreSQL | Política de retenção (meses a anos) |
+| Versões de system prompt | Banco relacional | PostgreSQL | Indefinido (auditoria) |
+| Logs de trace completo | Relacional ou OLAP | PostgreSQL, ClickHouse | Política de retenção |
+| Métricas de qualidade | Time-series ou relacional | Prometheus, PostgreSQL | Agregado (indefinido) |
+
+---
+
+### O que cada abordagem entrega
+
+Ao escolher entre framework, low-code ou código próprio, você está escolhendo *quais responsabilidades terceiriza e quais fica devendo*. Auth, segurança e banco interno são sempre sua responsabilidade — nenhuma ferramenta entrega isso:
+
+| Responsabilidade | n8n / Low-code | LangChain | LangGraph | Código próprio |
+|---|---|---|---|---|
+| Gestão de sessão / histórico | ⚠️ parcial | ✅ Memory classes | ✅ State persistido | ❌ você constrói |
+| Montagem de contexto | ❌ manual | ✅ PromptTemplate | ✅ | ❌ você constrói |
+| Versionamento de prompts | ❌ | ⚠️ LangSmith | ⚠️ LangSmith | ❌ você constrói |
+| Roteamento / loop ReAct | ❌ estático | ✅ AgentExecutor | ✅ nodes + edges | ❌ você constrói |
+| Executor de tools | ❌ sem loop | ✅ | ✅ ToolNode | ❌ você constrói |
+| Retry / fallback de modelo | ❌ | ⚠️ parcial | ⚠️ parcial | ❌ você constrói |
+| Cache de respostas | ❌ | ⚠️ via integração | ⚠️ via integração | ❌ você constrói |
+| Auth & segurança pré-LLM | ❌ | ❌ | ❌ | ❌ sempre seu |
+| Guardrails de entrada | ❌ | ⚠️ callbacks | ⚠️ callbacks | ❌ você constrói |
+| Validação de output / DLP | ❌ | ⚠️ output parsers | ⚠️ output parsers | ❌ você constrói |
+| Human-in-the-loop | ⚠️ manual | ⚠️ parcial | ✅ interrupt nativo | ❌ você constrói |
+| Logging / observabilidade | ❌ opaco | ⚠️ callbacks | ✅ LangSmith nativo | ❌ você constrói |
+| Banco interno (sessão, logs) | ❌ | ❌ | ❌ | ❌ sempre seu |
+
+**Legenda:** ✅ entrega nativamente · ⚠️ entrega parcialmente ou via plugin · ❌ você é responsável
+
+**Conclusão:** nenhum framework elimina a necessidade de código. Todos eliminam *parte* do boilerplate. Auth, banco interno, versionamento de prompts e DLP são sempre sua responsabilidade, independente do que você escolher. LangGraph se destaca em fluxos com loop e human-in-the-loop; LangChain é mais amplo mas menos opinativo; n8n não tem nenhuma das responsabilidades de raciocínio.
 
 ---
 

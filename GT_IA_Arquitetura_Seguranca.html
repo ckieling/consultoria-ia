@@ -159,6 +159,7 @@ footer{margin-top:80px;border-top:1px solid var(--line);padding-top:22px;font-fa
   <div class="navlabel">Arquitetura</div>
   <a href="#componentes">Componentes</a>
   <a href="#fluxos">Fluxos & Diagrama</a>
+  <a href="#orquestrador">Anatomia do Orquestrador</a>
   <a href="#decisoes">Decisões Críticas</a>
   <a href="#topologias">Variações de Topologia</a>
   <div class="navlabel">Segurança</div>
@@ -389,6 +390,286 @@ footer{margin-top:80px;border-top:1px solid var(--line);padding-top:22px;font-fa
 
 <!-- ================= TESE ================= -->
 
+
+
+<!-- ================= ORQUESTRADOR ================= -->
+<section id="orquestrador">
+  <h2 style="margin-top:0">Anatomia do Orquestrador</h2>
+  <p class="sub">O orquestrador é o componente mais complexo da arquitetura. Externamente, parece simples: recebe uma pergunta, devolve uma resposta. Internamente, é responsável por pelo menos oito responsabilidades distintas — e quando você usa um framework de mercado, ele está entregando parte delas; quando constrói do zero, todas são suas.</p>
+
+  <h3>Visão externa: o que o orquestrador conecta</h3>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg" style="min-width:700px;width:100%;height:auto;font-family:'Instrument Sans',sans-serif">
+      <defs>
+        <marker id="aO1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L7,4 L0,8 z" fill="#1D4ED8"/></marker>
+        <marker id="aO2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L7,4 L0,8 z" fill="#166B60"/></marker>
+        <marker id="aO3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L7,4 L0,8 z" fill="#B36A12"/></marker>
+      </defs>
+
+      <!-- orquestrador central -->
+      <rect x="310" y="130" width="280" height="160" rx="14" fill="#141F2C"/>
+      <text x="450" y="165" text-anchor="middle" font-family="Space Grotesk" font-size="15" font-weight="700" fill="#fff">ORQUESTRADOR</text>
+      <line x1="330" y1="175" x2="570" y2="175" stroke="#2D3F52" stroke-width="1"/>
+      <text x="450" y="194" text-anchor="middle" font-size="10" fill="#8FA0B4" font-family="IBM Plex Mono" letter-spacing="0.5">1 sessão &amp; histórico</text>
+      <text x="450" y="210" text-anchor="middle" font-size="10" fill="#8FA0B4" font-family="IBM Plex Mono" letter-spacing="0.5">2 montagem de contexto</text>
+      <text x="450" y="226" text-anchor="middle" font-size="10" fill="#8FA0B4" font-family="IBM Plex Mono" letter-spacing="0.5">3 roteamento &amp; decisão</text>
+      <text x="450" y="242" text-anchor="middle" font-size="10" fill="#8FA0B4" font-family="IBM Plex Mono" letter-spacing="0.5">4 gestão de tools &amp; loop</text>
+      <text x="450" y="258" text-anchor="middle" font-size="10" fill="#E9927D" font-family="IBM Plex Mono" letter-spacing="0.5">5 guardrails entrada/saída</text>
+      <text x="450" y="274" text-anchor="middle" font-size="10" fill="#8FA0B4" font-family="IBM Plex Mono" letter-spacing="0.5">6 retry · cache · fallback</text>
+
+      <!-- interface -->
+      <rect x="30" y="170" width="120" height="80" rx="10" fill="#fff" stroke="#C9D2DC"/>
+      <text x="90" y="206" text-anchor="middle" font-size="13" font-weight="600" fill="#141F2C">Interface</text>
+      <text x="90" y="224" text-anchor="middle" font-size="10" fill="#71809296">usuário · bot · API</text>
+      <path d="M150 210 L306 210" stroke="#1D4ED8" stroke-width="2.2" marker-end="url(#aO1)"/>
+      <path d="M306 220 L150 220" stroke="#1D4ED8" stroke-width="2.2" marker-end="url(#aO1)"/>
+      <text x="228" y="205" text-anchor="middle" font-size="9.5" fill="#1D4ED8">input</text>
+      <text x="228" y="235" text-anchor="middle" font-size="9.5" fill="#1D4ED8">resposta</text>
+
+      <!-- LLM -->
+      <rect x="750" y="170" width="130" height="80" rx="10" fill="#fff" stroke="#B3402A" stroke-width="1.8"/>
+      <text x="815" y="206" text-anchor="middle" font-size="13" font-weight="600" fill="#141F2C">LLM</text>
+      <text x="815" y="224" text-anchor="middle" font-size="10" fill="#B3402A">fora da fronteira</text>
+      <path d="M594 210 L746 210" stroke="#1D4ED8" stroke-width="2.2" marker-end="url(#aO1)"/>
+      <path d="M746 222 L594 222" stroke="#1D4ED8" stroke-width="2.2" marker-end="url(#aO1)"/>
+      <text x="670" y="205" text-anchor="middle" font-size="9.5" fill="#1D4ED8">prompt montado</text>
+      <text x="670" y="236" text-anchor="middle" font-size="9.5" fill="#1D4ED8">resposta (não confiável)</text>
+
+      <!-- retrieval -->
+      <rect x="310" y="340" width="130" height="65" rx="10" fill="#fff" stroke="#C9D2DC"/>
+      <text x="375" y="368" text-anchor="middle" font-size="12" font-weight="600" fill="#141F2C">Retrieval</text>
+      <text x="375" y="386" text-anchor="middle" font-size="9.5" fill="#71809296">vetorial · BM25 · SQL</text>
+      <path d="M390 330 L380 340" stroke="#166B60" stroke-width="2.2" marker-end="url(#aO2)"/>
+      <path d="M410 340 L420 330" stroke="#166B60" stroke-width="2.2" marker-end="url(#aO2)"/>
+
+      <!-- tools -->
+      <rect x="470" y="340" width="130" height="65" rx="10" fill="#fff" stroke="#C9D2DC"/>
+      <text x="535" y="368" text-anchor="middle" font-size="12" font-weight="600" fill="#141F2C">Sistemas externos</text>
+      <text x="535" y="386" text-anchor="middle" font-size="9.5" fill="#71809296">ERP · help-desk · APIs</text>
+      <path d="M510 330 L500 340" stroke="#B36A12" stroke-width="2.2" marker-end="url(#aO3)"/>
+      <path d="M530 340 L540 330" stroke="#B36A12" stroke-width="2.2" marker-end="url(#aO3)"/>
+
+      <!-- banco interno -->
+      <rect x="130" y="340" width="140" height="65" rx="10" fill="#F0F6F4" stroke="#CBDFD9"/>
+      <text x="200" y="362" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Banco interno</text>
+      <text x="200" y="378" text-anchor="middle" font-size="9.5" fill="#166B60">Redis · PostgreSQL</text>
+      <text x="200" y="394" text-anchor="middle" font-size="9" fill="#71809296">sessão · logs · prompts</text>
+      <path d="M310 270 L240 340" stroke="#166B60" stroke-width="1.8" stroke-dasharray="4 4" marker-end="url(#aO2)"/>
+
+      <!-- observabilidade -->
+      <rect x="640" y="340" width="130" height="65" rx="10" fill="#F0F6F4" stroke="#CBDFD9"/>
+      <text x="705" y="362" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Observabilidade</text>
+      <text x="705" y="378" text-anchor="middle" font-size="9.5" fill="#166B60">Langfuse · LangSmith</text>
+      <text x="705" y="394" text-anchor="middle" font-size="9" fill="#71809296">trace · custo · qualidade</text>
+      <path d="M590 270 L660 340" stroke="#166B60" stroke-width="1.8" stroke-dasharray="4 4" marker-end="url(#aO2)"/>
+
+      <!-- labels -->
+      <text x="450" y="30" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" letter-spacing="2" fill="#3E4C5E">VISÃO EXTERNA — O QUE O ORQUESTRADOR CONECTA</text>
+      <text x="450" y="50" text-anchor="middle" font-size="11.5" fill="#71809296">→ azul: fluxo de execução · → verde tracejado: persistência interna · → laranja: tools</text>
+    </svg>
+    <figcaption>O orquestrador como hub central — tudo passa por ele</figcaption>
+  </figure>
+
+  <h3>Anatomia interna: o que acontece dentro</h3>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 900 580" xmlns="http://www.w3.org/2000/svg" style="min-width:720px;width:100%;height:auto;font-family:'Instrument Sans',sans-serif">
+      <!-- container orquestrador -->
+      <rect x="10" y="10" width="880" height="560" rx="16" fill="#0D1820" stroke="#2D3F52" stroke-width="2"/>
+      <text x="450" y="40" text-anchor="middle" font-family="Space Grotesk" font-size="14" font-weight="700" fill="#8FA0B4" letter-spacing="2">ORQUESTRADOR — ANATOMIA INTERNA</text>
+
+      <!-- faixa: entrada -->
+      <rect x="30" y="55" width="840" height="110" rx="10" fill="#1A2A3A"/>
+      <text x="50" y="76" font-family="IBM Plex Mono" font-size="9.5" letter-spacing="2" fill="#B36A12">① ENTRADA &amp; GUARDRAILS PRÉ-LLM</text>
+      <!-- boxes entrada -->
+      <rect x="46" y="84" width="140" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="116" y="108" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Auth &amp; sessão</text>
+      <text x="116" y="124" text-anchor="middle" font-size="9.5" fill="#71809296">valida token</text>
+      <text x="116" y="138" text-anchor="middle" font-size="9.5" fill="#71809296">cria/retoma sessão</text>
+      <rect x="206" y="84" width="140" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="276" y="108" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Rate limit</text>
+      <text x="276" y="124" text-anchor="middle" font-size="9.5" fill="#71809296">req/min por usuário</text>
+      <text x="276" y="138" text-anchor="middle" font-size="9.5" fill="#71809296">tamanho do input</text>
+      <rect x="366" y="84" width="140" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="436" y="108" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">PII Redaction</text>
+      <text x="436" y="124" text-anchor="middle" font-size="9.5" fill="#71809296">detecta CPF, e-mail</text>
+      <text x="436" y="138" text-anchor="middle" font-size="9.5" fill="#71809296">anonimiza antes do LLM</text>
+      <rect x="526" y="84" width="140" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="596" y="108" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Injection guard</text>
+      <text x="596" y="124" text-anchor="middle" font-size="9.5" fill="#71809296">padrões suspeitos</text>
+      <text x="596" y="138" text-anchor="middle" font-size="9.5" fill="#71809296">modelo de guarda</text>
+      <rect x="686" y="84" width="148" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="760" y="108" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Cache lookup</text>
+      <text x="760" y="124" text-anchor="middle" font-size="9.5" fill="#71809296">pergunta já foi feita?</text>
+      <text x="760" y="138" text-anchor="middle" font-size="9.5" fill="#166B60">→ resposta direto</text>
+
+      <!-- faixa: contexto -->
+      <rect x="30" y="178" width="840" height="110" rx="10" fill="#1A2A3A"/>
+      <text x="50" y="199" font-family="IBM Plex Mono" font-size="9.5" letter-spacing="2" fill="#1D4ED8">② MONTAGEM DO CONTEXTO (PROMPT ENGINEERING)</text>
+      <rect x="46" y="208" width="160" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="126" y="232" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">System prompt</text>
+      <text x="126" y="248" text-anchor="middle" font-size="9.5" fill="#71809296">versionado</text>
+      <text x="126" y="262" text-anchor="middle" font-size="9.5" fill="#71809296">por perfil / canal</text>
+      <rect x="226" y="208" width="160" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="306" y="232" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Histórico</text>
+      <text x="306" y="248" text-anchor="middle" font-size="9.5" fill="#71809296">janela deslizante</text>
+      <text x="306" y="262" text-anchor="middle" font-size="9.5" fill="#71809296">ou resumo automático</text>
+      <rect x="406" y="208" width="160" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="486" y="232" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Chunks RAG</text>
+      <text x="486" y="248" text-anchor="middle" font-size="9.5" fill="#71809296">resultado do retrieval</text>
+      <text x="486" y="262" text-anchor="middle" font-size="9.5" fill="#71809296">com delimitadores XML</text>
+      <rect x="586" y="208" width="160" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="666" y="232" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Resultado de tools</text>
+      <text x="666" y="248" text-anchor="middle" font-size="9.5" fill="#71809296">injetado como</text>
+      <text x="666" y="262" text-anchor="middle" font-size="9.5" fill="#71809296">tool_result</text>
+      <rect x="762" y="208" width="92" height="68" rx="8" fill="#E9927D22" stroke="#E9927D"/>
+      <text x="808" y="232" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Input</text>
+      <text x="808" y="250" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">usuário</text>
+      <text x="808" y="268" text-anchor="middle" font-size="9" fill="#B3402A">encapsulado</text>
+
+      <!-- faixa: loop agente -->
+      <rect x="30" y="301" width="840" height="110" rx="10" fill="#1A2A3A"/>
+      <text x="50" y="322" font-family="IBM Plex Mono" font-size="9.5" letter-spacing="2" fill="#8A8F3D">③ LOOP DE RACIOCÍNIO (REACT / CHAIN OF THOUGHT)</text>
+      <rect x="46" y="330" width="150" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="121" y="355" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Roteador</text>
+      <text x="121" y="371" text-anchor="middle" font-size="9.5" fill="#71809296">responder direto?</text>
+      <text x="121" y="385" text-anchor="middle" font-size="9.5" fill="#71809296">retrieval? tool? escalar?</text>
+      <rect x="216" y="330" width="150" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="291" y="355" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Executor de tools</text>
+      <text x="291" y="371" text-anchor="middle" font-size="9.5" fill="#71809296">valida · executa</text>
+      <text x="291" y="385" text-anchor="middle" font-size="9.5" fill="#71809296">captura resultado</text>
+      <rect x="386" y="330" width="150" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="461" y="355" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Retry &amp; fallback</text>
+      <text x="461" y="371" text-anchor="middle" font-size="9.5" fill="#71809296">timeout? erro LLM?</text>
+      <text x="461" y="385" text-anchor="middle" font-size="9.5" fill="#71809296">modelo alternativo</text>
+      <rect x="556" y="330" width="150" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="631" y="355" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Controle de loop</text>
+      <text x="631" y="371" text-anchor="middle" font-size="9.5" fill="#71809296">max iterações</text>
+      <text x="631" y="385" text-anchor="middle" font-size="9.5" fill="#71809296">detecta loop infinito</text>
+      <rect x="726" y="330" width="128" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="790" y="351" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Human-in-</text>
+      <text x="790" y="367" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">the-loop</text>
+      <text x="790" y="383" text-anchor="middle" font-size="9.5" fill="#B3402A">ações críticas</text>
+
+      <!-- faixa: saída -->
+      <rect x="30" y="424" width="840" height="110" rx="10" fill="#1A2A3A"/>
+      <text x="50" y="445" font-family="IBM Plex Mono" font-size="9.5" letter-spacing="2" fill="#166B60">④ SAÍDA &amp; GUARDRAILS PÓS-LLM</text>
+      <rect x="46" y="453" width="150" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="121" y="477" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Output validation</text>
+      <text x="121" y="493" text-anchor="middle" font-size="9.5" fill="#71809296">JSON Schema</text>
+      <text x="121" y="507" text-anchor="middle" font-size="9.5" fill="#71809296">estrutura esperada</text>
+      <rect x="216" y="453" width="150" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="291" y="477" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">DLP / filtro PII</text>
+      <text x="291" y="493" text-anchor="middle" font-size="9.5" fill="#71809296">CPF · cartão</text>
+      <text x="291" y="507" text-anchor="middle" font-size="9.5" fill="#71809296">chave de API</text>
+      <rect x="386" y="453" width="150" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="461" y="477" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Formatação</text>
+      <text x="461" y="493" text-anchor="middle" font-size="9.5" fill="#71809296">canal: WhatsApp</text>
+      <text x="461" y="507" text-anchor="middle" font-size="9.5" fill="#71809296">≠ chat ≠ API JSON</text>
+      <rect x="556" y="453" width="150" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="631" y="477" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Cache store</text>
+      <text x="631" y="493" text-anchor="middle" font-size="9.5" fill="#71809296">grava par</text>
+      <text x="631" y="507" text-anchor="middle" font-size="9.5" fill="#71809296">pergunta→resposta</text>
+      <rect x="726" y="453" width="128" height="68" rx="8" fill="#fff" stroke="#C9D2DC"/>
+      <text x="790" y="473" text-anchor="middle" font-size="11.5" font-weight="600" fill="#141F2C">Logging</text>
+      <text x="790" y="489" text-anchor="middle" font-size="9.5" fill="#71809296">trace completo</text>
+      <text x="790" y="505" text-anchor="middle" font-size="9.5" fill="#71809296">tokens · latência</text>
+    </svg>
+    <figcaption>Anatomia interna — quatro faixas de responsabilidade; as de entrada e saída são sempre suas, independente do framework</figcaption>
+  </figure>
+
+  <h3>① Gestão de sessão e histórico</h3>
+  <p>O LLM não tem memória entre chamadas. A cada requisição, o orquestrador monta do zero tudo que o modelo precisa saber: quem é o usuário, o que foi dito antes, o que foi recuperado. Isso exige persistência em dois níveis:</p>
+  <p><strong>Cache de sessão (rápido, volátil):</strong> Redis ou Memcached guardam o histórico da conversa em andamento. Acesso em milissegundos, sem persistência longa. Quando a sessão expira, o histórico some — adequado para conversas de curta duração.</p>
+  <p><strong>Persistência longa (banco relacional):</strong> PostgreSQL ou similar armazena histórico de conversas completas, logs de auditoria, feedback do usuário. Consultável depois para análise de qualidade e auditoria de segurança.</p>
+  <p><strong>Estratégia de janela de contexto:</strong> você não pode mandar o histórico inteiro infinitamente — o LLM tem um limite de tokens e cada token custa. Três abordagens: janela deslizante (últimas N mensagens), resumo automático (o LLM resume o que ficou para trás), ou seletiva (embeddings do histórico para recuperar só o relevante). Frameworks entregam isso via Memory classes; em código próprio você implementa.</p>
+
+  <h3>② Montagem do contexto (prompt engineering)</h3>
+  <p>O prompt que chega ao LLM não é a pergunta do usuário — é uma composição cuidadosa de cinco camadas:</p>
+  <div class="tech">
+    <pre><span class="c"># estrutura típica de um prompt montado pelo orquestrador</span>
+<span class="h">[SYSTEM PROMPT — versão 2.1 — canal: help-desk]</span>
+Você é um assistente de suporte. Regras: ...
+
+<span class="h">[HISTÓRICO — últimas 4 trocas]</span>
+Usuário: como reinicio o serviço X?
+Assistente: Para reiniciar o serviço X...
+
+<span class="h">[CONTEXTO RAG — chunks recuperados]</span>
+&lt;documentos&gt;
+  Runbook X v3.2: O serviço pode ser reiniciado via...
+&lt;/documentos&gt;
+
+<span class="h">[RESULTADO DE TOOL — se já chamou alguma]</span>
+&lt;tool_result name="get_ticket_status"&gt;
+  {"status": "open", "priority": "high"}
+&lt;/tool_result&gt;
+
+<span class="h">[PERGUNTA ATUAL — encapsulada]</span>
+&lt;pergunta&gt;{input do usuário}&lt;/pergunta&gt;</pre>
+  </div>
+
+  <h3>③ Versionamento de prompts</h3>
+  <p>System prompts evoluem: você ajusta o tom, adiciona restrições, corrige comportamentos indesejados. Sem versionamento, você não sabe qual versão causou uma regressão ou melhoria. O banco interno do orquestrador deve guardar:</p>
+  <div class="threats">
+    <div class="threat">
+      <div class="trow"><h5>O que versionar</h5></div>
+      <p>Identificador da versão (ex: <code>v2.1</code>), conteúdo completo do system prompt, data de ativação, quem ativou, hash do conteúdo (para detectar alteração acidental). Idealmente com suporte a A/B: 10% do tráfego vai para v2.1, 90% para v2.0 — você mede qual performa melhor antes de promover.</p>
+    </div>
+  </div>
+
+  <h3>④ Roteamento e loop de raciocínio (ReAct)</h3>
+  <p>O padrão <strong>ReAct</strong> (Reason + Act) é como agentes modernos funcionam: o LLM raciocina sobre o que fazer, decide uma ação (chamar uma tool, buscar no RAG, responder diretamente), executa, observa o resultado, e raciocina de novo. O orquestrador controla esse loop:</p>
+  <p><strong>Roteamento inicial:</strong> a pergunta é simples o suficiente para resposta direta? Precisa de retrieval? Precisa de uma tool? A decisão pode ser heurística (baseada em regras) ou delegada ao próprio LLM (que decide qual tool usar).</p>
+  <p><strong>Controle de iterações:</strong> um agente sem limite pode entrar em loop infinito chamando tools em cadeia. O orquestrador define um máximo de iterações (tipicamente 5–10) e interrompe com erro gracioso se excedido.</p>
+  <p><strong>Human-in-the-loop:</strong> para ações irreversíveis (abrir chamado, enviar e-mail, alterar registro), o loop pausa, apresenta a ação proposta ao usuário, e só executa após confirmação explícita.</p>
+
+  <h3>⑤ Retry, Fallback e Cache de respostas</h3>
+  <p><strong>Retry:</strong> APIs de LLM têm timeouts e erros transitórios (rate limit, sobrecarga). O orquestrador deve implementar retry com backoff exponencial — espera 1s, 2s, 4s antes de tentar novamente — sem simplesmente travar ou retornar erro imediatamente.</p>
+  <p><strong>Fallback de modelo:</strong> se o modelo primário falhar (ou for muito lento), redirecionar para um modelo alternativo. Ex: Claude Opus falha → tenta Claude Sonnet → tenta GPT-4o. Cada fallback pode ter um system prompt adaptado, pois os modelos respondem de forma diferente às mesmas instruções.</p>
+  <p><strong>Cache de respostas:</strong> perguntas idênticas (ou semanticamente próximas) feitas por usuários diferentes não precisam acionar o LLM de novo. Cache semântico compara o embedding da pergunta com perguntas anteriores cacheadas — se a similaridade for alta, devolve a resposta cached. Reduz custo e latência significativamente em casos de uso com perguntas repetitivas (FAQ, help-desk). Ferramentas: GPTCache, implementação própria com pgvector.</p>
+  <div class="caveat">Cache semântico tem um risco: a resposta cacheada pode estar desatualizada. Defina TTL (time-to-live) adequado para o domínio — informações de produto mudam semanalmente; runbooks técnicos mudam com cada deploy.</div>
+
+  <h3>⑥ Guardrails de saída</h3>
+  <p>O output do LLM não deve chegar diretamente ao usuário ou ao sistema consumidor sem passar por validação. O orquestrador é responsável por:</p>
+  <p><strong>Validação estrutural:</strong> quando a resposta deve ser JSON (para consumo por outro sistema), validar contra um JSON Schema antes de passar adiante. Se inválido: solicitar nova geração ou retornar erro tratado.</p>
+  <p><strong>Filtros DLP:</strong> detectar e barrar CPF, número de cartão, chaves de API, credenciais que possam ter vindo no output do modelo inadvertidamente.</p>
+  <p><strong>Formatação por canal:</strong> a mesma resposta formatada diferente para WhatsApp (markdown limitado, mensagens curtas), chat web (markdown completo), API (JSON limpo sem formatação).</p>
+
+  <h3>⑦ Banco interno do orquestrador</h3>
+  <p>O orquestrador precisa de dois tipos de armazenamento com características distintas:</p>
+  <table>
+    <tr><th>Dado</th><th>Tipo de banco</th><th>Exemplo</th><th>TTL / Retenção</th></tr>
+    <tr><td>Sessão ativa / histórico recente</td><td>Cache in-memory</td><td>Redis, Memcached</td><td>Duração da sessão (30–60 min)</td></tr>
+    <tr><td>Cache de respostas</td><td>Cache com embedding</td><td>Redis + pgvector, GPTCache</td><td>Configurável por domínio (horas a dias)</td></tr>
+    <tr><td>Histórico de conversas</td><td>Banco relacional</td><td>PostgreSQL</td><td>Política de retenção (meses a anos)</td></tr>
+    <tr><td>Versões de system prompt</td><td>Banco relacional</td><td>PostgreSQL</td><td>Indefinido (auditoria)</td></tr>
+    <tr><td>Logs de trace completo</td><td>Banco relacional ou OLAP</td><td>PostgreSQL, ClickHouse</td><td>Política de retenção</td></tr>
+    <tr><td>Métricas de qualidade</td><td>Time-series ou relacional</td><td>Prometheus, PostgreSQL</td><td>Agregado (indefinido)</td></tr>
+  </table>
+
+  <h3>O que cada abordagem entrega</h3>
+  <p>Ao escolher entre framework, low-code ou código próprio, o que você realmente está escolhendo é <em>quais responsabilidades acima você terceiriza e quais fica devendo</em>. Auth, segurança e banco interno são sempre sua responsabilidade — nenhuma ferramenta entrega isso:</p>
+  <table>
+    <tr><th>Responsabilidade</th><th>n8n / Low-code</th><th>LangChain</th><th>LangGraph</th><th>Código próprio</th></tr>
+    <tr><td>Gestão de sessão / histórico</td><td>⚠️ parcial</td><td>✅ Memory classes</td><td>✅ State persistido</td><td>❌ você constrói</td></tr>
+    <tr><td>Montagem de contexto</td><td>❌ manual</td><td>✅ PromptTemplate</td><td>✅</td><td>❌ você constrói</td></tr>
+    <tr><td>Versionamento de prompts</td><td>❌</td><td>⚠️ LangSmith</td><td>⚠️ LangSmith</td><td>❌ você constrói</td></tr>
+    <tr><td>Roteamento / loop ReAct</td><td>❌ estático</td><td>✅ AgentExecutor</td><td>✅ nodes + edges</td><td>❌ você constrói</td></tr>
+    <tr><td>Executor de tools</td><td>❌ sem loop</td><td>✅</td><td>✅ ToolNode</td><td>❌ você constrói</td></tr>
+    <tr><td>Retry / fallback de modelo</td><td>❌</td><td>⚠️ parcial</td><td>⚠️ parcial</td><td>❌ você constrói</td></tr>
+    <tr><td>Cache de respostas</td><td>❌</td><td>⚠️ via integração</td><td>⚠️ via integração</td><td>❌ você constrói</td></tr>
+    <tr><td>Auth &amp; segurança pré-LLM</td><td>❌</td><td>❌</td><td>❌</td><td>❌ sempre seu</td></tr>
+    <tr><td>Guardrails de entrada</td><td>❌</td><td>⚠️ callbacks</td><td>⚠️ callbacks</td><td>❌ você constrói</td></tr>
+    <tr><td>Validação de output / DLP</td><td>❌</td><td>⚠️ output parsers</td><td>⚠️ output parsers</td><td>❌ você constrói</td></tr>
+    <tr><td>Human-in-the-loop</td><td>⚠️ manual</td><td>⚠️ parcial</td><td>✅ interrupt nativo</td><td>❌ você constrói</td></tr>
+    <tr><td>Logging / observabilidade</td><td>❌ opaco</td><td>⚠️ callbacks</td><td>✅ LangSmith nativo</td><td>❌ você constrói</td></tr>
+    <tr><td>Banco interno (sessão, logs)</td><td>❌</td><td>❌</td><td>❌</td><td>❌ sempre seu</td></tr>
+  </table>
+  <p style="margin-top:14px"><strong>Leitura da tabela:</strong> ✅ entrega nativamente · ⚠️ entrega parcialmente ou via plugin · ❌ você é responsável. LangGraph se destaca em fluxos de agente (loop, human-in-the-loop, state). LangChain é mais amplo mas menos opinativo. n8n não tem nenhuma das responsabilidades de raciocínio — é adequado apenas para workflows lineares sem loop.</p>
+  <div class="note"><b>Conclusão prática:</b> nenhum framework elimina a necessidade de código. Todos eliminam <em>parte</em> do boilerplate. A diferença entre construir com LangGraph e construir do zero não é "tenho orquestrador vs não tenho" — é "quanto do plumbing já vem pronto". Auth, banco interno, versionamento de prompts e DLP são sempre sua responsabilidade, independente do que você escolher.</div>
+</section>
 
 <hr class="sep">
 
