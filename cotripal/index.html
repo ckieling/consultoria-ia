@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Da Ferramenta à Transformação — Cotripal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@500;600&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#004A8F;
+    --navy-deep:#12294B;
+    --wave:#1E4C8A;
+    --wave-dark:#183966;
+    --mist:#F4F4F6;
+    --paper:#FFFFFF;
+    --green:#9ACA3C;
+    --sky:#0095DA;
+    --ink:#152238;
+    --ink-soft:#4C5A72;
+    --on-navy:#F4F6F8;
+    --on-navy-soft:#AFC1DA;
+    --line:#DFE4EA;
+    --amber:#C98A1F;
+    --amber-bg:#FBF3E4;
+    --display: "Baloo 2", ui-rounded, "Segoe UI", sans-serif;
+    --serif: "Playfair Display", Georgia, serif;
+    --body: "Inter", "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --shadow: 0 20px 50px -20px rgba(18,41,75,0.35);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:#0B1A30;
+    font-family:var(--body);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--sky); color:#fff;}
+
+  a{color:inherit;}
+
+  /* ---------- Stage / viewport ---------- */
+  #stage{
+    position:fixed; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    padding:clamp(10px, 3vh, 40px) clamp(10px, 3vw, 40px) calc(clamp(10px, 3vh, 40px) + 64px);
+  }
+  #frame{
+    position:relative;
+    width:min(100%, calc((100vh - 150px) * 16 / 9));
+    aspect-ratio:16/9;
+    background:var(--paper);
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+
+  .slide{
+    position:absolute; inset:0;
+    display:none;
+    flex-direction:column;
+    padding:clamp(28px, 5vw, 72px) clamp(32px, 6vw, 88px);
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .slide.active{display:flex;}
+
+  /* subtle load-in for the active slide only */
+  @media (prefers-reduced-motion: no-preference){
+    .slide.active{animation:rise .5s cubic-bezier(.19,1,.22,1) both;}
+    @keyframes rise{
+      from{opacity:0; transform:translateY(14px);}
+      to{opacity:1; transform:translateY(0);}
+    }
+  }
+
+  /* ---------- Chrome shared by light slides ---------- */
+  .eyebrow{
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:var(--mono);
+    font-size:clamp(10px,1vw,12px);
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:clamp(16px, 3vh, 28px);
+  }
+  .eyebrow .tag{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:6px 12px;
+    border-radius:999px;
+    background:var(--mist);
+    color:var(--navy);
+    font-weight:600;
+  }
+  .eyebrow .tag::before{
+    content:"";
+    width:6px;height:6px;border-radius:50%;
+    background:var(--green);
+  }
+  .eyebrow .count{color:var(--ink-soft); font-variant-numeric:tabular-nums;}
+
+  .slide h2{
+    font-family:var(--display);
+    font-weight:700;
+    color:var(--navy);
+    font-size:clamp(22px, 3.1vw, 38px);
+    line-height:1.12;
+    margin:0 0 clamp(12px,2.4vh,22px);
+    letter-spacing:-.01em;
+  }
+  .slide .kicker{
+    font-family:var(--mono);
+    font-size:clamp(10px,1vw,12.5px);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--sky);
+    font-weight:600;
+    margin-bottom:8px;
+  }
+  .slide .content-center{
+    flex:1; min-height:0;
+    display:flex; flex-direction:column;
+    justify-content:center;
+    overflow:auto;
+  }
+  .slide .body{
+    font-size:clamp(13px, 1.5vw, 18px);
+    line-height:1.55;
+    color:var(--ink);
+  }
+  .slide .body p{margin:0 0 .8em;}
+  .slide .body strong{color:var(--navy);}
+  .slide .body em{color:var(--ink-soft);}
+  .slide .body ul{margin:.2em 0 .9em; padding-left:1.2em;}
+  .slide .body li{margin-bottom:.4em;}
+
+  /* ---------- Dark (wave) slides: cover + section openers ---------- */
+  .slide.dark{
+    color:var(--on-navy);
+    background:linear-gradient(160deg,var(--wave) 0%, var(--wave-dark) 55%, var(--navy-deep) 100%);
+    justify-content:center;
+  }
+  .slide.dark .wave-deco{
+    position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none;
+  }
+  .slide.dark .content{position:relative; z-index:1;}
+
+  .block-num{
+    font-family:var(--display);
+    font-weight:800;
+    font-size:clamp(52px, 8vw, 108px);
+    line-height:1;
+    color:rgba(244,246,248,0.16);
+    margin-bottom:.25em;
+  }
+  .slide.dark .kicker{color:var(--green); margin-bottom:16px;}
+  .slide.dark h1, .slide.dark h2{
+    font-family:var(--display);
+    font-weight:700;
+    color:#fff;
+    font-size:clamp(26px, 4.2vw, 52px);
+    line-height:1.14;
+    letter-spacing:-.01em;
+    margin:0 0 .5em;
+    max-width:16ch;
+  }
+  .slide.dark .sub{
+    font-size:clamp(13px,1.7vw,19px);
+    color:var(--on-navy-soft);
+    max-width:52ch;
+    line-height:1.6;
+    margin-top:.3em;
+  }
+  .leaf{position:absolute; border-radius:60% 40% 55% 45%/45% 55% 40% 60%;}
+
+  /* ---------- Cover slide ---------- */
+  .slide-cover{padding:0;}
+  .slide-cover .cover-bg{
+    position:absolute; inset:0;
+    background-image:url('cotripal-cover.png');
+    background-size:cover; background-position:center;
+  }
+  .slide-cover .cover-scrim{display:none;}
+  .slide-cover .cover-content{
+    position:relative; z-index:1;
+    height:100%;
+    display:flex; flex-direction:column; justify-content:flex-end;
+    padding:clamp(28px,5vw,72px) clamp(32px,6vw,88px);
+  }
+  .slide-cover .cover-card{
+    display:inline-block;
+    width:fit-content;
+    max-width:64%;
+    background:rgba(7,17,34,0.64);
+    backdrop-filter:blur(3px);
+    -webkit-backdrop-filter:blur(3px);
+    border-radius:16px;
+    padding:clamp(16px,2.4vw,28px) clamp(20px,2.8vw,32px);
+  }
+  .slide-cover .eyebrow-top{
+    position:absolute; top:clamp(28px,5vw,64px); left:clamp(32px,6vw,88px);
+    font-family:var(--mono); font-size:clamp(10px,1vw,12px); letter-spacing:.12em;
+    text-transform:uppercase; color:var(--navy); font-weight:600;
+  }
+  .slide-cover h1{
+    font-family:var(--display); font-weight:800; color:#fff;
+    font-size:clamp(30px,5vw,58px); line-height:1.05; margin:0 0 .2em; max-width:14ch;
+  }
+  .slide-cover .cover-sub{
+    font-family:var(--body); color:var(--on-navy-soft);
+    font-size:clamp(13px,1.6vw,18px); max-width:44ch; margin-bottom:1.1em;
+  }
+  .slide-cover .cover-meta{
+    display:flex; flex-wrap:wrap; gap:10px 22px;
+    font-family:var(--mono); font-size:clamp(10.5px,1.1vw,13px);
+    color:#fff; letter-spacing:.02em;
+  }
+  .slide-cover .cover-meta b{font-weight:600;}
+
+  /* ---------- Stat grid ---------- */
+  .stat-grid{
+    display:grid; gap:clamp(10px,1.6vw,20px);
+    grid-template-columns:repeat(var(--cols,2), 1fr);
+    margin-top:clamp(4px,1vh,10px);
+  }
+  .stat-card{
+    background:var(--mist);
+    border-radius:14px;
+    padding:clamp(14px,1.6vw,22px);
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .stat-card .val{
+    font-family:var(--display); font-weight:700; color:var(--navy);
+    font-size:clamp(20px,2.6vw,34px); line-height:1.05;
+  }
+  .stat-card .label{font-size:clamp(11.5px,1.15vw,14.5px); color:var(--ink); line-height:1.35;}
+  .stat-card .src{margin-top:auto; padding-top:6px;}
+
+  /* ---------- Source pills ---------- */
+  .src-pill{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:var(--mono); font-size:clamp(9.5px,.95vw,11.5px);
+    color:var(--navy); text-decoration:none;
+    border:1px solid var(--line); border-radius:999px;
+    padding:4px 10px; background:#fff;
+    transition:border-color .15s, background .15s;
+  }
+  .src-pill:hover{border-color:var(--sky); background:#EAF6FD;}
+  .src-pill.pending{
+    color:var(--amber); border-color:transparent; background:var(--amber-bg);
+    cursor:default;
+  }
+  .src-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;}
+
+  /* ---------- Example cards ---------- */
+  .example{
+    display:flex; flex-direction:column; gap:10px; height:100%; justify-content:center;
+  }
+  .example .tag-row{display:flex; align-items:center; gap:10px;}
+  .example .icon-dot{width:34px;height:34px;border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--mist); font-size:16px;}
+  .result-box{
+    background:var(--navy); color:#fff; border-radius:14px;
+    padding:clamp(14px,1.8vw,22px); margin-top:6px;
+  }
+  .result-box .lbl{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--on-navy-soft); margin-bottom:4px;}
+  .result-box .val{font-family:var(--display); font-weight:700; font-size:clamp(17px,2vw,24px);}
+
+  /* ---------- Table ---------- */
+  table.tbl{width:100%; border-collapse:collapse; font-size:clamp(11.5px,1.25vw,15px);}
+  table.tbl th{
+    text-align:left; font-family:var(--mono); font-size:.78em; letter-spacing:.04em;
+    text-transform:uppercase; color:#fff; background:var(--navy);
+    padding:10px 12px;
+  }
+  table.tbl th:first-child{border-radius:8px 0 0 0;}
+  table.tbl th:last-child{border-radius:0 8px 0 0;}
+  table.tbl td{padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  table.tbl tr:nth-child(even) td{background:var(--mist);}
+  table.tbl.tbl-dense{font-size:clamp(9.5px,1vw,12px);}
+  table.tbl.tbl-dense th{padding:7px 10px;}
+  table.tbl.tbl-dense td{padding:7px 10px; line-height:1.35;}
+  .slide .body p.lede{color:var(--ink-soft); font-size:.92em; margin-bottom:.6em;}
+
+  /* ---------- Callout / pending / step ---------- */
+  .callout{
+    border-left:3px solid var(--sky); background:var(--mist);
+    padding:10px 16px; border-radius:0 10px 10px 0; font-size:.92em; color:var(--ink-soft);
+    margin-top:10px;
+  }
+  .pending-box{
+    border:1.5px dashed var(--amber); background:var(--amber-bg);
+    color:#8A5D10; border-radius:12px; padding:14px 18px; font-size:.92em; margin-top:10px;
+  }
+  .pending-box b{color:#8A5D10;}
+  .steps{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px;}
+  .steps li{display:flex; gap:14px; align-items:flex-start;}
+  .steps .n{
+    font-family:var(--display); font-weight:700; color:var(--navy);
+    background:var(--mist); border-radius:50%; width:32px; height:32px;
+    display:flex; align-items:center; justify-content:center; flex:none; font-size:14px;
+  }
+
+  /* ---------- Newspaper clipping ---------- */
+  .clip-row{display:flex; gap:clamp(16px,2.4vw,32px); align-items:stretch; height:100%;}
+  .clip-row.single{justify-content:flex-start;}
+  .clipping{
+    background:#FBF8F1;
+    border:1px solid #E4DCC8;
+    box-shadow:0 14px 30px -16px rgba(30,20,5,0.35), 0 2px 0 rgba(30,20,5,0.04);
+    padding:clamp(16px,2vw,26px) clamp(16px,2vw,24px) clamp(20px,2.4vw,28px);
+    position:relative;
+    flex:1;
+    min-width:0;
+    display:flex; flex-direction:column;
+    transform:rotate(var(--tilt, -0.8deg));
+  }
+  .clip-row .clipping:nth-child(2){--tilt:0.6deg;}
+  .clipping::after{
+    content:"";
+    position:absolute; left:0; right:0; bottom:-1px; height:10px;
+    background:repeating-linear-gradient(115deg, #FBF8F1 0 6px, transparent 6px 12px);
+    background-color:transparent;
+    -webkit-mask:repeating-linear-gradient(100deg, #000 0 8px, transparent 8px 14px);
+    mask:repeating-linear-gradient(100deg, #000 0 8px, transparent 8px 14px);
+    background:#FBF8F1;
+    border-bottom:1px solid #E4DCC8;
+  }
+  .clipping .tape{
+    position:absolute; top:-10px; left:26px; width:56px; height:20px;
+    background:rgba(154,202,60,0.55);
+    border:1px solid rgba(154,202,60,0.7);
+    transform:rotate(-3deg);
+  }
+  .clipping .masthead{
+    font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase;
+    color:#8A7F63; border-bottom:1px solid #E4DCC8; padding-bottom:8px; margin-bottom:12px;
+    display:flex; justify-content:space-between;
+  }
+  .clipping .headline{
+    font-family:var(--serif); font-weight:700; color:#1E1A12;
+    font-size:clamp(22px,2.6vw,32px); line-height:1.08; margin-bottom:8px;
+  }
+  .clipping .dek{
+    font-family:var(--body); color:#4A4536; font-size:clamp(12px,1.15vw,14.5px);
+    line-height:1.5; margin-bottom:12px;
+  }
+  .clipping.compact{padding:clamp(12px,1.6vw,20px) clamp(14px,1.8vw,20px) clamp(16px,2vw,22px);}
+  .clipping.compact .headline{font-size:clamp(19px,2.2vw,26px); margin-bottom:6px;}
+  .clipping.compact .dek{font-size:clamp(11px,1.05vw,13px); margin-bottom:8px;}
+  .clipping.compact .clip-img{min-height:56px; padding:10px; margin-bottom:8px;}
+  .clipping.compact .clip-img span.big{font-size:16px;}
+  .clipping.compact .masthead{margin-bottom:8px; padding-bottom:6px;}
+  .clip-img{
+    border:1.5px dashed #C9BC9C; border-radius:4px; background:#F2EDDF;
+    color:#8A7F63; font-family:var(--mono); font-size:11px; text-align:center;
+    display:flex; align-items:center; justify-content:center; flex-direction:column; gap:6px;
+    padding:14px; margin-bottom:12px; min-height:70px; flex:1;
+  }
+  .clip-img span.big{font-size:20px;}
+  .clipping .byline{
+    margin-top:auto; font-family:var(--mono); font-size:10.5px; color:#8A7F63;
+    display:flex; align-items:center; gap:6px;
+  }
+  .clipping .byline a{color:#1E4C8A; text-decoration:none; border-bottom:1px dotted #1E4C8A;}
+
+  /* ---------- Icon-forward two column ---------- */
+  .concept-cols{display:grid; grid-template-columns:1fr 1fr; gap:clamp(14px,2vw,26px); align-items:stretch;}
+  .concept-card{
+    background:var(--mist); border-radius:16px; padding:clamp(16px,2vw,26px);
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .concept-card .ic{
+    width:44px; height:44px; border-radius:12px; background:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:22px;
+    box-shadow:0 6px 14px -8px rgba(18,41,75,0.3);
+  }
+  .concept-card h3{font-family:var(--display); color:var(--navy); font-size:clamp(15px,1.7vw,19px); margin:6px 0 2px;}
+  .concept-card p{font-size:clamp(12px,1.2vw,14.5px); line-height:1.5; color:var(--ink); margin:0;}
+  .concept-vs{
+    align-self:center; font-family:var(--mono); color:var(--ink-soft); font-size:11px;
+    text-transform:uppercase; letter-spacing:.1em;
+  }
+
+  /* ---------- Icon grid (tipos, ferramentas, prompt elements) ---------- */
+  .icon-grid{display:grid; gap:clamp(10px,1.4vw,16px); grid-template-columns:repeat(var(--gcols,3), 1fr);}
+  .icon-grid .gcard{
+    background:var(--mist); border-radius:14px; padding:clamp(12px,1.5vw,18px);
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .icon-grid .gcard .gi{font-size:22px; line-height:1;}
+  .icon-grid .gcard h4{font-family:var(--display); color:var(--navy); font-size:clamp(13px,1.3vw,15.5px); margin:2px 0 0;}
+  .icon-grid .gcard p{font-size:clamp(10.5px,1.05vw,12.5px); color:var(--ink); margin:0; line-height:1.4;}
+  .icon-grid .gcard .ex{font-size:clamp(9.5px,.95vw,11px); color:var(--ink-soft); font-style:italic; margin-top:2px;}
+
+  /* ---------- Flow (linear process) ---------- */
+  .flow{display:flex; align-items:stretch; gap:10px; flex-wrap:wrap;}
+  .flow .fstep{
+    flex:1; min-width:140px; background:var(--mist); border-radius:14px;
+    padding:clamp(12px,1.6vw,18px); position:relative; display:flex; flex-direction:column; gap:6px;
+  }
+  .flow .fstep.hi{background:var(--navy); color:#fff;}
+  .flow .fstep.hi .fi{filter:brightness(3);}
+  .flow .fstep .fi{font-size:20px;}
+  .flow .fstep h4{font-family:var(--display); font-size:13.5px; margin:0;}
+  .flow .fstep p{font-size:11.5px; margin:0; line-height:1.4; opacity:.9;}
+  .flow .farrow{
+    display:flex; align-items:center; justify-content:center; color:var(--ink-soft);
+    font-size:20px; flex:none; padding:0 2px;
+  }
+
+  /* ---------- Spectrum slider (autonomia) ---------- */
+  .spectrum{margin-top:8px;}
+  .spectrum .track{
+    height:10px; border-radius:999px;
+    background:linear-gradient(90deg,#DCE6F2,var(--sky) 50%,var(--navy));
+    position:relative; margin:0 6px;
+  }
+  .spectrum .poles{display:flex; justify-content:space-between; font-family:var(--mono); font-size:11px; color:var(--ink-soft); margin-top:8px;}
+  .spectrum .marker{
+    position:absolute; top:50%; width:22px; height:22px; border-radius:50%;
+    background:#fff; border:3px solid var(--navy); transform:translate(-50%,-50%);
+    box-shadow:0 4px 10px -3px rgba(18,41,75,0.5);
+  }
+  .spectrum .ticks{display:flex; justify-content:space-between; margin-top:14px;}
+  .spectrum .tick{flex:1; text-align:center; font-size:10.5px; color:var(--ink-soft); padding:0 4px;}
+  .spectrum .tick b{display:block; color:var(--navy); font-size:11.5px; margin-bottom:2px;}
+
+  /* ---------- Node network (multi-agent) ---------- */
+  .agent-net{display:flex; align-items:center; justify-content:center; gap:0; margin:6px 0;}
+
+  /* ---------- Device frame (clickable "browser window" preview) ---------- */
+  .device-frame{
+    display:block; text-decoration:none; color:inherit;
+    background:#fff; border-radius:14px; overflow:hidden;
+    border:1px solid var(--line);
+    box-shadow:0 16px 34px -18px rgba(18,41,75,0.4);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .device-frame:hover{transform:translateY(-3px); box-shadow:0 22px 40px -16px rgba(18,41,75,0.45);}
+  .device-frame .bar{
+    display:flex; align-items:center; gap:8px;
+    background:#EEF0F3; padding:8px 12px; border-bottom:1px solid var(--line);
+  }
+  .device-frame .dot{width:8px; height:8px; border-radius:50%; background:#D3D8E0;}
+  .device-frame .url{
+    flex:1; background:#fff; border:1px solid var(--line); border-radius:999px;
+    padding:3px 12px; font-family:var(--mono); font-size:10.5px; color:var(--ink-soft);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .device-frame .go{font-family:var(--mono); font-size:10px; color:var(--sky); flex:none;}
+  .device-frame .screen{
+    background:linear-gradient(180deg,#F7F5EE,#F0ECE0);
+    min-height:150px;
+    padding:0; position:relative; overflow:hidden;
+  }
+  .device-frame .screen iframe{
+    width:100%; height:100%; min-height:150px; border:0; display:block;
+    pointer-events:none;
+  }
+  .device-frame .screen .fallback{
+    position:absolute; left:8px; bottom:8px;
+    background:rgba(255,255,255,0.92); border:1px solid var(--line); border-radius:999px;
+    padding:4px 10px; font-family:var(--mono); font-size:9.5px; color:var(--navy);
+  }
+  .device-frame .screen span.big{font-size:24px;}
+
+  /* ---------- Grid overlay (slide navigator) ---------- */
+  #grid-overlay{
+    position:fixed; inset:0; z-index:30;
+    background:rgba(8,16,30,0.94);
+    display:none;
+    flex-direction:column;
+    padding:22px clamp(16px,4vw,56px) 24px;
+  }
+  #grid-overlay.open{display:flex;}
+  #grid-overlay-head{
+    display:flex; align-items:center; justify-content:space-between;
+    color:#fff; font-family:var(--display); font-weight:700; font-size:18px;
+    margin-bottom:18px;
+  }
+  #grid-overlay-body{
+    flex:1; overflow:auto;
+    display:grid; gap:14px;
+    grid-template-columns:repeat(auto-fill, minmax(150px,1fr));
+    align-content:start;
+  }
+  .grid-tile{
+    cursor:pointer; border-radius:10px; overflow:hidden;
+    background:#131E33; border:1.5px solid rgba(255,255,255,0.08);
+    transition:border-color .15s, transform .15s;
+    display:flex; flex-direction:column;
+  }
+  .grid-tile:hover{border-color:var(--sky); transform:translateY(-2px);}
+  .grid-tile.current{border-color:var(--green);}
+  .grid-tile .thumb{
+    aspect-ratio:16/9; display:flex; align-items:center; justify-content:center;
+    font-family:var(--display); font-weight:700; font-size:12.5px; text-align:center;
+    padding:8px; color:#fff; line-height:1.25;
+  }
+  .grid-tile .meta{
+    padding:6px 8px; font-family:var(--mono); font-size:9.5px; color:var(--on-navy-soft);
+    display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.08);
+  }
+
+  /* ---------- Nav bar ---------- */
+  #navbar{
+    position:fixed; left:0; right:0; bottom:0; height:64px;
+    display:flex; align-items:center; gap:16px;
+    padding:0 clamp(14px,3vw,40px);
+    background:rgba(11,26,48,0.92);
+    backdrop-filter:blur(6px);
+    border-top:1px solid rgba(255,255,255,0.08);
+    z-index:20;
+  }
+  #navbar .block-label{
+    font-family:var(--mono); font-size:12px; color:var(--on-navy-soft);
+    white-space:nowrap; min-width:0; overflow:hidden; text-overflow:ellipsis;
+  }
+  #navbar .block-label b{color:#fff; font-weight:600;}
+  #progress-track{
+    flex:1; height:5px; background:rgba(255,255,255,0.14); border-radius:999px; overflow:hidden;
+  }
+  #progress-fill{
+    height:100%; width:0%; border-radius:999px;
+    background:linear-gradient(90deg,var(--green),var(--sky));
+    transition:width .35s cubic-bezier(.19,1,.22,1);
+  }
+  #navbar .counter{
+    font-family:var(--mono); font-size:12px; color:#fff; white-space:nowrap; font-variant-numeric:tabular-nums;
+  }
+  .nav-btn{
+    width:36px; height:36px; border-radius:50%; border:1px solid rgba(255,255,255,0.18);
+    background:rgba(255,255,255,0.06); color:#fff; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; flex:none;
+    transition:background .15s, transform .1s;
+  }
+  .nav-btn:hover{background:rgba(255,255,255,0.16);}
+  .nav-btn:active{transform:scale(.94);}
+  .nav-btn:disabled{opacity:.3; cursor:default;}
+  .nav-btn:focus-visible, .src-pill:focus-visible, .nav-btn:focus-visible{
+    outline:2px solid var(--sky); outline-offset:2px;
+  }
+
+  @media (max-width:720px){
+    #stage{padding:8px 8px 72px;}
+    #frame{width:100%; aspect-ratio:auto; height:calc(100vh - 90px); border-radius:12px;}
+    .slide{padding:22px 20px;}
+    .stat-grid{grid-template-columns:repeat(2,1fr) !important;}
+    #navbar .block-label{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div id="frame">
+    <!-- SLIDE_SLOT -->
+  </div>
+</div>
+
+<div id="navbar">
+  <button class="nav-btn" id="btn-prev" aria-label="Slide anterior">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <div class="block-label" id="block-label"><b>Bloco 1</b> — Abertura e panorama do mercado</div>
+  <div id="progress-track"><div id="progress-fill"></div></div>
+  <div class="counter" id="counter">01 / 42</div>
+  <button class="nav-btn" id="btn-grid" aria-label="Ver todos os slides" title="Ver todos os slides">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/></svg>
+  </button>
+  <button class="nav-btn" id="btn-next" aria-label="Próximo slide">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</div>
+
+<div id="grid-overlay" aria-hidden="true">
+  <div id="grid-overlay-head">
+    <span>Todos os slides</span>
+    <button class="nav-btn" id="btn-grid-close" aria-label="Fechar">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div id="grid-overlay-body"></div>
+</div>
+
+<script>
+/* ============ WAVE DECORATION (used on dark slides) ============ */
+function waveSVG(variant){
+  // variant: 'cover' unused here (cover uses raster image); 'opener' for section slides
+  return `
+  <svg class="wave-deco" viewBox="0 0 1200 675" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="glow" cx="70%" cy="35%" r="60%">
+        <stop offset="0%" stop-color="rgba(255,255,255,0.10)"/>
+        <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+      </radialGradient>
+    </defs>
+    <circle cx="960" cy="300" r="420" fill="url(#glow)"/>
+    <path d="M-20,560 C220,460 260,300 460,300 C660,300 640,180 900,150 C1080,130 1140,220 1220,220 L1220,720 L-20,720 Z" fill="rgba(255,255,255,0.055)"/>
+    <path d="M-20,600 C240,520 300,380 480,380 C660,380 660,260 920,230 C1090,212 1140,300 1220,300 L1220,720 L-20,720 Z" fill="rgba(255,255,255,0.09)"/>
+    <ellipse cx="205" cy="118" rx="9" ry="13" fill="#9ACA3C" opacity="0.85" transform="rotate(-18 205 118)"/>
+    <ellipse cx="233" cy="104" rx="6" ry="9" fill="#0095DA" opacity="0.85" transform="rotate(12 233 104)"/>
+  </svg>`;
+}
+
+/* ============ SLIDE DATA ============ */
+/* SLIDE_DATA_START */
+function deviceFrame(url, label, opts){
+  opts = opts || {};
+  const h = opts.height || 230;
+  return `<a class="device-frame" href="${url}" target="_blank" rel="noopener">
+    <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">${label}</span><span class="go">abrir ↗</span></div>
+    <div class="screen" style="height:${h}px;"><iframe src="${url}" loading="lazy" title="${label}" sandbox="allow-scripts allow-same-origin"></iframe><span class="fallback">clique abre em nova aba</span></div>
+  </a>`;
+}
+const SLIDES = [
+// ---------- SLIDE 1 ----------
+{ type:'cover',
+  title:'Da Ferramenta à<br>Transformação',
+  sub:'A Inteligência Artificial na Nova Dinâmica de Trabalho',
+  meta:['Cotripal','8 de setembro de 2026','2 turmas de 4h','Facilitação: Caroline Kieling Zadorozny Lage']
+},
+// ---------- BLOCO 1 — Abertura e panorama do mercado ----------
+{ type:'opener', block:1, kicker:'Abertura',
+  title:'Panorama do mercado',
+  sub:'Antes de falar de conceito, vamos ver o tamanho real do movimento: no mundo, no Brasil, e no nosso setor.'
+},
+{ type:'standard', block:1, num:2, blockName:'Abertura e panorama do mercado',
+  title:'Isso não é sobre adotar mais uma ferramenta',
+  body:`<p>A Inteligência Artificial vem transformando a maneira como as organizações analisam informações, executam atividades, tomam decisões e desenvolvem soluções — em qualquer setor, do escritório ao pátio da fazenda.</p>
+  <p>Na Cotripal, usar IA não deve ser entendido apenas como incorporar uma nova tecnologia. É a oportunidade de <strong>revisar processos, desenvolver competências e construir formas de trabalho mais ágeis, integradas e eficientes.</strong></p>
+  <p>A pergunta que interessa hoje não é <em>"vamos usar IA?"</em> — é <strong>"onde, no seu setor, ela muda o jogo de verdade?"</strong></p>`
+},
+{ type:'standard', block:1, num:3, blockName:'Abertura e panorama do mercado',
+  title:'Por que este treinamento existe',
+  body:`<p><strong>Propósito:</strong> ampliar o conhecimento sobre as possibilidades — e os limites — da IA, estimular sua aplicação prática nas atividades profissionais, e preparar as equipes para uma nova forma de trabalhar.</p>
+  <p><strong>O que esperamos como resultado, com isso:</strong></p>
+  <ul>
+    <li>Reduzir retrabalhos e qualificar as entregas</li>
+    <li>Melhorar o atendimento</li>
+    <li>Integrar conhecimentos entre áreas</li>
+    <li>Contribuir para resultados sustentáveis</li>
+  </ul>
+  <p>Tudo isso <strong>preservando os valores e os princípios que orientam a atuação da Cotripal.</strong></p>`
+},
+{ type:'standard', block:1, num:4, blockName:'Abertura e panorama do mercado',
+  title:'Isso está no Mapa Estratégico da Cooperativa',
+  body:`<p class="lede"><strong>Objetivos.</strong> A estruturação do uso da IA está diretamente alinhada ao Mapa Estratégico da Cooperativa, especialmente aos objetivos abaixo relacionados:</p>
+  <table class="tbl tbl-dense">
+    <tr><th>Objetivo estratégico</th><th>Conexão com a proposta de IA</th><th>Métricas sugeridas</th></tr>
+    <tr><td><strong>1.</strong> Crescer com resultados e sustentabilidade</td><td>A IA pode reduzir retrabalhos, agilizar análises, apoiar decisões e melhorar a produtividade, contribuindo para resultados mais consistentes e para o uso eficiente dos recursos.</td><td>Horas de trabalho economizadas; redução do tempo de execução; redução de retrabalhos; economia gerada; ganho de produtividade; relação entre investimento e resultado obtido.</td></tr>
+    <tr><td><strong>7.</strong> Planejar, integrar, simplificar, implementar e gerenciar processos ágeis</td><td>Antes de automatizar, será necessário revisar fluxos, eliminar etapas desnecessárias e identificar processos nos quais a IA possa gerar ganhos efetivos.</td><td>Número de processos revisados; número de etapas eliminadas ou automatizadas; redução do tempo dos processos; percentual de projetos-piloto implantados; redução de erros e retrabalhos.</td></tr>
+    <tr><td><strong>9.</strong> Qualificar e desenvolver os profissionais nas competências dos cargos</td><td>A proposta prevê trilhas de capacitação para gestores e equipes, desenvolvendo competências digitais, pensamento crítico, uso responsável da IA e capacidade de adaptação.</td><td>Número e percentual de profissionais capacitados; participação e conclusão das trilhas; avaliação de aprendizagem; aplicação prática após o treinamento; evolução da percepção de competência no uso da IA.</td></tr>
+    <tr><td><strong>10.</strong> Integrar os profissionais e unidades estratégicas, mantendo relacionamento assertivo</td><td>A formação de times de trabalho com representantes das áreas de negócio fortalece a atuação integrada e evita soluções isoladas entre unidades e setores.</td><td>Número de áreas e unidades envolvidas; quantidade de projetos desenvolvidos em conjunto; participação nas reuniões; soluções compartilhadas entre áreas; avaliação da integração e da comunicação.</td></tr>
+    <tr><td><strong>11.</strong> Ter profissionais comprometidos com os propósitos e o funcionamento da Cooperativa</td><td>A comunicação clara, a participação das equipes e a preparação das lideranças são essenciais para que a IA seja percebida como apoio ao trabalho e à melhoria contínua.</td><td>Adesão às iniciativas; percentual de uso efetivo das soluções; participação dos profissionais com sugestões; percepção sobre utilidade e segurança; cumprimento das diretrizes de uso responsável; número de ocorrências relacionadas ao uso inadequado.</td></tr>
+  </table>`
+},
+{ type:'standard', block:1, num:5, blockName:'Abertura e panorama do mercado',
+  kicker:'O tamanho do movimento, no mundo · protótipo A — recorte de jornal',
+  title:'O maior ciclo de investimento em tecnologia já registrado',
+  body:`<div class="clip-row">
+    <div class="clipping compact">
+      <div class="tape"></div>
+      <div class="masthead"><span>IEEE Spectrum</span><span>abr/2026</span></div>
+      <div class="headline">US$ 581,7 bilhões</div>
+      <div class="dek">Investimento corporativo global em IA em 2025 — alta de 130% (Stanford HAI, AI Index 2026).</div>
+      <div class="clip-img"><span class="big">🖼️</span><span>print da fonte aqui</span></div>
+      <div class="byline">🔗 <a href="https://spectrum.ieee.org/state-of-ai-index-2026" target="_blank" rel="noopener">spectrum.ieee.org/state-of-ai-index-2026</a></div>
+    </div>
+    <div class="clipping compact">
+      <div class="tape"></div>
+      <div class="masthead"><span>Gartner</span><span>maio/2026</span></div>
+      <div class="headline">US$ 2,59 trilhões</div>
+      <div class="dek">Previsão de gastos mundiais com IA em 2026 — alta de 47% ano a ano.</div>
+      <div class="clip-img"><span class="big">🖼️</span><span>print da fonte aqui</span></div>
+      <div class="byline">🔗 <a href="https://www.gartner.com/en/newsroom/press-releases/2026-05-19-gartner-forecasts-worldwide-ai-spending-to-grow-47-percent-in-2026" target="_blank" rel="noopener">gartner.com/newsroom</a></div>
+    </div>
+  </div>
+  <p style="margin-top:10px; font-size:.82em; color:var(--ink-soft);">+ 70% das organizações no mundo já usam IA generativa em ao menos uma função de negócio (<a href="https://hai.stanford.edu/ai-index/2026-ai-index-report/economy" target="_blank" rel="noopener" style="color:var(--navy);">Stanford HAI, capítulo Economy</a>) · IA como "motor de crescimento" segundo o <a href="https://www.imf.org/en/blogs/articles/2026/01/19/global-economy-shakes-off-tariff-shock-amid-tech-driven-boom" target="_blank" rel="noopener" style="color:var(--navy);">FMI</a> (jan/2026)</p>`
+},
+{ type:'standard', block:1, num:6, blockName:'Abertura e panorama do mercado',
+  kicker:'E aqui no Brasil?',
+  title:'A curva também acelerou por aqui',
+  body:`<div class="stat-grid" style="--cols:3;">
+    <div class="stat-card"><div class="val">13% → 17%</div><div class="label">Adoção de IA nas empresas brasileiras entre 2024–2025; nas grandes empresas, de 38% para 50%</div><div class="src src-row">${'{{PILL:Cetic.br / NIC.br, TIC Empresas 2025|https://www.cetic.br/pt/noticia/uso-de-inteligencia-artificial-por-empresas-brasileiras-avanca-e-atinge-17-aponta-pesquisa-do-cetic-br/}}'}</div></div>
+    <div class="stat-card"><div class="val">59,2%</div><div class="label">Das empresas industriais ainda usam só 1 ou 2 tecnologias digitais</div><div class="src src-row">${'{{PILL:CNI — Inovação para a competitividade|https://cni.portaldaindustria.com.br/atuacao/inovacao}}'}</div></div>
+    <div class="stat-card"><div class="val">72% / 47,4%</div><div class="label">Ainda em estágio iniciante — mas 47,4% dos profissionais já usam IA por conta própria, sem aprovação</div><div class="src src-row">${'{{PILL:Exame — pesquisa Abiacom, jan/2026|https://exame.com/inteligencia-artificial/72-das-empresas-brasileiras-estao-no-inicio-da-adocao-de-ia-aponta-pesquisa/}}'}</div></div>
+  </div>
+  <div class="callout">Guarde esse último dado — ele volta no bloco de Segurança.</div>`
+},
+{ type:'standard', block:1, num:7, blockName:'Abertura e panorama do mercado',
+  kicker:'Não é mais hype, é maioria',
+  title:'Como grandes empresas usam IA hoje',
+  body:`<p>No Brasil, quem lidera são bancos e fintechs — mas o padrão de uso é revelador para qualquer setor: atendimento ao cliente, marketing, análise de documentos e automação de processos internos concentram a maior parte da adoção real, não experimental.</p>
+  <p>Nos próximos slides, três exemplos concretos — um deles bem perto da nossa realidade.</p>`
+},
+{ type:'standard', block:1, num:8, blockName:'Abertura e panorama do mercado',
+  kicker:'Exemplo: varejo, aqui do lado · protótipo B — clipping + resultado',
+  title:'Casas Bahia — Bah.IA',
+  body:`<div style="display:grid; grid-template-columns:1.1fr 1fr; gap:24px; height:100%; align-items:stretch;">
+    <div class="example">
+      <p>Assistente construída com o Vertex AI (Google), atuando como <strong>copiloto para mais de 10 mil vendedores</strong> no atendimento via WhatsApp — sugere produtos e abordagens personalizadas para cada cliente.</p>
+      <div class="result-box"><div class="lbl">Resultado</div><div class="val">Tempo de espera -50% · resolução de dúvidas +30% mais rápida · conversão +50% no canal (segundo o CTO da Casas Bahia)</div></div>
+    </div>
+    <div class="clipping" style="--tilt:0.8deg;">
+      <div class="tape"></div>
+      <div class="masthead"><span>Google Cloud Blog</span><span>2025</span></div>
+      <div class="headline">O compromisso do Google Cloud com uma nova era de inovação no Brasil</div>
+      <div class="clip-img" style="flex:1;"><span class="big">🖼️</span><span>print da matéria aqui</span></div>
+      <div class="byline">🔗 <a href="https://blog.google/intl/pt-br/produtos/nas-nuvens/o-compromisso-do-google-cloud-com-uma-nova-era-de-inovacao-no-brasil/" target="_blank" rel="noopener">blog.google/intl/pt-br</a></div>
+    </div>
+  </div>`
+},
+{ type:'standard', block:1, num:9, blockName:'Abertura e panorama do mercado',
+  kicker:'Exemplo: pecuária · protótipo D — janela navegável',
+  title:'JBS — Cowbot e Plataforma Pecuária Transparente',
+  body:`<div style="display:grid; grid-template-columns:1fr 1.05fr; gap:24px; height:100%; align-items:stretch;">
+    <div class="example">
+      <p>Ferramenta gratuita, acessível via WhatsApp, para consultas socioambientais de propriedades rurais — já ultrapassou <strong>30 mil análises</strong> em todo o Brasil.</p>
+      <div class="result-box"><div class="lbl">Resultado</div><div class="val">Resposta em menos de 1 minuto, no lugar de um processo que levava ~3 dias</div></div>
+    </div>
+    ${deviceFrame('https://www.jbs.com.br/imprensa/cowbot-ferramenta-gratuita-da-jbs-realiza-mais-de-mil-analises-socioambientais-para-apoiar-pecuaristas-em-todo-o-pais/', 'jbs.com.br/imprensa/cowbot')}
+  </div>`
+},
+{ type:'standard', block:1, num:10, blockName:'Abertura e panorama do mercado',
+  kicker:'Exemplo: grãos e agricultura · protótipo A aplicado',
+  title:'Agricultura de precisão já entrega resultado medido',
+  body:`<div class="clip-row">
+    <div class="clipping compact">
+      <div class="tape"></div>
+      <div class="masthead"><span>MundoGEO</span><span>abr/2026</span></div>
+      <div class="headline">+20% de produtividade</div>
+      <div class="dek">Com ferramentas digitais de precisão, além de redução no desperdício de água e insumos (dados Embrapa).</div>
+      <div class="clip-img"><span class="big">🖼️</span><span>print da fonte aqui</span></div>
+      <div class="byline">🔗 <a href="https://mundogeo.com/2026/04/08/agricultura-de-precisao-ajuda-produtores-a-ganhar-tempo-entre-colheita-da-soja-e-plantio-do-milho-safrinha/" target="_blank" rel="noopener">mundogeo.com</a></div>
+    </div>
+    <div class="clipping compact">
+      <div class="tape"></div>
+      <div class="masthead"><span>Canaoeste</span><span>jun/2026</span></div>
+      <div class="headline">-90,5% de herbicida</div>
+      <div class="dek">Economia média no consumo de herbicidas com pulverização seletiva por câmera e sensor — caso Usina Ester (nov/25–jan/26).</div>
+      <div class="clip-img"><span class="big">🖼️</span><span>print da fonte aqui</span></div>
+      <div class="byline">🔗 <a href="https://canaoeste.com.br/noticias/pulverizacao-seletiva-reduz-uso-de-herbicidas-na-cana/" target="_blank" rel="noopener">canaoeste.com.br</a></div>
+    </div>
+  </div>`
+},
+{ type:'standard', block:1, num:11, blockName:'Abertura e panorama do mercado',
+  title:'O tamanho do investimento no nosso setor',
+  body:`<div class="clip-row single">
+    <div class="clipping compact" style="max-width:58%;">
+      <div class="tape"></div>
+      <div class="masthead"><span>Times Brasil / CNBC</span><span>abr/2026</span></div>
+      <div class="headline">R$ 15,6–15,8 bilhões</div>
+      <div class="dek">Volume projetado de negócios em tecnologia para o agro na Agrishow 2026 — IA aplicada à produção, drones e sistemas integrados de gestão entre as apostas do ano.</div>
+      <div class="clip-img"><span class="big">🖼️</span><span>print da fonte aqui</span></div>
+      <div class="byline">🔗 <a href="https://economicnewsbrasil.com.br/2026/04/27/agrishow-2026-investimento-agro-credito-caro/" target="_blank" rel="noopener">economicnewsbrasil.com.br</a></div>
+    </div>
+  </div>
+  <div class="pending-box" style="margin-top:10px; font-size:.8em; padding:10px 14px;">O número "R$ 25,6 bi / +21%" que estava aqui antes eu não consegui confirmar — a única fonte real com esse valor é sobre subvenção de juros do Plano Safra, sem relação com tecnologia. Troquei pelo dado da Agrishow 2026 (verificado); vale conferir se é esse o ângulo que vocês querem.</div>`
+},
+{ type:'standard', block:1, num:12, blockName:'Abertura e panorama do mercado',
+  kicker:'O outro lado da moeda · espinha de peixe',
+  title:'As barreiras reais, para gerir a expectativa da sala',
+  body:`<svg viewBox="0 0 720 300" style="width:100%; height:auto; max-height:230px;" xmlns="http://www.w3.org/2000/svg">
+    <line x1="70" y1="150" x2="560" y2="150" stroke="#1E4C8A" stroke-width="3"/>
+    <polygon points="560,150 542,141 542,159" fill="#1E4C8A"/>
+    <circle cx="55" cy="150" r="16" fill="#1E4C8A"/>
+    <text x="55" y="155" text-anchor="middle" font-size="14" fill="#fff" font-family="Inter">?</text>
+
+    <line x1="160" y1="150" x2="120" y2="60" stroke="#9ACA3C" stroke-width="2.5"/>
+    <circle cx="120" cy="60" r="5" fill="#9ACA3C"/>
+    <text x="120" y="24" text-anchor="middle" font-size="12.5" fill="#152238" font-family="Inter" font-weight="600">Falta de</text>
+    <text x="120" y="39" text-anchor="middle" font-size="12.5" fill="#152238" font-family="Inter" font-weight="600">profissionais</text>
+
+    <line x1="300" y1="150" x2="260" y2="60" stroke="#9ACA3C" stroke-width="2.5"/>
+    <circle cx="260" cy="60" r="5" fill="#9ACA3C"/>
+    <text x="260" y="24" text-anchor="middle" font-size="12.5" fill="#152238" font-family="Inter" font-weight="600">Custo de</text>
+    <text x="260" y="39" text-anchor="middle" font-size="12.5" fill="#152238" font-family="Inter" font-weight="600">implementação</text>
+
+    <line x1="230" y1="150" x2="190" y2="240" stroke="#0095DA" stroke-width="2.5"/>
+    <circle cx="190" cy="240" r="5" fill="#0095DA"/>
+    <text x="190" y="262" text-anchor="middle" font-size="12.5" fill="#152238" font-family="Inter" font-weight="600">LGPD e</text>
+    <text x="190" y="277" text-anchor="middle" font-size="12.5" fill="#152238" font-family="Inter" font-weight="600">privacidade</text>
+
+    <line x1="370" y1="150" x2="330" y2="240" stroke="#0095DA" stroke-width="2.5"/>
+    <circle cx="330" cy="240" r="5" fill="#0095DA"/>
+    <text x="330" y="262" text-anchor="middle" font-size="12.5" fill="#152238" font-family="Inter" font-weight="600">Dificuldade de</text>
+    <text x="330" y="277" text-anchor="middle" font-size="12.5" fill="#152238" font-family="Inter" font-weight="600">medir ROI</text>
+
+    <rect x="565" y="120" width="145" height="60" rx="10" fill="#F4F4F6"/>
+    <text x="637" y="144" text-anchor="middle" font-size="20" font-weight="800" fill="#004A8F" font-family="Baloo 2">59,2%</text>
+    <text x="637" y="162" text-anchor="middle" font-size="10.5" fill="#4C5A72" font-family="Inter">só 1–2 tecnologias</text>
+  </svg>
+  <p style="margin-top:2px; font-size:.82em; color:var(--ink-soft);">Empresas industriais que ainda usam só 1 ou 2 tecnologias digitais <span class="src-pill" style="font-size:9.5px;">🔗 <a href="https://cni.portaldaindustria.com.br/atuacao/inovacao" target="_blank" rel="noopener" style="color:inherit;">CNI</a></span> — o gap entre "todo mundo fala disso" e "todo mundo já faz bem feito" é onde este treinamento quer atuar.</p>
+  <div class="callout"><strong>É por isso que governança (bloco 6) importa tanto quanto adoção.</strong></div>`
+},
+{ type:'standard', block:1, num:13, blockName:'Abertura e panorama do mercado',
+  kicker:'O enquadramento do dia',
+  title:'O que isso significa para você, hoje',
+  body:`<p>Não é sobre virar programador.</p>
+  <p>É sobre desenvolver o <strong>critério</strong> para saber onde vale a pena usar IA no seu setor — e onde não vale.</p>
+  <p>Nas próximas 4 horas, vamos construir esse critério juntos: o conceito, a prática, os limites e os riscos — para que você saia daqui com pelo menos uma ideia real de piloto para a sua área.</p>`
+},
+// ---------- BLOCO 2 — Fundamentos ----------
+{ type:'opener', block:2, kicker:'Fundamentos',
+  title:'Da lógica ao agente, na prática',
+  sub:'Nos próximos 70 minutos: o conceito por trás da IA, os tipos que existem, o panorama de ferramentas — incluindo a nova geração que transforma ideia em protótipo —, a virada agêntica, e prompt, alucinação e janela de contexto para aplicar tudo isso amanhã.'
+},
+{ type:'standard', block:2, num:15, blockName:'Fundamentos',
+  kicker:'Duas lógicas fundamentalmente diferentes · protótipo C — colunas com ícone',
+  title:'O que é IA, de fato',
+  body:`<div class="concept-cols">
+    <div class="concept-card">
+      <div class="ic">⚙️</div>
+      <h3>Código determinístico</h3>
+      <p>O motor por trás do seu ERP, da planilha de estoque, do sistema de contratos. Regra fixa, escrita por um humano: "se isso, então aquilo." Mesma entrada, sempre a mesma saída. Se está errado, é bug — dá para achar a linha exata que falhou.</p>
+    </div>
+    <div class="concept-card">
+      <div class="ic">✨</div>
+      <h3>Inteligência Artificial</h3>
+      <p>Aprende padrões a partir de milhões de exemplos. Não segue uma regra escrita à mão — ela <strong>prevê</strong> a continuação mais provável de um texto, uma classificação, uma decisão. A mesma pergunta pode gerar respostas ligeiramente diferentes a cada vez.</p>
+    </div>
+  </div>
+  <div class="callout" style="margin-top:14px;"><strong>Por que isso muda tudo:</strong> um ERP nunca "inventa" um número errado por conta própria. Uma IA pode gerar uma resposta errada com a <strong>mesma confiança</strong> de uma certa — é a base de tudo que vem depois, especialmente do bloco de Segurança.</div>`
+},
+{ type:'standard', block:2, num:16, blockName:'Fundamentos',
+  kicker:'Nem toda "IA" faz a mesma coisa',
+  title:'Os 5 tipos de IA',
+  body:`<div class="icon-grid" style="--gcols:5;">
+    <div class="gcard"><div class="gi">✨</div><h4>Generativa</h4><p>Cria conteúdo novo</p><div class="ex">Redigir um contrato</div></div>
+    <div class="gcard"><div class="gi">🔮</div><h4>Preditiva</h4><p>Estima um valor futuro</p><div class="ex">Prever quebra de máquina</div></div>
+    <div class="gcard"><div class="gi">🏷️</div><h4>Discriminativa</h4><p>Classifica em categorias</p><div class="ex">Identificar praga numa imagem</div></div>
+    <div class="gcard"><div class="gi">📊</div><h4>Descritiva</h4><p>Organiza o que já aconteceu</p><div class="ex">Dashboard de vendas</div></div>
+    <div class="gcard"><div class="gi">🎯</div><h4>Prescritiva</h4><p>Sugere ou já executa a ação</p><div class="ex">Recomendar aplicação</div></div>
+  </div>
+  <div class="callout" style="margin-top:14px;">A pergunta certa nunca é "vamos usar IA" — é "qual desses 5 tipos resolve o meu problema".</div>`
+},
+{ type:'standard', block:2, num:17, blockName:'Fundamentos',
+  kicker:'Isso no nosso setor',
+  title:'O agro está migrando de preditiva para prescritiva e agêntica',
+  body:`<p>De <strong>"vai chover"</strong> (avisa o risco, você decide)</p>
+  <p>Para cruzar clima + genética da cultivar + histórico da lavoura e <strong>sugerir — ou já tomar — a decisão de plantio, aplicação ou manejo.</strong></p>
+  <div class="src-row">${'{{PILL:Agriconline — Revolução no Agro Brasileiro 2026|https://agriconline.com.br/portal/artigo/ia-agricultura-de-precisao-revolucao-no-agro-brasileiro-2026/}}'}</div>
+  <div class="callout">Vamos voltar exatamente nesse ponto daqui a pouco, ainda neste bloco — na parte de IA agêntica.</div>`
+},
+{ type:'standard', block:2, num:18, blockName:'Fundamentos',
+  title:'O panorama de ferramentas',
+  body:`<div class="icon-grid" style="--gcols:3; margin-bottom:6px;">
+    <div class="gcard"><div class="gi">💬</div><h4>Uso geral</h4><p>Claude, ChatGPT, Gemini, Copilot</p><div class="ex">Redigir, resumir, programar</div></div>
+    <div class="gcard"><div class="gi">📎</div><h4>NotebookLM</h4><p>Respostas ancoradas nos seus documentos-fonte</p><div class="ex">Contratos, relatórios, atas</div></div>
+    <div class="gcard"><div class="gi">🔍</div><h4>Perplexity</h4><p>Pesquisa com links para as fontes originais</p><div class="ex">Decisões que exigem rastreio</div></div>
+  </div>
+  <div class="icon-grid" style="--gcols:1;">
+    <div class="gcard"><div class="gi">🌾</div><h4>Verticais de agro</h4><p>Plataformas de gestão rural com IA embutida (planejamento, estoque, finanças) e monitoramento por imagem de satélite e drone</p></div>
+  </div>
+  <div class="callout" style="margin-top:10px;">Volte ao slide 17: a ferramenta certa depende do <strong>tipo</strong> de problema que você tem — não o contrário.</div>`
+},
+{ type:'standard', block:2, num:19, blockName:'Fundamentos',
+  kicker:'Da ideia ao protótipo',
+  title:'A nova geração: "vibe coding"',
+  body:`<p>Uma categoria de ferramentas ganhou força em 2026: você descreve o que quer, em linguagem natural, e a IA entrega um <strong>produto que já funciona</strong> — interface, banco de dados e login prontos.</p>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:10px 0;">
+    ${deviceFrame('https://lovable.dev', 'lovable.dev', {height:120})}
+    ${deviceFrame('https://base44.com', 'base44.com', {height:120})}
+  </div>
+  <p style="font-size:.88em;"><strong>Lovable</strong> gera apps completos (interface + backend + banco) a partir de um prompt, com edição visual clicável. <strong>Base44</strong> entrega interface, banco, autenticação e lógica de negócio prontos — mais de 250 mil usuários em 6 meses; adquirida pela Wix em 2025.</p>
+  <div class="callout"><strong>Por que interessa à Cotripal:</strong> uma ideia da oficina (bloco 7) pode virar protótipo navegável em horas — não substitui TI para sistemas críticos, mas muda o ponto de partida.</div>
+  <div class="src-row">${'{{PILL:Lovable — top AI platforms 2026|https://lovable.dev/guides/top-ai-platforms-app-development-2026}}'}${'{{PILL:aakashg.com, mai/2026|https://www.news.aakashg.com/p/ai-prototyping-tools-2026}}'}${'{{PILL:Rocket.new, jun/2026|https://www.rocket.new/blog/rocket-new-vs-base44-which-ai-app-builder-is-better}}'}</div>`
+},
+{ type:'standard', block:2, num:20, blockName:'Fundamentos',
+  kicker:'Da resposta à ação',
+  title:'A virada agêntica',
+  body:`<div class="flow">
+    <div class="fstep"><div class="fi">💬</div><h4>Antes: responder</h4><p>Você pergunta, a IA responde. O próximo passo é sempre seu.</p></div>
+    <div class="farrow">→</div>
+    <div class="fstep hi"><div class="fi">⚡</div><h4>Agora: agir</h4><p>A IA acessa sistemas, preenche formulários, cruza dados e executa — sem clique a clique.</p></div>
+  </div>
+  <div class="callout" style="margin-top:14px;">Lembra do slide 18? É exatamente esse movimento acontecendo no agro: de avisar o risco para tomar a decisão.</div>`
+},
+{ type:'standard', block:2, num:21, blockName:'Fundamentos',
+  kicker:'Times de IA (multi-agente)',
+  title:'Quando uma IA sozinha não basta',
+  body:`<svg viewBox="0 0 640 190" style="width:100%; max-width:520px; height:auto; display:block; margin:6px auto;" xmlns="http://www.w3.org/2000/svg">
+    <line x1="120" y1="95" x2="270" y2="45" stroke="#DFE4EA" stroke-width="2.5"/>
+    <line x1="120" y1="95" x2="270" y2="95" stroke="#DFE4EA" stroke-width="2.5"/>
+    <line x1="120" y1="95" x2="270" y2="145" stroke="#DFE4EA" stroke-width="2.5"/>
+    <line x1="270" y1="45" x2="450" y2="95" stroke="#DFE4EA" stroke-width="2.5"/>
+    <line x1="270" y1="95" x2="450" y2="95" stroke="#DFE4EA" stroke-width="2.5"/>
+    <line x1="270" y1="145" x2="450" y2="95" stroke="#DFE4EA" stroke-width="2.5"/>
+    <circle cx="120" cy="95" r="34" fill="#004A8F"/>
+    <text x="120" y="100" text-anchor="middle" font-size="13" fill="#fff" font-family="Inter" font-weight="600">Tarefa</text>
+    <circle cx="270" cy="45" r="28" fill="#9ACA3C"/>
+    <text x="270" y="50" text-anchor="middle" font-size="11.5" fill="#152238" font-family="Inter" font-weight="600">Pesquisa</text>
+    <circle cx="270" cy="95" r="28" fill="#0095DA"/>
+    <text x="270" y="100" text-anchor="middle" font-size="11.5" fill="#fff" font-family="Inter" font-weight="600">Redige</text>
+    <circle cx="270" cy="145" r="28" fill="#9ACA3C"/>
+    <text x="270" y="150" text-anchor="middle" font-size="11.5" fill="#152238" font-family="Inter" font-weight="600">Revisa</text>
+    <circle cx="450" cy="95" r="34" fill="#F4F4F6" stroke="#004A8F" stroke-width="2.5"/>
+    <text x="450" y="92" text-anchor="middle" font-size="11.5" fill="#004A8F" font-family="Inter" font-weight="700">Resultado</text>
+    <text x="450" y="106" text-anchor="middle" font-size="11.5" fill="#004A8F" font-family="Inter" font-weight="700">final</text>
+  </svg>
+  <p style="text-align:center;">Várias IAs especializadas trabalham juntas — cada uma com uma função específica. Como um time de verdade, com papéis definidos, não uma pessoa tentando fazer tudo sozinha.</p>`
+},
+{ type:'standard', block:2, num:22, blockName:'Fundamentos',
+  kicker:'A pergunta certa',
+  title:'Autonomia é uma escolha, não um pacote fechado',
+  body:`<div class="spectrum">
+    <div class="track"><div class="marker" style="left:32%;"></div></div>
+    <div class="ticks">
+      <div class="tick"><b>Assistido</b>a IA sugere</div>
+      <div class="tick"><b>Supervisionado</b>aprova cada passo</div>
+      <div class="tick"><b>Delegado</b>age, revisão por amostragem</div>
+      <div class="tick"><b>Autônomo</b>age e só reporta depois</div>
+    </div>
+  </div>
+  <p style="margin-top:18px;">A pergunta não é <em>"vamos usar IA agêntica?"</em> É <strong>"que nível de autonomia faz sentido para esse processo específico?"</strong></p>
+  <div class="callout">Essa pergunta volta na Oficina, bloco 7 — guarde ela.</div>`
+},
+{ type:'standard', block:2, num:23, blockName:'Fundamentos',
+  kicker:'Da teoria à prática',
+  title:'Prompt, alucinação e janela de contexto',
+  body:`<p>Esse é o trecho mais aplicável do dia: o que você aprende aqui, dá para usar amanhã de manhã.</p>`
+},
+{ type:'standard', block:2, num:24, blockName:'Fundamentos',
+  title:'Como escrever um prompt melhor',
+  body:`<div class="icon-grid" style="--gcols:4;">
+    <div class="gcard"><div class="gi">🎯</div><h4>Contexto</h4><p>Quem é o público, qual o objetivo</p></div>
+    <div class="gcard"><div class="gi">📐</div><h4>Exemplos</h4><p>Do resultado esperado</p></div>
+    <div class="gcard"><div class="gi">📋</div><h4>Formato</h4><p>Tabela, lista, e-mail</p></div>
+    <div class="gcard"><div class="gi">🎭</div><h4>Papel</h4><p>"aja como um analista sênior"</p></div>
+  </div>
+  <div class="callout" style="margin-top:14px;">Quanto mais específico o pedido, melhor a resposta. <em>"Escreva um resumo"</em> é pior que <em>"resuma este relatório de safra em 5 bullets, para um gerente que não vai ler o documento inteiro."</em></div>`
+},
+{ type:'standard', block:2, num:25, blockName:'Fundamentos',
+  kicker:'Por que a IA alucina',
+  title:'Ela não "sabe" fatos — ela prevê a próxima palavra',
+  body:`<p>Quando não tem informação suficiente, a IA pode gerar algo plausível e <strong>errado</strong>, com a mesma confiança de uma resposta certa. (Lembra do slide 16? É essa mesma lógica.)</p>
+  <p><strong>Risco maior em:</strong> números exatos, datas, nomes, temas pouco conhecidos, pedidos sem contexto suficiente.</p>
+  <div class="callout"><strong>Regra:</strong> toda resposta usada para uma decisão de peso — financeira, contratual, de segurança — precisa ser conferida em fonte confiável.</div>`
+},
+{ type:'standard', block:2, num:26, blockName:'Fundamentos',
+  kicker:'Por que a IA "esquece"',
+  title:'Janela de contexto',
+  body:`<p>Toda IA tem um limite de quanta informação processa de uma vez. Fora desse limite, a informação simplesmente não existe para o modelo — mesmo que tenha sido mencionada antes na conversa.</p>
+  <div style="margin:14px 0;">
+    <div style="display:flex; height:46px; border-radius:10px; overflow:hidden;">
+      <div style="flex:1; background:#1E4C8A; display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--mono); font-size:10.5px;">início</div>
+      <div style="flex:2.4; background:linear-gradient(90deg,#DCE6F2,#EDF1F6,#DCE6F2); display:flex; align-items:center; justify-content:center; color:var(--ink-soft); font-family:var(--mono); font-size:10.5px;">meio — mais chance de ser ignorado</div>
+      <div style="flex:1; background:#1E4C8A; display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--mono); font-size:10.5px;">fim</div>
+    </div>
+    <div style="text-align:center; font-family:var(--mono); font-size:10px; color:var(--ink-soft); margin-top:6px;">atenção do modelo dentro da janela de contexto</div>
+  </div>
+  <p><strong>Efeito "Lost in the Middle":</strong> mesmo dentro da janela, informação no meio de um texto longo tem mais chance de ser ignorada — o começo e o fim recebem mais atenção do modelo.</p>
+  <div class="callout"><strong>Regra prática:</strong> o mais importante vai no início ou no fim do que você escreve, nunca enterrado no meio de um documento longo.</div>`
+},
+// ---------- BLOCO 3 — Demonstração ----------
+{ type:'standard', block:3, num:27, blockName:'Demonstração ao vivo',
+  title:'Demonstração ao vivo',
+  body:`<div class="pending-box"><b>[CASO A DEFINIR]</b> — grãos, pecuária, varejo ou indústria.</div>
+  <p style="margin-top:16px;"><strong>Estrutura sugerida para quando o caso for confirmado:</strong></p>
+  <ol class="steps">
+    <li><span class="n">1</span><span>O problema real (uma tarefa que hoje consome tempo ou gera erro)</span></li>
+    <li><span class="n">2</span><span>A ferramenta e o prompt usados, ao vivo, na frente da sala</span></li>
+    <li><span class="n">3</span><span>O resultado — e onde ele erraria sem revisão humana (reforça o bloco de Fundamentos e o de Segurança)</span></li>
+  </ol>`
+},
+// ---------- BLOCO 4 — Intervalo ----------
+{ type:'opener', block:4, kicker:'Bloco 4', title:'☕ Intervalo', sub:'15 minutos' },
+// ---------- BLOCO 5 — Segurança ----------
+{ type:'opener', block:5, kicker:'Segurança', title:'Segurança',
+  sub:'47,4% dos profissionais brasileiros já usam IA por conta própria no trabalho, sem aprovação. É exatamente esse comportamento que este bloco endereça.'
+},
+{ type:'standard', block:5, num:30, blockName:'Segurança',
+  kicker:'O maior risco',
+  title:'Não é técnico — é dado saindo da empresa',
+  body:`<p>Nunca colar em ferramentas de IA públicas:</p>
+  <div class="icon-grid" style="--gcols:4;">
+    <div class="gcard"><div class="gi">🧾</div><h4>Dados de clientes</h4></div>
+    <div class="gcard"><div class="gi">📄</div><h4>Contratos sigilosos</h4></div>
+    <div class="gcard"><div class="gi">💰</div><h4>Números financeiros não públicos</h4></div>
+    <div class="gcard"><div class="gi">🪪</div><h4>Dados pessoais de colaboradores</h4></div>
+  </div>
+  <div class="callout" style="margin-top:14px;"><strong>Teste simples:</strong> eu mandaria isso por e-mail para uma empresa que eu não conheço? Se a resposta é não, também não vai para uma IA sem controle.</div>`
+},
+{ type:'standard', block:5, num:31, blockName:'Segurança',
+  kicker:'Dois riscos que passam despercebidos',
+  title:'Shadow AI e prompt injection',
+  body:`<div class="concept-cols">
+    <div class="concept-card">
+      <div class="ic">👻</div>
+      <h3>Shadow AI</h3>
+      <p>Ferramentas de IA usadas sem aprovação da cooperativa, fora de qualquer controle de TI/compliance. É o comportamento do slide 7 — quase metade dos profissionais brasileiros já faz isso.</p>
+    </div>
+    <div class="concept-card">
+      <div class="ic">💉</div>
+      <h3>Prompt injection</h3>
+      <p>Instruções maliciosas escondidas dentro de um documento ou site externo, tentando manipular a IA que o processa. Conteúdo externo precisa de camadas de validação.</p>
+    </div>
+  </div>`
+},
+// ---------- BLOCO 6 — Governança ----------
+{ type:'opener', block:6, kicker:'Governança e uso responsável', title:'Governança e uso responsável',
+  sub:'Governança não é freio. É o que permite escalar o uso de IA com confiança — sem ela, cada área improvisa sozinha e o risco fica invisível até dar errado.'
+},
+{ type:'standard', block:6, num:33, blockName:'Governança',
+  kicker:'Regulação está convergindo',
+  title:'O modelo é "baseado em risco"',
+  body:`<svg viewBox="0 0 620 190" style="width:100%; max-width:460px; height:auto; display:block; margin:4px auto 10px;" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="310,10 430,60 310,60" fill="#B8543D"/>
+    <polygon points="310,10 190,60 310,60" fill="#B8543D"/>
+    <polygon points="200,65 420,65 450,115 170,115" fill="#B8863D"/>
+    <polygon points="160,120 460,120 495,170 125,170" fill="#0095DA"/>
+    <text x="310" y="40" text-anchor="middle" font-size="11" fill="#fff" font-family="Inter" font-weight="700">Inaceitável</text>
+    <text x="310" y="94" text-anchor="middle" font-size="12" fill="#fff" font-family="Inter" font-weight="700">Alto risco</text>
+    <text x="310" y="150" text-anchor="middle" font-size="12.5" fill="#fff" font-family="Inter" font-weight="700">Risco limitado / mínimo</text>
+    <text x="530" y="94" font-size="10.5" fill="#4C5A72" font-family="Inter">crédito, RH, saúde</text>
+    <text x="510" y="150" font-size="10.5" fill="#4C5A72" font-family="Inter">rascunhos, buscas</text>
+  </svg>
+  <p>EU AI Act e o PL 2338/2023 (Brasil, aprovado no Senado, em tramitação) classificam usos de IA por nível de risco: quanto maior o impacto na vida das pessoas, maior a exigência de controle e transparência.</p>
+  <p style="font-size:.88em; color:var(--ink-soft);">Vale a cooperativa já pensar nesses termos, mesmo antes da lei brasileira ser sancionada.</p>`
+},
+{ type:'standard', block:6, num:34, blockName:'Governança',
+  kicker:'Aprovação humana',
+  title:'Human-in-the-loop',
+  body:`<div class="flow">
+    <div class="fstep"><div class="fi">✉️</div><h4>Baixo risco</h4><p>Rascunho de e-mail</p></div>
+    <div class="farrow">→</div>
+    <div class="fstep hi" style="flex:1.3;"><div class="fi">👁️</div><h4>Revisão leve</h4><p>Checagem rápida antes de usar</p></div>
+  </div>
+  <div class="flow" style="margin-top:12px;">
+    <div class="fstep"><div class="fi">📑</div><h4>Alto risco</h4><p>Crédito, contrato, segurança</p></div>
+    <div class="farrow">→</div>
+    <div class="fstep hi" style="flex:1.3;"><div class="fi">✅</div><h4>Aprovação explícita</h4><p>De uma pessoa responsável</p></div>
+  </div>
+  <p style="margin-top:14px; font-size:.88em;">Qualquer uso com dado pessoal segue os princípios da LGPD: finalidade, minimização, consentimento.</p>`
+},
+{ type:'standard', block:6, num:35, blockName:'Governança',
+  kicker:'Nossa política',
+  title:'Nossa política de uso de IA',
+  body:`<p>A Cotripal já tem uma política de IA própria, com o objetivo de estabelecer diretrizes, regras e responsabilidades para o uso ético, seguro e produtivo de ferramentas e sistemas de IA — aplicável a todos os funcionários, terceiros e prestadores de serviço da cooperativa.</p>
+  <div class="pending-box"><b>[A DEFINIR]</b> — só consegui acessar o objetivo/abrangência do documento (o Google Docs bloqueia a leitura completa sem login). Falta o texto completo — regras específicas, papéis e processo de aprovação — para fechar este slide.</div>
+  <div class="callout">Toda ideia que sair da oficina (próximo bloco) vai passar por duas perguntas: <strong>que nível de autonomia</strong> (slide 23), e <strong>quem precisa aprovar</strong> (este slide).</div>`
+},
+// ---------- BLOCO 7 — Oficina ----------
+{ type:'opener', block:7, kicker:'Oficina em duplas', title:'Oficina em duplas',
+  sub:'Objetivo: cada dupla sai daqui com uma ideia concreta de piloto de IA para o seu setor.'
+},
+{ type:'standard', block:7, num:37, blockName:'Oficina em duplas',
+  title:'O que vamos fazer',
+  body:`<ol class="steps">
+    <li><span class="n">1</span><span>Mapear um processo real e repetitivo do seu setor <em>(10 min)</em></span></li>
+    <li><span class="n">2</span><span>Testar, ao vivo, um prompt real sobre esse processo <em>(15 min)</em></span></li>
+    <li><span class="n">3</span><span>Classificar: que nível de autonomia? que nível de aprovação necessária? <em>(15 min)</em></span></li>
+    <li><span class="n">4</span><span>Resumir num cartão: problema, abordagem, quem aprova <em>(5 min)</em></span></li>
+  </ol>`
+},
+{ type:'standard', block:7, num:38, blockName:'Oficina em duplas',
+  kicker:'Perguntas para destravar',
+  title:'Se a dupla travar, pergunte:',
+  body:`<ul>
+    <li>Que decisão vocês tomam hoje sem dado suficiente?</li>
+    <li>Onde vocês perdem mais tempo copiando informação de um lugar para o outro?</li>
+    <li>Se isso desse errado, quem seria afetado?</li>
+  </ul>`
+},
+// ---------- BLOCO 8 — Pitch e handoff ----------
+{ type:'opener', block:8, kicker:'Pitch e próximos passos', title:'Pitch e próximos passos', sub:'' },
+{ type:'standard', block:8, num:40, blockName:'Pitch e handoff',
+  title:'2 minutos por dupla',
+  body:`<p>Problema · Abordagem · Nível de aprovação necessário</p>
+  <div class="callout"><strong>Uma boa ideia de piloto:</strong> processo real e recorrente, impacto mensurável, risco baixo/médio o suficiente para começar rápido.</div>`
+},
+{ type:'standard', block:8, num:41, blockName:'Pitch e handoff',
+  kicker:'Fechamento',
+  title:'Isso é o primeiro passo, não um evento isolado',
+  body:`<p>Parte da trilha de capacitação contínua prevista no nosso Mapa Estratégico (slide 5, objetivo 9).</p>
+  <div class="pending-box"><b>Próximos passos: [A DEFINIR]</b></div>`
+},
+{ type:'opener', block:8, kicker:'Obrigada', title:'Obrigada!', sub:'Da Ferramenta à Transformação' },
+];
+
+// Expand {{PILL:label}} / {{PILL:label|url}} shorthand into real source pills
+SLIDES.forEach(s=>{
+  if(!s.body) return;
+  s.body = s.body.replace(/\{\{PILL:([^|}]+)(?:\|([^}]+))?\}\}/g, (m, label, url)=>{
+    return srcPillHTML(label.trim(), url ? url.trim() : null);
+  });
+});
+function srcPillHTML(label, url){
+  if(!url) return `<span class="src-pill pending" title="Link a confirmar">🔗 ${label}</span>`;
+  return `<a class="src-pill" href="${url}" target="_blank" rel="noopener">🔗 ${label}</a>`;
+}
+/* SLIDE_DATA_END */
+
+/* ============ RENDERER ============ */
+const frame = document.getElementById('frame');
+
+function srcPill(s){
+  if(!s.url){
+    return `<span class="src-pill pending" title="Link a confirmar">🔗 ${s.label}</span>`;
+  }
+  return `<a class="src-pill" href="${s.url}" target="_blank" rel="noopener">🔗 ${s.label}</a>`;
+}
+
+function renderSources(sources){
+  if(!sources || !sources.length) return '';
+  return `<div class="src-row">${sources.map(srcPill).join('')}</div>`;
+}
+
+function renderSlide(s, idx){
+  const id = `slide-${idx+1}`;
+  if(s.type === 'cover'){
+    return `<section class="slide dark slide-cover" id="${id}">
+      <div class="cover-bg"></div>
+      <div class="cover-scrim"></div>
+      <div class="eyebrow-top">Cotripal · Capacitação Contínua</div>
+      <div class="cover-content">
+        <div class="cover-card">
+          <h1>${s.title}</h1>
+          <div class="cover-sub">${s.sub}</div>
+          <div class="cover-meta">${s.meta.map(m=>`<span>${m}</span>`).join('<span aria-hidden="true">·</span>')}</div>
+        </div>
+      </div>
+    </section>`;
+  }
+  if(s.type === 'opener'){
+    return `<section class="slide dark" id="${id}">
+      ${waveSVG('opener')}
+      <div class="content">
+        <div class="block-num">Bloco ${s.block}</div>
+        <div class="kicker">${s.kicker || ''}</div>
+        <h2>${s.title}</h2>
+        <div class="sub">${s.sub || ''}</div>
+      </div>
+    </section>`;
+  }
+  // standard light slide
+  return `<section class="slide" id="${id}">
+    <div class="eyebrow">
+      <span class="tag">Bloco ${s.block} · ${s.blockName}</span>
+      <span class="count">Slide ${idx+1} / ${SLIDES.length}</span>
+    </div>
+    <div class="content-center">
+      ${s.kicker ? `<div class="kicker">${s.kicker}</div>` : ''}
+      <h2>${s.title}</h2>
+      <div class="body">${s.body}</div>
+    </div>
+  </section>`;
+}
+
+frame.innerHTML = SLIDES.map(renderSlide).join('\n');
+
+/* ============ NAVIGATION ============ */
+let current = 0;
+const slideEls = Array.from(document.querySelectorAll('.slide'));
+const btnPrev = document.getElementById('btn-prev');
+const btnNext = document.getElementById('btn-next');
+const counter = document.getElementById('counter');
+const progressFill = document.getElementById('progress-fill');
+const blockLabel = document.getElementById('block-label');
+
+function pad(n){ return String(n).padStart(2,'0'); }
+
+function go(i){
+  if(i < 0 || i >= slideEls.length) return;
+  slideEls[current].classList.remove('active');
+  current = i;
+  slideEls[current].classList.add('active');
+  counter.textContent = `${pad(current+1)} / ${slideEls.length}`;
+  progressFill.style.width = `${(current)/(slideEls.length-1)*100}%`;
+  btnPrev.disabled = current === 0;
+  btnNext.disabled = current === slideEls.length-1;
+  const s = SLIDES[current];
+  if(s.type === 'cover'){
+    blockLabel.innerHTML = `<b>Abertura</b> — Capa`;
+  } else if(s.type === 'opener'){
+    blockLabel.innerHTML = `<b>Bloco ${s.block}</b> — ${s.title.replace(/<[^>]+>/g,'')}`;
+  } else {
+    blockLabel.innerHTML = `<b>Bloco ${s.block}</b> — ${s.blockName}`;
+  }
+  window.location.hash = `s${current+1}`;
+}
+
+btnPrev.addEventListener('click', ()=>go(current-1));
+btnNext.addEventListener('click', ()=>go(current+1));
+
+/* ============ GRID OVERLAY (slide navigator) ============ */
+const gridOverlay = document.getElementById('grid-overlay');
+const gridBody = document.getElementById('grid-overlay-body');
+const blockBg = {1:'#1E4C8A',2:'#1E4C8A',3:'#7A5EA8',4:'#3A7D6E',5:'#B8543D',6:'#B8863D',7:'#3D8AB8',8:'#5E6BA8'};
+
+function plainTitle(s){ return (s.title||'').replace(/<[^>]+>/g,' '); }
+
+function buildGrid(){
+  gridBody.innerHTML = SLIDES.map((s,i)=>{
+    const label = s.type==='cover' ? 'Capa' : plainTitle(s);
+    const bg = s.type==='standard' ? 'var(--navy)' : (blockBg[s.block]||'var(--navy)');
+    const textColor = s.type==='standard' ? '#fff' : '#fff';
+    return `<div class="grid-tile" data-idx="${i}">
+      <div class="thumb" style="background:${bg}; color:${textColor};">${label}</div>
+      <div class="meta"><span>${pad(i+1)}</span><span>${s.type==='cover' ? 'Capa' : 'Bloco '+s.block}</span></div>
+    </div>`;
+  }).join('');
+  gridBody.querySelectorAll('.grid-tile').forEach(t=>{
+    t.addEventListener('click', ()=>{ go(parseInt(t.dataset.idx,10)); closeGrid(); });
+  });
+}
+function openGrid(){
+  buildGrid();
+  gridOverlay.classList.add('open');
+  gridOverlay.setAttribute('aria-hidden','false');
+  const cur = gridBody.querySelector(`[data-idx="${current}"]`);
+  if(cur) cur.classList.add('current');
+}
+function closeGrid(){
+  gridOverlay.classList.remove('open');
+  gridOverlay.setAttribute('aria-hidden','true');
+}
+document.getElementById('btn-grid').addEventListener('click', openGrid);
+document.getElementById('btn-grid-close').addEventListener('click', closeGrid);
+gridOverlay.addEventListener('click', (e)=>{ if(e.target===gridOverlay) closeGrid(); });
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape'){ closeGrid(); return; }
+  if(gridOverlay.classList.contains('open')) return;
+  if(e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown'){ e.preventDefault(); go(current+1); }
+  if(e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); go(current-1); }
+  if(e.key === 'Home'){ go(0); }
+  if(e.key === 'End'){ go(slideEls.length-1); }
+});
+// basic swipe support
+let touchX = null;
+frame.addEventListener('touchstart', e=>{ touchX = e.touches[0].clientX; });
+frame.addEventListener('touchend', e=>{
+  if(touchX === null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if(Math.abs(dx) > 50) go(current + (dx < 0 ? 1 : -1));
+  touchX = null;
+});
+
+// deep link on load
+(function init(){
+  const m = window.location.hash.match(/^#s(\d+)$/);
+  const start = m ? Math.max(0, Math.min(slideEls.length-1, parseInt(m[1],10)-1)) : 0;
+  slideEls[0].classList.add('active');
+  go(start);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Arquitetura & Segurança em IA — Whiteboard · Langflow</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root{
+  --paper:#EDEAE2; --dot:#D6D1C4; --ink:#231F16; --sub:#6B6455;
+  --shadow: 0 1px 0 rgba(35,31,22,.04), 0 6px 16px rgba(35,31,22,.08);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--paper);font-family:'IBM Plex Sans',sans-serif;color:var(--ink);}
+
+#viewport{position:fixed;inset:0;overflow:hidden;cursor:grab;
+  background-image: radial-gradient(var(--dot) 1.4px, transparent 1.4px); background-size:26px 26px;}
+#viewport.grabbing{cursor:grabbing;}
+#canvas{position:absolute;top:0;left:0;transform-origin:0 0;width:1px;height:1px;}
+
+/* ---------- HUD ---------- */
+#hud{position:fixed;top:18px;left:76px;z-index:60;display:flex;gap:10px;align-items:center;}
+.hud-card{background:#FBFAF7;border:1px solid #D9D3C4;border-radius:10px;box-shadow:var(--shadow);padding:10px 14px;}
+#title-hud{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;}
+#title-hud small{display:block;font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:10px;color:var(--sub);margin-top:2px;letter-spacing:.4px;}
+#zoom-controls{display:flex;gap:4px;}
+#zoom-controls button{width:30px;height:30px;border-radius:8px;border:1px solid #D9D3C4;background:#fff;font-family:'IBM Plex Mono',monospace;font-size:15px;cursor:pointer;}
+#zoom-controls button:hover{background:#F1EEE6;}
+button.hud-card{font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;}
+#edit-toggle.on{background:#2E5EAA;color:#fff;border-color:#2E5EAA;}
+#legend{position:fixed;bottom:18px;left:18px;z-index:55;display:flex;gap:10px;flex-wrap:wrap;max-width:520px;}
+.chip{display:flex;align-items:center;gap:6px;background:#FBFAF7;border:1px solid #D9D3C4;border-radius:20px;padding:5px 10px 5px 8px;font-family:'IBM Plex Mono',monospace;font-size:10px;box-shadow:var(--shadow);}
+.chip i{width:9px;height:9px;border-radius:3px;display:inline-block;}
+#hint{position:fixed;bottom:18px;right:18px;z-index:55;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--sub);
+  background:#FBFAF7;border:1px solid #D9D3C4;border-radius:10px;padding:8px 12px;box-shadow:var(--shadow);max-width:280px;line-height:1.6;}
+#hud-note{position:fixed;top:76px;left:76px;z-index:55;max-width:320px;background:#FFF6D3;border:1px solid #B98900;border-radius:10px;
+  padding:9px 12px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#4A3900;box-shadow:var(--shadow);display:none;line-height:1.55;}
+#hud-note.show{display:block;}
+
+/* ---------- vertical toolbar (Miro-like) ---------- */
+#vtoolbar{position:fixed;top:50%;left:14px;transform:translateY(-50%);z-index:60;display:none;flex-direction:column;
+  gap:8px;background:#FBFAF7;border:1px solid #D9D3C4;border-radius:14px;padding:10px 8px;box-shadow:var(--shadow);}
+#vtoolbar.show{display:flex;}
+#vtoolbar button{width:42px;height:42px;border-radius:10px;border:1px solid #D9D3C4;background:#fff;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:16px;color:var(--ink);}
+#vtoolbar button span{font-family:'IBM Plex Mono',monospace;font-size:7.5px;color:var(--sub);}
+#vtoolbar button:hover{background:#F1EEE6;}
+#vtoolbar button.active{background:#2E5EAA;border-color:#2E5EAA;color:#fff;}
+#vtoolbar button.active span{color:#DCE7F8;}
+#vtoolbar button.mode-btn.active{background:#2E5EAA;border-color:#2E5EAA;color:#fff;}
+#vtoolbar .vsep{height:1px;background:#E3DED0;margin:2px 4px;}
+
+/* ---------- freeform elements ---------- */
+.el{position:absolute;}
+.el-shape{border-radius:12px;box-shadow:var(--shadow);border-style:solid;border-width:1.6px;z-index:1;}
+.el-shape.circle{border-radius:50%;}
+.el-shape.dark{box-shadow:0 4px 18px rgba(18,42,87,.35);}
+.el-text{z-index:3;line-height:1.42;padding:2px 4px;border-radius:4px;cursor:default;}
+.el-text.el-title{font-family:'Space Grotesk',sans-serif;font-weight:700;}
+.el-text.el-body{font-family:'IBM Plex Sans',sans-serif;}
+.el-text.el-mono{font-family:'IBM Plex Mono',monospace;}
+.el-text.el-pill{display:inline-block;font-family:'IBM Plex Mono',monospace;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid;z-index:3;}
+.el-icon{z-index:3;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.el-icon svg{width:60%;height:60%;}
+.el-line{height:0;border-top:2px solid #2E5EAA;transform-origin:0 0;z-index:2;}
+.el-line.dash{border-top-style:dashed;}
+.el-arrow{position:absolute;right:-1px;top:-4px;width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:7px solid #2E5EAA;}
+.el-embed{z-index:2;overflow:hidden;border-radius:14px;box-shadow:var(--shadow);}
+.el-embed svg{width:100%;height:auto;display:block;}
+
+.edit-on .el{cursor:grab;}
+.edit-on .el-text{cursor:text;}
+.edit-on .el:active{cursor:grabbing;}
+.el.selected{outline:2px solid #2E5EAA;outline-offset:3px;}
+.el.selected.el-shape{outline-offset:1px;}
+
+.el-tools{position:absolute;top:-16px;right:-8px;display:none;gap:4px;align-items:center;z-index:40;}
+.edit-on .el:hover>.el-tools, .edit-on .el.selected>.el-tools{display:flex;}
+.el-del{width:20px;height:20px;border-radius:50%;border:1.4px solid #C1443C;background:#fff;color:#C1443C;font-size:12px;
+  line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);padding:0;}
+.el-del:hover{background:#C1443C;color:#fff;}
+.icon-swap-btn{width:20px;height:20px;border-radius:50%;border:1.4px solid #2E5EAA;background:#fff;font-size:10px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);padding:0;}
+.palette{display:flex;gap:3px;background:#fff;border-radius:20px;padding:3px 5px;box-shadow:var(--shadow);}
+.sw{width:12px;height:12px;border-radius:50%;cursor:pointer;border:1.4px solid rgba(0,0,0,.2);padding:0;}
+.el-resize{position:absolute;width:12px;height:12px;right:-6px;bottom:-6px;border-radius:3px;background:#2E5EAA;
+  cursor:nwse-resize;box-shadow:var(--shadow);display:none;z-index:35;}
+.edit-on .el:hover>.el-resize, .edit-on .el.selected>.el-resize{display:block;}
+.edit-on [contenteditable="true"]:focus{outline:2px dashed #2E5EAA;outline-offset:2px;background:rgba(46,94,170,.05);}
+
+#rubber{position:absolute;border:1.5px dashed #2E5EAA;background:rgba(46,94,170,.08);pointer-events:none;z-index:999;}
+.line-preview{opacity:.6;}
+
+#icon-picker{position:fixed;z-index:200;display:none;flex-wrap:wrap;gap:5px;width:190px;background:#fff;
+  border:1px solid #D9D3C4;border-radius:12px;padding:9px;box-shadow:var(--shadow);}
+.ip-btn{width:32px;height:32px;border-radius:8px;border:1px solid #D9D3C4;background:#2E5EAA;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;}
+.ip-btn:hover{outline:2px solid #122A57;}
+
+.zone-label-el{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:21px;}
+.zone-sub-el{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--sub);text-transform:uppercase;letter-spacing:.3px;}
+</style>
+</head>
+<body>
+
+<div id="hud">
+  <div class="hud-card" id="title-hud">Arquitetura & Segurança em IA
+    <small>WHITEBOARD · GT INSTITUTO AGREGAR · v1.2 editável</small>
+  </div>
+  <div class="hud-card" id="zoom-controls"><button id="zoom-out">−</button><button id="zoom-reset">◎</button><button id="zoom-in">+</button></div>
+  <button class="hud-card" id="edit-toggle">✏️ Editar</button>
+  <button class="hud-card" id="reset-board" style="display:none;">↺ Restaurar original</button>
+</div>
+<div id="hud-note">Use os botões "Selecionar"/"Mover tela" no topo da barra à esquerda (ou segure Espaço) para alternar entre selecionar elementos e navegar pelo quadro. Clique-arraste vazio (em modo Selecionar) ou Shift+clique escolhem vários elementos para mover juntos.</div>
+
+<div id="vtoolbar">
+  <button id="mode-select" class="mode-btn active" title="Selecionar (padrão)">⬚<span>Selecionar</span></button>
+  <button id="mode-pan" class="mode-btn" title="Mover tela (ou segure Espaço)">✋<span>Mover tela</span></button>
+  <div class="vsep"></div>
+  <button id="tool-note">🗒<span>Nota</span></button>
+  <button id="tool-rect">▭<span>Forma</span></button>
+  <button id="tool-text">T<span>Texto</span></button>
+  <button id="tool-icon">◔<span>Ícone</span></button>
+  <button id="tool-line">╱<span>Linha</span></button>
+</div>
+
+<div id="legend">
+  <span class="chip"><i style="background:#2E5EAA"></i>Arquitetura</span>
+  <span class="chip"><i style="background:#C1443C"></i>Segurança</span>
+  <span class="chip"><i style="background:#B98900"></i>Gaps v1.1</span>
+  <span class="chip"><i style="background:#2F8F5B"></i>Langflow</span>
+  <span class="chip"><i style="background:#6B4FA0"></i>Anatomia</span>
+</div>
+<div id="hint">modo "Selecionar": clique vazio abre caixa de seleção · modo "Mover tela" (ou segure Espaço): arraste para navegar · scroll para zoom</div>
+<div id="icon-picker"></div>
+
+<div id="viewport"><div id="canvas"></div></div>
+
+<script>
+/* =========================================================================
+   TOKENS
+========================================================================= */
+const COLORS = {
+ arq:{bg:'#E9F1FF',bd:'#2E5EAA',tx:'#122A57'},
+ sec:{bg:'#FDEDEA',bd:'#C1443C',tx:'#4A1712'},
+ gap:{bg:'#FFF6D3',bd:'#B98900',tx:'#4A3900'},
+ lf :{bg:'#E9F7EF',bd:'#2F8F5B',tx:'#123B23'},
+ anat:{bg:'#F1EEFB',bd:'#6B4FA0',tx:'#2E2154'},
+ ok:{bg:'#EBFBF1',bd:'#2F8F5B',tx:'#123B23'},
+ warn:{bg:'#FFF7E3',bd:'#C98A12',tx:'#4A3900'},
+ no:{bg:'#FDECEA',bd:'#C1443C',tx:'#4A1712'},
+ neutral:{bg:'#FFFFFF',bd:'#8A8272',tx:'#231F16'},
+ dark:{bg:'#122A57',bd:'#2E5EAA',tx:'#EDEAE2'},
+ ink:'#231F16',
+};
+const SWATCHES = [COLORS.arq,COLORS.sec,COLORS.gap,COLORS.lf,COLORS.anat,COLORS.neutral];
+
+const ICONS = {
+ lock:'<rect x="8" y="13" width="14" height="11" rx="2.5" fill="none" stroke="#fff" stroke-width="2"/><path d="M11 13v-3a4 4 0 0 1 8 0v3" fill="none" stroke="#fff" stroke-width="2"/>',
+ door:'<rect x="9" y="6" width="12" height="19" rx="1.5" fill="none" stroke="#fff" stroke-width="2"/><circle cx="17.5" cy="16" r="1.2" fill="#fff"/>',
+ filter:'<path d="M7 8h16l-6 8v6l-4 2v-8z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>',
+ hand:'<path d="M10 22v-8a2 2 0 0 1 4 0v4M14 18v-6a2 2 0 0 1 4 0v6M18 18v-4a2 2 0 0 1 4 0v6a5 5 0 0 1-5 5h-3a6 6 0 0 1-5-3l-3-5 1.6-1.2a2 2 0 0 1 2.6.4L12 18" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>',
+ stack:'<path d="M16 6 6 11l10 5 10-5z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M6 16l10 5 10-5M6 21l10 5 10-5" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>',
+ shield:'<path d="M15 5 25 9 V15 C25 21 20 25 15 26 C10 25 5 21 5 15 V9 Z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>',
+ database:'<ellipse cx="15" cy="8" rx="9" ry="3.5" fill="none" stroke="#fff" stroke-width="2"/><path d="M6 8v14c0 1.9 4 3.5 9 3.5s9-1.6 9-3.5V8M6 15c0 1.9 4 3.5 9 3.5s9-1.6 9-3.5" fill="none" stroke="#fff" stroke-width="2"/>',
+ cloud:'<path d="M9 20a5 5 0 0 1 .3-10 6.5 6.5 0 0 1 12.4 1.8A4.5 4.5 0 0 1 21 20z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>',
+ bolt:'<path d="M17 4 8 17h6l-2 9 11-14h-6z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>',
+ gear:'<circle cx="15" cy="15" r="4.5" fill="none" stroke="#fff" stroke-width="2"/><path d="M15 3v4M15 23v4M27 15h-4M7 15H3M23.3 6.7l-2.8 2.8M9.5 20.5l-2.8 2.8M23.3 23.3l-2.8-2.8M9.5 9.5 6.7 6.7" stroke="#fff" stroke-width="2" stroke-linecap="round"/>',
+ chat:'<path d="M6 8h18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H14l-6 5v-5H6a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>',
+ check:'<path d="M6 16l6 6 12-14" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>',
+ alert:'<path d="M15 4 27 25H3z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><line x1="15" y1="12" x2="15" y2="18" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="21.5" r="1.3" fill="#fff"/>',
+ link:'<path d="M13 17l4-4M11 20l-3 3a4 4 0 0 1-6-6l3-3M19 10l3-3a4 4 0 0 1 6 6l-3 3" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/>',
+ plug:'<path d="M10 4v8M20 4v8M8 12h14v4a7 7 0 0 1-14 0z M15 23v4" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>',
+};
+
+const canvas = document.getElementById('canvas');
+const viewport = document.getElementById('viewport');
+
+/* =========================================================================
+   PRIMITIVAS DE CRIAÇÃO DE ELEMENTOS
+========================================================================= */
+let elCounter = 0;
+function mk(cls,x,y,w,h){
+  const d = document.createElement('div');
+  d.className = 'el '+cls;
+  d.id = 'el-'+(++elCounter);
+  d.style.left = Math.round(x)+'px'; d.style.top = Math.round(y)+'px';
+  if(w!=null) d.style.width = Math.round(w)+'px';
+  if(h!=null) d.style.height = Math.round(h)+'px';
+  canvas.appendChild(d);
+  return d;
+}
+function addShape(x,y,w,h,bg,bd,extraCls){
+  const s = mk('el-shape '+(extraCls||''), x,y,w,h);
+  s.style.background=bg; s.style.borderColor=bd;
+  return s;
+}
+function addText(x,y,w,cls,html,fs,color){
+  const t = mk('el-text '+cls, x,y,w,null);
+  t.innerHTML = html;
+  t.dataset.basefs = fs || (cls.indexOf('el-title')>-1?13.5:11.8);
+  t.dataset.basew = w;
+  t.style.fontSize = t.dataset.basefs+'px';
+  if(color) t.style.color = color;
+  return t;
+}
+function addPill(x,y,html,bg,bd,tx){
+  const p = mk('el-text el-pill', x,y,null,null);
+  p.innerHTML = html; p.style.background=bg; p.style.borderColor=bd; p.style.color=tx; p.style.fontSize='9.5px';
+  p.dataset.basefs=9.5; p.dataset.basew=140;
+  return p;
+}
+function addIcon(x,y,name,bg,size){
+  const i = mk('el-icon', x,y,size||32,size||32);
+  i.style.background = bg; i.dataset.icon = name;
+  i.innerHTML = `<svg viewBox="0 0 30 30">${ICONS[name]}</svg>`;
+  return i;
+}
+function addLine(x1,y1,x2,y2,color,dashed,arrow){
+  const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy), ang=Math.atan2(dy,dx)*180/Math.PI;
+  const l = mk('el-line'+(dashed?' dash':''), x1,y1,len,0);
+  l.style.borderTopColor = color;
+  l.style.transform = `rotate(${ang}deg)`;
+  if(arrow!==false){ const ah=document.createElement('div'); ah.className='el-arrow'; ah.style.borderLeftColor=color; l.appendChild(ah); }
+  return l;
+}
+function zoneHeader(x,y,title,sub,color){
+  const t = addText(x,y,900,'zone-label-el',title,21,color);
+  const s = addText(x,y+t.offsetHeight+2,900,'zone-sub-el',sub,10.5,'#6B6455');
+  return y + t.offsetHeight + s.offsetHeight + 14;
+}
+
+/* masonry-ish coluna */
+function grid(items,x0,y0,cols,colW,gapX,gapY,renderFn){
+  const colY = new Array(cols).fill(y0);
+  items.forEach((item,i)=>{
+    const c = i%cols;
+    const x = x0 + c*(colW+gapX);
+    const bottom = renderFn(item, x, colY[c], colW);
+    colY[c] = bottom + gapY;
+  });
+  return Math.max(...colY);
+}
+
+/* =========================================================================
+   ZONA 1 — DIAGRAMA DE ARQUITETURA (100% HTML, não SVG)
+========================================================================= */
+function buildArchDiagram(x0,y0){
+  let bottom = zoneHeader(x0,y0,'01 · Arquitetura de Software (diagrama em HTML)','fluxo real entre componentes — cada caixa é uma peça independente e movível',COLORS.arq.tx);
+  const top = bottom + 16;
+
+  // fronteira de confiança
+  addLine(x0+560, top-6, x0+560, top+330, '#C1443C', true, false);
+  addPill(x0+566, top-2, 'FRONTEIRA DE CONFIANÇA', '#fff', '#C1443C', '#C1443C');
+
+  function node(x,y,w,h,opts){
+    const bg = opts.dark?COLORS.dark.bg:'#fff';
+    const bd = opts.bd || '#D9D3C4';
+    addShape(x,y,w,h, bg, bd, (opts.dark?'dark':'')+(opts.circle?' circle':'')+(opts.dashedBorder?'':''));
+    if(opts.dashedBorder){ /* handled via inline border-style below */ }
+    const s = document.getElementById('el-'+elCounter); // last shape created
+    if(opts.dashedBorder) s.style.borderStyle='dashed';
+    const tColor = opts.dark? '#fff' : (opts.tx||COLORS.arq.tx);
+    if(opts.circle){
+      addText(x, y+h/2-9, w, 'el-title', opts.title, 11, tColor).style.textAlign='center';
+      return {cx:x+w/2, cy:y+h/2, right:x+w, left:x, top:y, bottom:y+h};
+    }
+    const t = addText(x+12, y+12, w-24, 'el-title', opts.title, 12.5, tColor);
+    let by = y+12+t.offsetHeight+4;
+    if(opts.body){ const b = addText(x+12, by, w-24, 'el-body', opts.body, 9.4, opts.dark?'#C8D6EE':'#6B6455'); by += b.offsetHeight; }
+    return {cx:x+w/2, cy:y+h/2, right:x+w, left:x, top:y, bottom:y+h, mid:(y+by)/2};
+  }
+
+  const usr  = node(x0+0,   top+90, 86,86, {circle:true, title:'Usuário'});
+  const iface= node(x0+126, top+60, 150,150, {title:'Interface', body:'chat · app · API<br><span style="font-family:\'IBM Plex Mono\';font-size:8.4px;color:#2F8F5B">autenticação aqui</span>'});
+  const orq  = node(x0+326, top+30, 190,200, {dark:true, title:'Orquestrador', body:'monta contexto<br>aplica autorização<br>chama tools/MCP<br><span style="font-family:\'IBM Plex Mono\';font-size:8.4px;color:#F0A98A">guardrails entrada/saída</span>'});
+  const llm  = node(x0+596, top+60, 148,150, {bd:'#C1443C', title:'LLM', body:'API ou on-prem<br><span style="font-family:\'IBM Plex Mono\';font-size:8.4px;color:#C1443C">fora da fronteira</span>'});
+  const mcp  = node(x0+786, top+60, 170,150, {bd:'#2F8F5B', dashedBorder:true, title:'Tools · MCP', body:'servidores de terceiro<br><span style="font-family:\'IBM Plex Mono\';font-size:8px;color:#B98900">v1.1 · tratar como dado</span>'});
+  const ret  = node(x0+326, top+270, 190,140, {title:'Camada de Retrieval', body:'vetorial · BM25 · SQL · híbrido<br><span style="font-family:\'IBM Plex Mono\';font-size:8px;color:#2F8F5B">filtro de permissão em todos</span><br><span style="font-family:\'IBM Plex Mono\';font-size:8px;color:#B98900">v1.1 · propaga revogação</span>'});
+  const biz  = node(x0+556, top+280, 180,120, {title:'Sistemas de Negócio', body:'ERP · CRM · help-desk<br><span style="font-family:\'IBM Plex Mono\';font-size:8px;color:#C1443C">ação = human-in-the-loop</span>'});
+
+  // setas de execução (sólidas azuis)
+  addLine(usr.right, usr.cy, iface.left, usr.cy, '#2E5EAA', false);
+  addLine(iface.right, iface.cy, orq.left, iface.cy, '#2E5EAA', false);
+  addLine(orq.right, orq.top+40, llm.left, llm.top+30, '#2E5EAA', false);
+  addLine(llm.left, llm.top+70, orq.right, orq.top+90, '#2E5EAA', false);
+  addLine(llm.right, llm.top+40, mcp.left, mcp.top+40, '#2E5EAA', false, false);
+  addText(x0+430, top+8, 200, 'el-mono', 'prompt + contexto →', 8.6, '#2E5EAA');
+  addText(x0+430, top+102, 210, 'el-mono', '← resposta (não confiável)', 8.6, '#2E5EAA');
+
+  // fluxo de dados (verde tracejado)
+  addLine(orq.cx-30, orq.bottom, ret.cx-20, ret.top, '#2F8F5B', true);
+  addLine(ret.cx+20, ret.top, orq.cx+10, orq.bottom, '#2F8F5B', true);
+  addLine(orq.cx+60, orq.bottom, biz.left+20, biz.top, '#2F8F5B', true);
+  addText(x0+250, top+230, 140, 'el-mono', 'consulta RAG', 8.6, '#2F8F5B');
+  addText(x0+470, top+250, 130, 'el-mono', 'tools / APIs', 8.6, '#2F8F5B');
+
+  // banner de ingestão
+  const bannerY = top+430;
+  addShape(x0, bannerY, 1050, 58, '#EEF7F1', '#BFDECB');
+  addText(x0+18, bannerY+9, 500, 'el-mono', 'FLUXO DE DADOS · OFFLINE', 8.6, '#166B60');
+  addText(x0+18, bannerY+27, 1010, 'el-body', 'Documentos & fontes → extração → chunking → embeddings → <b>Vector DB</b> <span style="color:#6B6455">(metadados de permissão por chunk)</span>', 10, '#1F4E46');
+  addLine(ret.cx, ret.bottom, ret.cx, bannerY, '#2F8F5B', true);
+
+  // legenda
+  const lgY = bannerY+70;
+  addPill(x0, lgY, '— execução (tempo real)', '#fff', '#2E5EAA', '#2E5EAA');
+  addPill(x0+230, lgY, '┄ dados (RAG / ingestão)', '#fff', '#2F8F5B', '#2F8F5B');
+  addPill(x0+470, lgY, '┄ fronteira de confiança', '#fff', '#C1443C', '#C1443C');
+  addText(x0, lgY+30, 1000, 'el-mono', 'Diagrama refeito 100% em HTML/CSS (não SVG) — cada caixa, seta e rótulo acima é uma peça independente: mova, redimensione ou recolora qualquer uma delas em modo edição.', 9, '#6B6455');
+
+  return lgY+55;
+}
+
+/* =========================================================================
+   ZONA 2 — SEGURANÇA (5 camadas) + matriz
+========================================================================= */
+const SEC = [
+ {n:'C1',ic:'lock',t:'Perímetro de Dados',d:'Autorização no retrieval, filtro por chunk, auditoria de acesso, propagação de revogação e isolamento multi-tenant (v1.1).'},
+ {n:'C2',ic:'door',t:'Fronteira de Entrada',d:'Prompt Injection direta, Indirect Injection (RAG), Jailbreak, PII, Negação de Wallet/Denial of Wallet.'},
+ {n:'C3',ic:'filter',t:'Fronteira de Saída',d:'Vazamento de dados/exfiltração, Insecure Output Handling — tratar output do LLM como input não confiável.'},
+ {n:'C4',ic:'hand',t:'Agência e Execução',d:'Excessive Agency, Execução de código insegura — human-in-the-loop, allowlist, sandbox.'},
+ {n:'C5',ic:'stack',t:'Infraestrutura e Ciclo de Vida',d:'Credenciais, supply chain de IA, envenenamento de treino, política de dados do provedor (LGPD/DPA).'},
+];
+function buildSecCard(c,x,y,w){
+  const pad=14;
+  addIcon(x+pad, y+pad, c.ic, COLORS.sec.bd, 30);
+  const num = addText(x+pad, y+pad+34, 40, 'el-title', c.n.replace('C',''), 18, COLORS.sec.bd);
+  const tx0 = x+pad+52;
+  const title = addText(tx0, y+pad, w-pad*2-52, 'el-title', c.t, 13, COLORS.sec.tx);
+  const body = addText(tx0, y+pad+title.offsetHeight+4, w-pad*2-52, 'el-body', c.d, 11.6, COLORS.sec.tx);
+  const contentBottom = Math.max(y+pad+34+num.offsetHeight, y+pad+title.offsetHeight+4+body.offsetHeight);
+  const h = contentBottom - y + pad;
+  addShape(x,y,w,h,COLORS.sec.bg,COLORS.sec.bd);
+  return y+h;
+}
+function buildMatrix(x,y,w){
+  addShape(x,y,w,150,COLORS.sec.bg,COLORS.sec.bd);
+  addPill(x+14,y-9,'MATRIZ DE SEVERIDADE','#231F16','#231F16','#fff');
+  addText(x+14,y+16,w-28,'el-title','Impacto × Facilidade de exploração',12.5,COLORS.sec.tx);
+  const rows = [
+   ['','Impacto baixo','Impacto alto'],
+   ['Fácil','Jailbreak · PII no caminho · Indirect Injection','<b>Prompt Injection direta · Excessive Agency · Execução de código · Negação de Wallet</b>'],
+   ['Difícil','Envenenamento de dados · Exposição de credenciais · Supply chain','Vazamento de dados · Insecure Output Handling'],
+  ];
+  let cy = y+44;
+  const colX=[x+14,x+74,x+300];
+  rows.forEach((r,ri)=>{
+    let maxH=0;
+    r.forEach((cell,ci)=>{
+      const cw = ci===0?54:(ci===1?220:(w-28-54-220));
+      const t = addText(colX[ci], cy, cw, ri===0?'el-mono':'el-body', cell, ri===0?9:9.6, COLORS.sec.tx);
+      maxH = Math.max(maxH, t.offsetHeight);
+    });
+    cy += maxH+8;
+  });
+  addText(x+14, y+152, w-28, 'el-mono', 'v1.1 · Negação de Wallet reclassificada para impacto alto — sem hard cap, dano financeiro escala sem limite.', 8.6, '#8A5A00');
+  return y+178;
+}
+
+/* =========================================================================
+   ZONA 3 — GAPS v1.1
+========================================================================= */
+const GAPS = [
+ {t:'Langflow ausente',d:'Não constava no documento original apesar de ocupar posição própria entre framework de código e low-code.',x:'→ Langflow'},
+ {t:'Tools via MCP',d:'Citado só en passant em Supply Chain — agora componente de arquitetura com risco próprio (C2+C4+C5).',x:'→ Diagrama · Tools/MCP'},
+ {t:'Avaliação/regressão de prompt',d:'Versionamento sem eval é decisão no escuro — dataset + scoring antes de promover versão.',x:'→ Anatomia · item ③'},
+ {t:'Propagação de revogação',d:'Chunk indexado não atualiza permissão sozinho — reindexação/consulta em tempo real.',x:'→ C1 Perímetro'},
+ {t:'Isolamento multi-tenant',d:'Múltiplas mantenedoras exigem tenant como dimensão obrigatória no filtro de autorização.',x:'→ C1 Perímetro'},
+ {t:'Checkpointer no human-in-the-loop',d:'"interrupt" só sobrevive a restart com checkpointer persistido configurado.',x:'→ Anatomia · item ④'},
+ {t:'Checksum de CPF/CNPJ',d:'Regex pura gera falso positivo/negativo — validar dígito verificador reduz ambos.',x:'→ C2 Entrada'},
+ {t:'Negação de Wallet reclassificada',d:'Movida para impacto alto — sem hard cap, dano escala sem limite.',x:'→ Matriz de Severidade'},
+];
+function buildGap(c,x,y,w){
+  const pad=13;
+  const tag = addPill(x+12,y-9,'GAP → v1.1','#B98900','#B98900','#fff');
+  const title = addText(x+pad,y+pad,w-pad*2,'el-title',c.t,12.5,COLORS.gap.tx);
+  const body = addText(x+pad,y+pad+title.offsetHeight+4,w-pad*2,'el-body',c.d,11,COLORS.gap.tx);
+  const xr = addPill(x+pad,y+pad+title.offsetHeight+8+body.offsetHeight,c.x,COLORS.lf.bg,COLORS.lf.bd,COLORS.lf.tx);
+  const h = (xr.offsetTop - y) + xr.offsetHeight + pad;
+  addShape(x,y,w,h,COLORS.gap.bg,COLORS.gap.bd,'sticky');
+  return y+h;
+}
+
+/* =========================================================================
+   ZONA 4 — O QUE É LANGFLOW
+========================================================================= */
+const LF = [
+ {t:'O que é, tecnicamente',d:'Construtor visual (drag-and-drop, React Flow) onde cada nó é um componente Python real do LangChain/LangGraph — LLM, retriever, memory, agente, tool. Não é genérico como n8n: cada nó já nasce como abstração de IA.'},
+ {t:'Motor de execução',d:'Por baixo, roda sobre grafos de estado do LangGraph — roteamento condicional e loops nativos. Resolve a limitação central que descarta n8n para agentes.'},
+ {t:'Editável em dois níveis',d:'Monta-se visualmente, mas qualquer nó abre como código Python custom; o fluxo exporta como grafo executável via API/SDK.'},
+ {t:'Deploy & MCP',d:'Self-hosted (Docker) ou cloud gerenciado. Expõe e consome tools MCP nativamente.'},
+];
+function buildLf(c,x,y,w){
+  const pad=14;
+  const title = addText(x+pad,y+pad,w-pad*2,'el-title',c.t,13,COLORS.lf.tx);
+  const body = addText(x+pad,y+pad+title.offsetHeight+4,w-pad*2,'el-body',c.d,11.6,COLORS.lf.tx);
+  const h = (body.offsetTop-y)+body.offsetHeight+pad;
+  addShape(x,y,w,h,COLORS.lf.bg,COLORS.lf.bd);
+  return y+h;
+}
+
+/* =========================================================================
+   ZONA 5 — LANGFLOW NA MATRIZ DE DECISÃO
+========================================================================= */
+const CMP = [
+ {t:'n8n / Low-code',tag:'❌ agentic reasoning',d:'Ótimo para ETL e integrações pontuais. Vira gaiola quando o LLM precisa decidir.'},
+ {t:'LangChain',tag:'⭐⭐⭐⭐ agentic',d:'Ecossistema amplo, flexível, mais boilerplate.'},
+ {t:'LangGraph',tag:'⭐⭐⭐⭐⭐ agentic',d:'Estado explícito, human-in-the-loop nativo. Curva conceitual maior.'},
+ {t:'Langflow',tag:'= LangGraph + UI',d:'Mesma capacidade de raciocínio do LangGraph, com Memory, credenciais e observabilidade pré-conectadas.',hero:true},
+ {t:'Código próprio',tag:'⭐⭐⭐⭐⭐ controle',d:'Controle total, equipe sênior, tudo construído.'},
+];
+function buildCmp(c,x,y,w){
+  const pad=13;
+  const bg = c.hero?COLORS.lf.bg:'#fff', bd = c.hero?COLORS.lf.bd:'#D9D3C4', tx = c.hero?COLORS.lf.tx:COLORS.ink;
+  const title = addText(x+pad,y+pad,w-pad*2,'el-title',c.t,12.5,tx);
+  const tag = addText(x+pad,y+pad+title.offsetHeight+3,w-pad*2,'el-mono',c.tag,9,'#6B6455');
+  const body = addText(x+pad,y+pad+title.offsetHeight+5+tag.offsetHeight,w-pad*2,'el-body',c.d,10.6,tx);
+  const h = (body.offsetTop-y)+body.offsetHeight+pad;
+  addShape(x,y,w,h,bg,bd);
+  return y+h;
+}
+
+/* =========================================================================
+   ZONA 6 — ANATOMIA DO ORQUESTRADOR (diagrama embutido, SVG movível como bloco único)
+========================================================================= */
+function buildAnatDiagram(x0,y0){
+  let bottom = zoneHeader(x0,y0,'Anatomia do Orquestrador','o ciclo interno de raciocínio — 7 responsabilidades, uma em loop (arraste este bloco inteiro; redimensione pela alça)',COLORS.anat.tx);
+  const top = bottom+10;
+  const svg = `<svg viewBox="0 0 1140 340" xmlns="http://www.w3.org/2000/svg">
+   <defs><marker id="aA" markerWidth="7" markerHeight="7" refX="5.5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9D8BDB"/></marker>
+   <marker id="aAD" markerWidth="7" markerHeight="7" refX="5.5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5C5088"/></marker></defs>
+   <rect width="1140" height="340" fill="#1B1533"/>
+   <rect x="16" y="40" width="150" height="82" rx="10" fill="#2A2354" stroke="#6B4FA0" stroke-width="1.4"/>
+   <text x="91" y="66" text-anchor="middle" font-size="20" font-weight="700" fill="#EDEAE2">①</text>
+   <text x="91" y="88" text-anchor="middle" font-size="11" font-weight="600" fill="#EDEAE2">Sessão &amp; Histórico</text>
+   <text x="91" y="104" text-anchor="middle" font-size="9" fill="#B9AFE0">memória entre turnos</text>
+   <rect x="206" y="40" width="150" height="82" rx="10" fill="#2A2354" stroke="#6B4FA0" stroke-width="1.4"/>
+   <text x="281" y="66" text-anchor="middle" font-size="20" font-weight="700" fill="#EDEAE2">②</text>
+   <text x="281" y="88" text-anchor="middle" font-size="11" font-weight="600" fill="#EDEAE2">Montagem do Contexto</text>
+   <text x="281" y="104" text-anchor="middle" font-size="9" fill="#B9AFE0">5 camadas do prompt</text>
+   <rect x="206" y="160" width="150" height="68" rx="10" fill="#241E48" stroke="#5C5088" stroke-width="1.3" stroke-dasharray="3 3"/>
+   <text x="281" y="184" text-anchor="middle" font-size="15" font-weight="700" fill="#EDEAE2">③</text>
+   <text x="281" y="200" text-anchor="middle" font-size="10" font-weight="600" fill="#EDEAE2">Versionamento de Prompt</text>
+   <text x="281" y="214" text-anchor="middle" font-size="8.5" fill="#B9AFE0">eval antes de promover</text>
+   <rect x="404" y="20" width="230" height="150" rx="14" fill="#3B2D78" stroke="#9D8BDB" stroke-width="1.8"/>
+   <text x="519" y="56" text-anchor="middle" font-size="22" font-weight="700" fill="#EDEAE2">④</text>
+   <text x="519" y="80" text-anchor="middle" font-size="12.5" font-weight="700" fill="#EDEAE2">Loop de Raciocínio</text>
+   <text x="519" y="97" text-anchor="middle" font-size="10" fill="#B9AFE0">roteamento · ReAct · tools</text>
+   <text x="519" y="118" text-anchor="middle" font-family="IBM Plex Mono" font-size="8.3" fill="#E9927D">máx. de iterações configurável</text>
+   <path d="M470 24 C 470 -14, 568 -14, 568 24" fill="none" stroke="#9D8BDB" stroke-width="1.8" marker-end="url(#aA)"/>
+   <text x="519" y="-20" text-anchor="middle" font-size="9" fill="#9D8BDB">chama tool → observa → decide de novo</text>
+   <rect x="440" y="210" width="160" height="62" rx="10" fill="#2A2354" stroke="#C1443C" stroke-width="1.4"/>
+   <text x="520" y="234" text-anchor="middle" font-size="10.5" font-weight="600" fill="#EDEAE2">Human-in-the-loop</text>
+   <text x="520" y="250" text-anchor="middle" font-size="8.5" fill="#E9927D">interrupt · exige checkpointer</text>
+   <path d="M519 170 L519 206" stroke="#C1443C" stroke-width="1.8" stroke-dasharray="4 4" marker-end="url(#aAD)"/>
+   <rect x="666" y="40" width="190" height="82" rx="10" fill="#2A2354" stroke="#6B4FA0" stroke-width="1.4"/>
+   <text x="761" y="66" text-anchor="middle" font-size="20" font-weight="700" fill="#EDEAE2">⑤</text>
+   <text x="761" y="88" text-anchor="middle" font-size="11" font-weight="600" fill="#EDEAE2">Retry · Fallback · Cache</text>
+   <text x="761" y="104" text-anchor="middle" font-size="9" fill="#B9AFE0">resiliência de execução</text>
+   <rect x="888" y="40" width="180" height="82" rx="10" fill="#2A2354" stroke="#6B4FA0" stroke-width="1.4"/>
+   <text x="978" y="66" text-anchor="middle" font-size="20" font-weight="700" fill="#EDEAE2">⑥</text>
+   <text x="978" y="88" text-anchor="middle" font-size="11" font-weight="600" fill="#EDEAE2">Guardrails de Saída</text>
+   <text x="978" y="104" text-anchor="middle" font-size="9" fill="#B9AFE0">validação · DLP · formatação</text>
+   <rect x="16" y="290" width="1052" height="42" rx="10" fill="#241E48" stroke="#5C5088" stroke-width="1.3"/>
+   <text x="36" y="316" font-size="11" font-weight="700" fill="#EDEAE2">⑦ Banco interno</text>
+   <text x="150" y="316" font-size="9.5" fill="#B9AFE0">sessão · cache · versões de prompt · logs de trace · métricas</text>
+   <path d="M166 81 L202 81" stroke="#9D8BDB" stroke-width="1.8" marker-end="url(#aA)"/>
+   <path d="M281 160 L281 126" stroke="#5C5088" stroke-width="1.6" stroke-dasharray="4 4" marker-end="url(#aAD)"/>
+   <path d="M356 81 L400 90" stroke="#9D8BDB" stroke-width="1.8" marker-end="url(#aA)"/>
+   <path d="M634 90 L662 81" stroke="#9D8BDB" stroke-width="1.8" marker-end="url(#aA)"/>
+   <path d="M856 81 L884 81" stroke="#9D8BDB" stroke-width="1.8" marker-end="url(#aA)"/>
+   <path d="M91 122 L91 286" stroke="#5C5088" stroke-width="1.3" stroke-dasharray="3 4" opacity=".6"/>
+   <path d="M281 228 L281 286" stroke="#5C5088" stroke-width="1.3" stroke-dasharray="3 4" opacity=".6"/>
+   <path d="M761 122 L761 286" stroke="#5C5088" stroke-width="1.3" stroke-dasharray="3 4" opacity=".6"/>
+   <path d="M978 122 L978 286" stroke="#5C5088" stroke-width="1.3" stroke-dasharray="3 4" opacity=".6"/>
+  </svg>`;
+  const frame = mk('el-embed', x0, top, 1096, 336);
+  frame.innerHTML = svg;
+  return top+336+30;
+}
+
+/* =========================================================================
+   ZONA 7 — ANATOMIA × LANGFLOW (pares vinculados)
+========================================================================= */
+const ANAT = [
+ {n:'①',t:'Gestão de sessão/histórico',s:'ok',d:'Componentes de Memory nativos (buffer + persistência Redis/Postgres). Estratégia de janela é decisão sua.'},
+ {n:'②',t:'Montagem do contexto',s:'ok',d:'Prompt Template monta visualmente as 5 camadas: system, histórico, RAG, tool result, pergunta encapsulada.'},
+ {n:'③',t:'Versionamento de prompts',s:'warn',d:'Fluxo versionável via export/git. Sem A/B nativo de tráfego nem hash automático de conteúdo.'},
+ {n:'④',t:'Roteamento & loop ReAct',s:'ok',d:'Ponto mais forte — herda a nota máxima do LangGraph em agentic reasoning.'},
+ {n:'④',t:'Human-in-the-loop',s:'ok',d:'Interrupt equivalente ao LangGraph. Exige checkpointer persistido configurado.'},
+ {n:'⑤',t:'Retry',s:'warn',d:'Configurável por nó de LLM individualmente — não é política global automática.'},
+ {n:'⑤',t:'Fallback de modelo',s:'warn',d:'Montável com roteador condicional visual, mas a lógica é desenhada por você.'},
+ {n:'⑤',t:'Cache semântico',s:'no',d:'Não vem pronto. Componente Python custom com pgvector.'},
+ {n:'⑥',t:'Guardrails de entrada',s:'no',d:'Auth, rate limit, PII, injection guard: sem componente pronto.'},
+ {n:'⑥',t:'Guardrails de saída / DLP',s:'warn',d:'Output Parser força estrutura. DLP de CPF/chave/API é componente custom.'},
+ {n:'⑦',t:'Banco interno de negócio',s:'warn',d:'Langflow guarda seus fluxos/execuções — não substitui auditoria de negócio do GT.'},
+ {n:'—',t:'Logging / Observabilidade',s:'ok',d:'Integração pronta: Langfuse, LangSmith, LangWatch via variável de ambiente.'},
+ {n:'—',t:'Credenciais / Secrets',s:'ok',d:'Secrets e global variables criptografados — nunca hardcoded no fluxo.'},
+];
+function buildPair(c,x,y,w){
+  const leftW = 280, gap=44, rightW = w-leftW-gap;
+  const pad=13;
+  const num = addText(x+pad,y+pad,40,'el-title',c.n,19,'#6B4FA0');
+  const lt = addText(x+pad+44,y+pad,leftW-pad*2-44,'el-title',c.t,12,'#2E2154');
+  const lb = addText(x+pad+44,y+pad+lt.offsetHeight+3,leftW-pad*2-44,'el-body','etapa do diagrama acima',9.6,'#4E4470');
+  const leftBottom = Math.max(y+pad+34, y+pad+lt.offsetHeight+3+lb.offsetHeight);
+  const leftH = leftBottom-y+pad;
+
+  const rx = x+leftW+gap;
+  const badge = c.s==='ok'?'✅ NATIVO':(c.s==='warn'?'⚠️ PARCIAL':'❌ VOCÊ CONSTRÓI');
+  const pal = c.s==='ok'?COLORS.ok:(c.s==='warn'?COLORS.warn:COLORS.no);
+  const bt = addText(rx+pad,y+pad,rightW-pad*2,'el-mono',badge,10,pal.bd);
+  const bd = addText(rx+pad,y+pad+bt.offsetHeight+3,rightW-pad*2,'el-body',c.d,11.4,pal.tx);
+  const rightBottom = y+pad+bt.offsetHeight+3+bd.offsetHeight;
+  const rightH = rightBottom-y+pad;
+
+  const h = Math.max(leftH,rightH);
+  addShape(x,y,leftW,h,COLORS.anat.bg,COLORS.anat.bd);
+  addShape(rx,y,rightW,h,pal.bg,pal.bd);
+  const midX = x+leftW+gap/2;
+  addIcon(midX-11, y+h/2-11, c.s==='ok'?'check':(c.s==='warn'?'alert':'gear'), pal.bd, 22);
+  return y+h;
+}
+
+/* =========================================================================
+   MONTAGEM DO QUADRO
+========================================================================= */
+let Y = 60;
+Y = buildArchDiagram(70, Y) + 40;
+
+// zona segurança ao lado da arquitetura -> nova linha própria, largura toda
+Y = zoneHeader(70, Y, '02 · Segurança — 5 Camadas', 'princípio nº1: o LLM está sempre fora da fronteira de confiança', COLORS.sec.tx);
+const secBottom = grid(SEC, 70, Y, 1, 900, 0, 16, buildSecCard);
+const matBottom = buildMatrix(1010, Y, 480);
+Y = Math.max(secBottom, matBottom) + 40;
+
+Y = zoneHeader(70, Y, 'Gaps identificados & preenchidos — v1.1', 'lacunas do material original, agora incorporadas', COLORS.gap.tx);
+Y = grid(GAPS, 70, Y, 4, 268, 16, 18, buildGap) + 40;
+
+Y = buildAnatDiagram(70, Y) + 20;
+
+const lfHead = zoneHeader(70, Y, 'O que é o Langflow', 'posicionamento da ferramenta', COLORS.lf.tx);
+const cmpHead = zoneHeader(1030, Y, 'Langflow na Matriz de Decisão', 'onde ele se encaixa entre framework, low-code e código próprio', COLORS.ink);
+const lfBottom = grid(LF, 70, lfHead, 2, 440, 20, 16, buildLf);
+const cmpBottom = grid(CMP, 1030, cmpHead, 5, 190, 14, 16, buildCmp);
+Y = Math.max(lfBottom, cmpBottom) + 40;
+
+Y = zoneHeader(70, Y, 'Anatomia do Orquestrador × Langflow', 'cada etapa do diagrama, pareada com o que o Langflow cobre', COLORS.lf.tx);
+Y = grid(ANAT, 70, Y, 1, 1180, 0, 14, buildPair) + 60;
+
+canvas.style.width = '2400px';
+canvas.style.height = (Y+60)+'px';
+
+/* =========================================================================
+   PAN / ZOOM
+========================================================================= */
+let scale=0.55, tx=40, ty=30, panning=false, psx=0, psy=0, ptx=0, pty=0;
+let viewMode='select'; // 'select' | 'pan'
+let spaceDown=false;
+
+function setViewMode(m){
+  viewMode=m;
+  document.getElementById('mode-select').classList.toggle('active', m==='select');
+  document.getElementById('mode-pan').classList.toggle('active', m==='pan');
+  viewport.style.cursor = (m==='pan')? 'grab' : 'default';
+}
+document.getElementById('mode-select').onclick=()=>setViewMode('select');
+document.getElementById('mode-pan').onclick=()=>setViewMode('pan');
+
+window.addEventListener('keydown', e=>{
+  if(e.code==='Space' && !spaceDown && !(e.target.isContentEditable)){ spaceDown=true; viewport.style.cursor='grab'; e.preventDefault(); }
+});
+window.addEventListener('keyup', e=>{ if(e.code==='Space'){ spaceDown=false; viewport.style.cursor = editOn&&viewMode==='select' ? 'default':'grab'; } });
+
+function effectivePan(){ return !editOn || viewMode==='pan' || spaceDown; }
+
+function apply(){ canvas.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`; }
+function fitInitial(){ tx=40; ty=30; scale=0.5; apply(); }
+
+viewport.addEventListener('mousedown', e=>{
+  if(!effectivePan()) return; // modo Selecionar: quem trata o clique é o handler do #canvas
+  panning=true; viewport.classList.add('grabbing');
+  psx=e.clientX; psy=e.clientY; ptx=tx; pty=ty;
+});
+window.addEventListener('mouseup', ()=>{panning=false; viewport.classList.remove('grabbing');});
+window.addEventListener('mousemove', e=>{
+  if(!panning) return;
+  tx = ptx+(e.clientX-psx); ty = pty+(e.clientY-psy); apply();
+});
+viewport.addEventListener('wheel', e=>{
+  e.preventDefault();
+  const delta=-e.deltaY*0.0012;
+  const ns=Math.min(1.6,Math.max(0.2,scale+delta));
+  const r=viewport.getBoundingClientRect(); const mx=e.clientX-r.left, my=e.clientY-r.top;
+  const wx=(mx-tx)/scale, wy=(my-ty)/scale;
+  scale=ns; tx=mx-wx*scale; ty=my-wy*scale; apply();
+},{passive:false});
+document.getElementById('zoom-in').onclick=()=>{scale=Math.min(1.6,scale+0.12);apply();};
+document.getElementById('zoom-out').onclick=()=>{scale=Math.max(0.2,scale-0.12);apply();};
+document.getElementById('zoom-reset').onclick=fitInitial;
+
+/* =========================================================================
+   MODO DE EDIÇÃO — drag, resize, multi-seleção, cor, ícones, criar/excluir
+========================================================================= */
+const editBtn=document.getElementById('edit-toggle');
+const resetBtn=document.getElementById('reset-board');
+const hudNote=document.getElementById('hud-note');
+const vtoolbar=document.getElementById('vtoolbar');
+const STORAGE_KEY='gt_whiteboard_state_v3';
+let editOn=false, toolActive=null;
+let selected=new Set();
+let mode=null, dragTargets=[], dragStart=[], esx=0, esy=0;
+let resizeTarget=null, rsw=0, rsh=0;
+let rubber=null, rStartX=0, rStartY=0;
+let lineStart=null, currentLine=null;
+
+function ensureToolbar(host){
+  if(!host || host.querySelector(':scope > .el-tools')) return;
+  const tb=document.createElement('div'); tb.className='el-tools';
+  let html='';
+  if(host.classList.contains('el-shape')||host.classList.contains('el-line')||host.classList.contains('el-pill')){
+    html += `<div class="palette">${SWATCHES.map(s=>`<button class="sw" data-bg="${s.bg}" data-bd="${s.bd}" style="background:${s.bg};border-color:${s.bd}"></button>`).join('')}</div>`;
+  }
+  if(host.classList.contains('el-icon')) html += `<button class="icon-swap-btn" title="Trocar ícone">🖼</button>`;
+  html += `<button class="el-del" title="Excluir">×</button>`;
+  tb.innerHTML = html;
+  host.appendChild(tb);
+  if(!host.classList.contains('el-line') && !host.querySelector(':scope > .el-resize')){
+    const rh=document.createElement('span'); rh.className='el-resize'; host.appendChild(rh);
+  }
+}
+function allEls(){ return document.querySelectorAll('.el'); }
+
+function toggleEdit(){
+  editOn=!editOn;
+  document.body.classList.toggle('edit-on', editOn);
+  editBtn.classList.toggle('on', editOn);
+  editBtn.textContent = editOn?'✓ Editando':'✏️ Editar';
+  resetBtn.style.display = editOn?'inline-block':'none';
+  hudNote.classList.toggle('show', editOn);
+  vtoolbar.classList.toggle('show', editOn);
+  allEls().forEach(host=>{
+    if(host.classList.contains('el-text')) host.contentEditable = editOn;
+    if(editOn) ensureToolbar(host);
+  });
+  if(!editOn){
+    clearSelection(); toolActive=null;
+    document.querySelectorAll('#vtoolbar button:not(.mode-btn)').forEach(b=>b.classList.remove('active'));
+    setViewMode('select');
+    viewport.style.cursor='grab';
+  } else {
+    viewport.style.cursor = viewMode==='pan' ? 'grab' : 'default';
+  }
+}
+editBtn.onclick = toggleEdit;
+
+function clearSelection(){ selected.forEach(e=>e.classList.remove('selected')); selected.clear(); }
+
+canvas.addEventListener('mousedown', e=>{
+  if(!editOn) return;
+  if(effectivePan()) return; // deixa o clique subir pro handler de pan do viewport
+
+  // ferramenta Linha tem prioridade absoluta — nunca interpreta como arrastar elemento
+  if(toolActive==='line'){
+    e.stopPropagation();
+    const cr=canvas.getBoundingClientRect();
+    lineStart={x:(e.clientX-cr.left)/scale, y:(e.clientY-cr.top)/scale};
+    mode='line-draw';
+    return;
+  }
+
+  const delBtn=e.target.closest('.el-del');
+  if(delBtn){ const host=delBtn.closest('.el'); selected.delete(host); host.remove(); saveState(); return; }
+  const sw=e.target.closest('.sw');
+  if(sw){
+    const host=sw.closest('.el');
+    if(host.classList.contains('el-line')){
+      host.style.borderTopColor=sw.dataset.bd;
+      const ah=host.querySelector('.el-arrow'); if(ah) ah.style.borderLeftColor=sw.dataset.bd;
+    } else { host.style.background=sw.dataset.bg; host.style.borderColor=sw.dataset.bd; }
+    saveState(); return;
+  }
+  const iconBtn=e.target.closest('.icon-swap-btn');
+  if(iconBtn){ openIconPicker(iconBtn.closest('.el')); return; }
+  const rh=e.target.closest('.el-resize');
+  if(rh){
+    resizeTarget=rh.closest('.el');
+    const r=resizeTarget.getBoundingClientRect();
+    rsw=r.width/scale; rsh=r.height/scale; esx=e.clientX; esy=e.clientY;
+    mode='resize'; e.stopPropagation(); e.preventDefault(); return;
+  }
+  const hostEl=e.target.closest('.el');
+  if(hostEl){
+    e.stopPropagation();
+    if(e.shiftKey){
+      if(selected.has(hostEl)){hostEl.classList.remove('selected');selected.delete(hostEl);}
+      else {hostEl.classList.add('selected');selected.add(hostEl);}
+      return;
+    }
+    if(!selected.has(hostEl)){ clearSelection(); hostEl.classList.add('selected'); selected.add(hostEl); }
+    mode='drag'; esx=e.clientX; esy=e.clientY;
+    dragTargets=Array.from(selected);
+    dragStart=dragTargets.map(t=>({t,l:parseFloat(t.style.left)||0,tp:parseFloat(t.style.top)||0}));
+    return;
+  }
+  if(toolActive==='line') return; // já tratado no topo do handler
+  clearSelection();
+  mode='rubber';
+  e.stopPropagation();
+  const cr=canvas.getBoundingClientRect();
+  rStartX=(e.clientX-cr.left)/scale; rStartY=(e.clientY-cr.top)/scale;
+  rubber=document.createElement('div'); rubber.id='rubber';
+  rubber.style.left=rStartX+'px'; rubber.style.top=rStartY+'px'; rubber.style.width='0px'; rubber.style.height='0px';
+  canvas.appendChild(rubber);
+});
+
+window.addEventListener('mousemove', e=>{
+  if(!mode) return;
+  if(mode==='drag'){
+    const dx=(e.clientX-esx)/scale, dy=(e.clientY-esy)/scale;
+    dragStart.forEach(d=>{ d.t.style.left=(d.l+dx)+'px'; d.t.style.top=(d.tp+dy)+'px'; });
+  } else if(mode==='resize'){
+    const dx=(e.clientX-esx)/scale, dy=(e.clientY-esy)/scale;
+    const newW=Math.max(50, rsw+dx);
+    resizeTarget.style.width=newW+'px';
+    if(resizeTarget.classList.contains('el-text')){
+      const baseFS=parseFloat(resizeTarget.dataset.basefs)||12, baseW=parseFloat(resizeTarget.dataset.basew)||160;
+      const sc=Math.min(3, Math.max(0.5, newW/baseW));
+      resizeTarget.style.fontSize=(baseFS*sc)+'px';
+    } else {
+      const newH=Math.max(30, rsh+dy);
+      resizeTarget.style.height=newH+'px';
+    }
+  } else if(mode==='rubber'){
+    const cr=canvas.getBoundingClientRect();
+    const cx=(e.clientX-cr.left)/scale, cy=(e.clientY-cr.top)/scale;
+    const x=Math.min(cx,rStartX), y=Math.min(cy,rStartY), w=Math.abs(cx-rStartX), h=Math.abs(cy-rStartY);
+    rubber.style.left=x+'px'; rubber.style.top=y+'px'; rubber.style.width=w+'px'; rubber.style.height=h+'px';
+  } else if(mode==='line-draw'){
+    const cr=canvas.getBoundingClientRect();
+    const x2=(e.clientX-cr.left)/scale, y2=(e.clientY-cr.top)/scale;
+    if(currentLine) currentLine.remove();
+    currentLine=addLine(lineStart.x,lineStart.y,x2,y2,'#2E5EAA',false,true);
+    currentLine.classList.add('line-preview');
+  }
+});
+window.addEventListener('mouseup', ()=>{
+  if(mode==='rubber' && rubber){
+    const rb=rubber.getBoundingClientRect();
+    allEls().forEach(el2=>{
+      if(el2===rubber) return;
+      const b=el2.getBoundingClientRect();
+      if(b.left<rb.right && b.right>rb.left && b.top<rb.bottom && b.bottom>rb.top){ el2.classList.add('selected'); selected.add(el2); }
+    });
+    rubber.remove(); rubber=null;
+  }
+  if(mode==='line-draw' && currentLine){
+    currentLine.classList.remove('line-preview');
+    if(currentLine.classList.contains('el-text')) currentLine.contentEditable=false;
+    ensureToolbar(currentLine);
+    currentLine=null; lineStart=null; toolActive=null;
+    document.querySelectorAll('#vtoolbar button:not(.mode-btn)').forEach(b=>b.classList.remove('active'));
+  }
+  if(mode) saveState();
+  mode=null; resizeTarget=null; dragTargets=[];
+});
+
+/* -------- ferramenta de ícones -------- */
+function openIconPicker(hostIconEl){
+  const pop=document.getElementById('icon-picker');
+  pop.innerHTML = Object.keys(ICONS).map(name=>`<button class="ip-btn" data-name="${name}"><svg viewBox="0 0 30 30" width="20" height="20">${ICONS[name]}</svg></button>`).join('');
+  const r=hostIconEl.getBoundingClientRect();
+  pop.style.left=(r.right+8)+'px'; pop.style.top=r.top+'px'; pop.style.display='flex';
+  pop.dataset.target=hostIconEl.id;
+}
+document.getElementById('icon-picker').addEventListener('click', e=>{
+  const btn=e.target.closest('.ip-btn'); if(!btn) return;
+  const pop=document.getElementById('icon-picker');
+  const target=document.getElementById(pop.dataset.target);
+  target.dataset.icon=btn.dataset.name;
+  target.innerHTML=`<svg viewBox="0 0 30 30">${ICONS[btn.dataset.name]}</svg>`;
+  pop.style.display='none'; saveState();
+});
+document.addEventListener('mousedown', e=>{
+  const pop=document.getElementById('icon-picker');
+  if(pop.style.display==='flex' && !pop.contains(e.target) && !e.target.closest('.icon-swap-btn')) pop.style.display='none';
+});
+
+/* -------- barra de ferramentas: criar elementos -------- */
+function viewCenter(){
+  const r=viewport.getBoundingClientRect();
+  return {x:(r.width/2-tx)/scale, y:(r.height/2-ty)/scale};
+}
+document.getElementById('tool-note').onclick=()=>{
+  const c=viewCenter();
+  addShape(c.x-110,c.y-55,220,120,COLORS.gap.bg,COLORS.gap.bd,'sticky');
+  const t=addText(c.x-96,c.y-41,192,'el-title','Novo item',12.5,COLORS.gap.tx); t.contentEditable=true;
+  const b=addText(c.x-96,c.y-41+t.offsetHeight+4,192,'el-body','Clique para editar este texto.',11,COLORS.gap.tx); b.contentEditable=true;
+  document.querySelectorAll('.el').forEach(ensureToolbar);
+  saveState();
+};
+document.getElementById('tool-rect').onclick=()=>{
+  const c=viewCenter();
+  addShape(c.x-90,c.y-50,180,100,COLORS.arq.bg,COLORS.arq.bd);
+  document.querySelectorAll('.el').forEach(ensureToolbar);
+  saveState();
+};
+document.getElementById('tool-text').onclick=()=>{
+  const c=viewCenter();
+  const t=addText(c.x-90,c.y-14,180,'el-body','Texto livre',12,COLORS.ink); t.contentEditable=true;
+  ensureToolbar(t); saveState();
+};
+document.getElementById('tool-icon').onclick=()=>{
+  const c=viewCenter();
+  const i=addIcon(c.x-17,c.y-17,'bolt',COLORS.arq.bd,34);
+  ensureToolbar(i); saveState(); openIconPicker(i);
+};
+document.getElementById('tool-line').onclick=(e)=>{
+  toolActive = toolActive==='line'?null:'line';
+  document.querySelectorAll('#vtoolbar button:not(.mode-btn)').forEach(b=>b.classList.remove('active'));
+  if(toolActive==='line') e.currentTarget.classList.add('active');
+};
+
+/* -------- persistência -------- */
+let saveTimer=null;
+function saveState(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{ try{ localStorage.setItem(STORAGE_KEY, canvas.innerHTML); }catch(err){} }, 350);
+}
+canvas.addEventListener('input', saveState);
+canvas.addEventListener('blur', saveState, true);
+resetBtn.onclick=()=>{
+  if(confirm('Restaurar o quadro para a versão original? Suas edições salvas neste navegador serão apagadas.')){
+    localStorage.removeItem(STORAGE_KEY); location.reload();
+  }
+};
+function restoreState(){
+  const saved=localStorage.getItem(STORAGE_KEY);
+  if(saved){
+    canvas.innerHTML=saved;
+    canvas.querySelectorAll('[contenteditable]').forEach(t=>t.contentEditable=false);
+    canvas.querySelectorAll('.selected').forEach(t=>t.classList.remove('selected'));
+  }
+}
+window.addEventListener('load', ()=>{ restoreState(); fitInitial(); });
+</script>
+</body>
+</html>

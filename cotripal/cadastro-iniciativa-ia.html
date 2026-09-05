@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cotripal · Qualificação de Iniciativa com IA</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --graphite:#1C2620;
+    --graphite-2:#26332B;
+    --parchment:#EFEBDF;
+    --parchment-2:#E4DEC9;
+    --wheat:#A9822E;
+    --wheat-light:#C9A855;
+    --ink:#1C2620;
+    --ink-soft:#4C554E;
+    --line:#CFC7AC;
+    --risk-low:#3D6B4A;
+    --risk-low-bg:#E3EEE3;
+    --risk-med:#96661E;
+    --risk-med-bg:#F3E7CE;
+    --risk-high:#8B2E22;
+    --risk-high-bg:#F3DBD6;
+    --white:#FBFAF6;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--parchment);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.5;
+  }
+
+  .shell{max-width:920px;margin:0 auto;padding:0 24px 120px;}
+
+  header.top{
+    background:var(--graphite);
+    color:var(--parchment);
+    padding:48px 24px 40px;
+    margin-bottom:0;
+    position:relative;
+    overflow:hidden;
+  }
+  header.top::after{
+    content:"";
+    position:absolute;
+    right:-60px;top:-60px;
+    width:220px;height:220px;
+    border:1px solid rgba(233,224,196,0.15);
+    border-radius:50%;
+  }
+  header.top::before{
+    content:"";
+    position:absolute;
+    right:10px;bottom:-90px;
+    width:220px;height:220px;
+    border:1px solid rgba(233,224,196,0.1);
+    border-radius:50%;
+  }
+  .top-inner{max-width:920px;margin:0 auto;position:relative;z-index:1;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--wheat-light);
+    margin-bottom:14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .eyebrow .dot{width:6px;height:6px;background:var(--wheat-light);border-radius:50%;display:inline-block;}
+  h1{
+    font-family:'Source Serif 4', serif;
+    font-weight:600;
+    font-size:34px;
+    margin:0 0 10px;
+    letter-spacing:-0.01em;
+  }
+  .top-sub{color:#C9CFC6;font-size:15px;max-width:560px;margin:0;}
+
+  .refs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:24px;
+  }
+  .ref-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.03em;
+    color:var(--parchment-2);
+    border:1px solid rgba(233,224,196,0.28);
+    padding:4px 9px;
+    border-radius:2px;
+  }
+
+  main{background:var(--white);}
+
+  .section{
+    padding:38px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    margin-bottom:22px;
+  }
+  .section-num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--wheat);
+    font-weight:600;
+    white-space:nowrap;
+  }
+  .section-title{
+    font-family:'Source Serif 4', serif;
+    font-size:21px;
+    font-weight:600;
+    margin:0;
+  }
+  .section-why{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    margin:6px 0 0;
+    max-width:640px;
+  }
+
+  .field{margin-bottom:20px;}
+  .field label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    margin-bottom:5px;
+    color:var(--graphite-2);
+  }
+  .field .hint{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+    font-style:italic;
+  }
+  .field input[type=text], .field input[type=date], .field select, .field textarea{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:3px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14px;
+    background:var(--white);
+    color:var(--ink);
+  }
+  .field textarea{min-height:70px;resize:vertical;}
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline:2px solid var(--wheat);
+    outline-offset:1px;
+    border-color:var(--wheat);
+  }
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media (max-width:640px){.grid2{grid-template-columns:1fr;}}
+
+  fieldset{border:none;padding:0;margin:0;}
+  .radio-row{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .radio-opt{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:11px 13px;
+    border:1px solid var(--line);
+    border-radius:3px;
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .radio-opt:hover{border-color:var(--wheat);}
+  .radio-opt.checked{border-color:var(--wheat);background:#FBF6E9;}
+  .radio-opt input{margin-top:3px;accent-color:var(--wheat);}
+  .radio-opt .opt-label{font-size:13.5px;font-weight:600;display:block;}
+  .radio-opt .opt-desc{font-size:12px;color:var(--ink-soft);display:block;margin-top:2px;}
+  .risk-badge{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:0.05em;
+    padding:2px 7px;
+    border-radius:2px;
+    margin-left:auto;
+    white-space:nowrap;
+    align-self:center;
+    font-weight:600;
+  }
+  .rb-1{background:var(--risk-low-bg);color:var(--risk-low);}
+  .rb-2{background:var(--risk-med-bg);color:var(--risk-med);}
+  .rb-3{background:var(--risk-high-bg);color:var(--risk-high);}
+
+  /* Result panel */
+  #resultado{
+    position:sticky;
+    bottom:0;
+    background:var(--graphite);
+    color:var(--parchment);
+    padding:22px 24px;
+    margin-top:0;
+  }
+  .result-inner{max-width:920px;margin:0 auto;}
+  .result-row{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    flex-wrap:wrap;
+  }
+  .result-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:#9AA69C;
+  }
+  .result-level{
+    font-family:'Source Serif 4', serif;
+    font-size:26px;
+    font-weight:600;
+  }
+  .rl-1{color:#7FBF8F;}
+  .rl-2{color:#E0B564;}
+  .rl-3{color:#E38B7B;}
+  .result-detail{
+    font-size:13px;
+    color:#C9CFC6;
+    margin-top:10px;
+    line-height:1.6;
+  }
+  .result-detail b{color:var(--parchment);}
+  .btn{
+    background:var(--wheat);
+    color:var(--graphite);
+    border:none;
+    padding:12px 22px;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+    border-radius:3px;
+    cursor:pointer;
+    margin-left:auto;
+  }
+  .btn:hover{background:var(--wheat-light);}
+
+  .matrix-note{
+    background:#F7F2E4;
+    border:1px solid var(--line);
+    border-left:3px solid var(--wheat);
+    padding:14px 16px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    border-radius:2px;
+    margin-top:18px;
+  }
+
+  .footer-refs{
+    padding:30px 0 10px;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace;
+    line-height:1.8;
+  }
+
+  /* Reference table + risk matrix (reference section) */
+  .ref-section{
+    padding:34px 0 38px;
+    border-bottom:1px solid var(--line);
+  }
+  .ref-table-wrap, .matrix-wrap{
+    overflow-x:auto;
+    margin-top:16px;
+    border:1px solid var(--line);
+    border-radius:3px;
+  }
+  table.ref-table, table.risk-matrix{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  table.ref-table th, table.risk-matrix th{
+    background:var(--graphite);
+    color:var(--parchment);
+    text-align:left;
+    padding:10px 14px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    font-weight:600;
+  }
+  table.ref-table td, table.risk-matrix td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  table.ref-table tr:nth-child(even) td, table.risk-matrix tr:nth-child(even) td{
+    background:#F7F3E6;
+  }
+  table.ref-table td.norm{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    color:var(--wheat);
+    white-space:nowrap;
+    font-size:12px;
+  }
+  table.risk-matrix th.dim-col{width:18%;}
+  table.risk-matrix td.level-cell{
+    font-size:12.5px;
+  }
+  table.risk-matrix td.level-1{border-left:3px solid var(--risk-low);}
+  table.risk-matrix td.level-2{border-left:3px solid var(--risk-med);}
+  table.risk-matrix td.level-3{border-left:3px solid var(--risk-high);}
+  .matrix-rule{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    background:var(--graphite-2);
+    color:var(--parchment-2);
+    font-size:12.5px;
+    font-family:'IBM Plex Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="eyebrow"><span class="dot"></span>COTRIPAL · GOVERNANÇA DE IA · FORMULÁRIO DE INTAKE</div>
+    <h1>Qualificação de Iniciativa com Inteligência Artificial</h1>
+    <p class="top-sub">Preenchimento obrigatório antes de qualquer iniciativa com IA seguir para desenvolvimento, contratação ou produção. O risco é calculado automaticamente a partir das respostas abaixo.</p>
+    <div class="refs">
+      <span class="ref-tag">ISO/IEC 42001</span>
+      <span class="ref-tag">NIST AI RMF · MAP</span>
+      <span class="ref-tag">ISO/IEC 23894</span>
+      <span class="ref-tag">ISO/IEC 42005 · AIIA</span>
+      <span class="ref-tag">LGPD 13.709/18</span>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="shell">
+
+
+  <form id="form-ia">
+
+    <!-- 1. IDENTIFICAÇÃO -->
+    <section class="section">
+      <div class="section-head">
+        <span class="section-num">01</span>
+        <div>
+          <h2 class="section-title">Identificação</h2>
+          <p class="section-why">Vincula a iniciativa a um responsável e a um registro rastreável. Requisito básico de accountability (NIST AI RMF, função Govern — estruturas de responsabilidade).</p>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <label for="nome">Nome da iniciativa</label>
+          <input type="text" id="nome" required>
+        </div>
+        <div class="field">
+          <label for="codigo-aevo">Nº do registro na Aevo</label>
+          <input type="text" id="codigo-aevo" placeholder="Se já cadastrada">
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label for="area">Área/segmento solicitante</label>
+          <select id="area" required>
+            <option value="">Selecione</option>
+            <option>Grãos</option>
+            <option>Pecuária</option>
+            <option>Varejo</option>
+            <option>Administrativo-Financeiro</option>
+            <option>Engenharia/TI</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="gestor">Gestor responsável</label>
+          <input type="text" id="gestor" required>
+        </div>
+      </div>
+      <div class="field">
+        <label for="descricao">Descrição da iniciativa</label>
+        <div class="hint">O que ela faz, qual problema resolve, quem usa.</div>
+        <textarea id="descricao" required></textarea>
+      </div>
+    </section>
+
+    <!-- 2. NATUREZA TÉCNICA / CONSTRUÇÃO -->
+    <section class="section">
+      <div class="section-head">
+        <span class="section-num">02</span>
+        <div>
+          <h2 class="section-title">Natureza técnica — como foi construída</h2>
+          <p class="section-why">A forma de construção determina o quanto o núcleo técnico consegue auditar o código antes de aprovar. Plataformas low-code/no-code (ex.: Base44) e vibe-coding têm menor rastreabilidade e maior risco estrutural — não porque a IA "erre mais", mas porque ninguém revisou o que foi gerado.</p>
+        </div>
+      </div>
+
+      <fieldset class="field">
+        <label>Modelo de construção</label>
+        <div class="radio-row" data-name="construcao" data-weight="construcao"></div>
+      </fieldset>
+
+      <div class="field">
+        <label for="provedor">Provedor/modelo de IA por trás da solução</label>
+        <input type="text" id="provedor" placeholder="Ex.: OpenAI GPT-4, Anthropic Claude, modelo local, não sei informar">
+      </div>
+
+      <div class="field">
+        <label for="estagio">Estágio atual</label>
+        <select id="estagio">
+          <option>PoC / experimentação</option>
+          <option>Piloto</option>
+          <option>Pronta para produção</option>
+          <option>Já em uso (regularização retroativa)</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- 3. DADOS -->
+    <section class="section">
+      <div class="section-head">
+        <span class="section-num">03</span>
+        <div>
+          <h2 class="section-title">Dados tratados</h2>
+          <p class="section-why">Base para enquadramento na LGPD (bases legais, dados sensíveis) e para a Avaliação de Impacto de IA nos moldes da ISO/IEC 42005. Determina também se a Auditoria precisa ser convocada.</p>
+        </div>
+      </div>
+
+      <fieldset class="field">
+        <label>Classificação do dado mais sensível envolvido</label>
+        <div class="radio-row" data-name="dado" data-weight="dado"></div>
+      </fieldset>
+
+      <div class="field">
+        <label for="destino-dado">Para onde os dados vão (se saem da Cotripal)</label>
+        <input type="text" id="destino-dado" placeholder="Ex.: nuvem do fornecedor X, servidor local, não sai da rede interna">
+      </div>
+    </section>
+
+    <!-- 4. INTEGRAÇÃO E CRITICIDADE -->
+    <section class="section">
+      <div class="section-head">
+        <span class="section-num">04</span>
+        <div>
+          <h2 class="section-title">Integração e criticidade operacional</h2>
+          <p class="section-why">Mede o "raio de explosão" caso algo dê errado — se a iniciativa toca ERP, base de usuários/fornecedores ou sistemas satélite, uma falha se propaga para além do time que criou a solução (Map/Measure do NIST AI RMF — caracterização de impacto).</p>
+        </div>
+      </div>
+
+      <fieldset class="field">
+        <label>Nível de integração/impacto se ficar indisponível ou falhar</label>
+        <div class="radio-row" data-name="criticidade" data-weight="criticidade"></div>
+      </fieldset>
+
+      <div class="field">
+        <label for="integra-com">Sistemas com que precisa/deveria integrar</label>
+        <input type="text" id="integra-com" placeholder="Ex.: ERP, base de fornecedores, Active Directory, nenhum">
+      </div>
+    </section>
+
+    <!-- 5. EXPOSIÇÃO -->
+    <section class="section">
+      <div class="section-head">
+        <span class="section-num">05</span>
+        <div>
+          <h2 class="section-title">Exposição — quem usa</h2>
+          <p class="section-why">Iniciativas expostas a clientes, fornecedores ou produtores carregam risco reputacional e legal adicional, e normalmente exigem revisão de comunicação/jurídico além da técnica.</p>
+        </div>
+      </div>
+      <fieldset class="field">
+        <label>Público da iniciativa</label>
+        <div class="radio-row" data-name="exposicao" data-weight="exposicao"></div>
+      </fieldset>
+    </section>
+
+    <!-- 6. CUSTO -->
+    <section class="section">
+      <div class="section-head">
+        <span class="section-num">06</span>
+        <div>
+          <h2 class="section-title">Custo e investimento</h2>
+          <p class="section-why">Não altera a classificação de risco técnico, mas é insumo obrigatório para a priorização do comitê e para definir se a alçada financeira exige aval do Administrativo-Financeiro.</p>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label for="investimento">Investimento estimado (R$)</label>
+          <input type="text" id="investimento" placeholder="Ex.: 15.000">
+        </div>
+        <div class="field">
+          <label for="recorrencia">Recorrência</label>
+          <select id="recorrencia">
+            <option>Único (sem recorrência)</option>
+            <option>Mensal</option>
+            <option>Anual</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+  </form>
+
+  <!-- REFERÊNCIAS TÉCNICAS -->
+  <section class="ref-section">
+    <div class="section-head">
+      <span class="section-num">REF</span>
+      <div>
+        <h2 class="section-title">Referências técnicas</h2>
+        <p class="section-why">Normas e frameworks que embasam este formulário e os critérios de risco utilizados acima.</p>
+      </div>
+    </div>
+    <div class="ref-table-wrap">
+      <table class="ref-table">
+        <thead>
+          <tr><th style="width:22%">Referência</th><th>O que é</th><th>O que este processo empresta dela</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="norm">NIST AI RMF 1.0<br>(NIST AI 100-1)</td>
+            <td>Framework voluntário do NIST (EUA) para gestão de risco de IA, organizado em quatro funções: Govern, Map, Measure, Manage.</td>
+            <td>Este formulário é a função <b>Map</b> (contextualizar o sistema antes de decidir); a reunião do comitê é <b>Measure + Manage</b>; papéis e alçadas formalizados são <b>Govern</b>.</td>
+          </tr>
+          <tr>
+            <td class="norm">ISO/IEC 42001:2023</td>
+            <td>Norma internacional certificável para Sistema de Gestão de IA (AIMS).</td>
+            <td>Estrutura de comitê, política de IA e responsabilidades (RACI) — formaliza o que o NIST deixa voluntário.</td>
+          </tr>
+          <tr>
+            <td class="norm">ISO/IEC 23894:2023</td>
+            <td>Diretrizes de gestão de risco aplicadas a sistemas de IA.</td>
+            <td>Lógica da matriz de risco abaixo: a pior dimensão prevalece sobre a média.</td>
+          </tr>
+          <tr>
+            <td class="norm">ISO/IEC 42005:2025</td>
+            <td>Avaliação de Impacto de Sistemas de IA (AIIA).</td>
+            <td>Campos de "dado tratado" e "exposição" replicam, de forma simplificada, uma AIIA.</td>
+          </tr>
+          <tr>
+            <td class="norm">LGPD<br>Lei 13.709/2018</td>
+            <td>Lei Geral de Proteção de Dados Pessoais do Brasil.</td>
+            <td>Todo campo de dado pessoal/sensível do formulário mapeia para bases legais e princípios da lei.</td>
+          </tr>
+          <tr>
+            <td class="norm">PL 2338/2023</td>
+            <td>Projeto de Marco Legal da IA no Brasil.</td>
+            <td>Conceito de "sistema de alto risco" que inspira o roteamento por alçada de aprovação.</td>
+          </tr>
+          <tr>
+            <td class="norm">OWASP Top 10<br>for LLM Apps</td>
+            <td>Lista de referência de mercado para riscos de segurança em aplicações com LLM.</td>
+            <td>Base do checklist de segurança aplicado pelo núcleo técnico antes da iniciativa chegar ao comitê.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- MATRIZ DE RISCO -->
+  <section class="ref-section">
+    <div class="section-head">
+      <span class="section-num">MTX</span>
+      <div>
+        <h2 class="section-title">Matriz de classificação de risco</h2>
+        <p class="section-why">As quatro dimensões avaliadas no formulário acima e o critério de pontuação de cada nível.</p>
+      </div>
+    </div>
+    <div class="matrix-wrap">
+      <div class="matrix-rule">REGRA DE AGREGAÇÃO — o risco final = o MAIOR valor entre as quatro dimensões (nunca a média)</div>
+      <table class="risk-matrix">
+        <thead>
+          <tr>
+            <th class="dim-col">Dimensão</th>
+            <th>Nível 1 · Baixo</th>
+            <th>Nível 2 · Médio</th>
+            <th>Nível 3 · Alto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Dado</b></td>
+            <td class="level-cell level-1">Público / operacional interno</td>
+            <td class="level-cell level-2">Pessoal não sensível (LGPD)</td>
+            <td class="level-cell level-3">Sensível, financeiro ou de crédito</td>
+          </tr>
+          <tr>
+            <td><b>Criticidade</b></td>
+            <td class="level-cell level-1">Uso isolado, não crítico</td>
+            <td class="level-cell level-2">Toca sistema satélite</td>
+            <td class="level-cell level-3">Toca ERP, produção ou movimenta dinheiro</td>
+          </tr>
+          <tr>
+            <td><b>Exposição</b></td>
+            <td class="level-cell level-1">Interna, um time</td>
+            <td class="level-cell level-2">Interna, multi-área</td>
+            <td class="level-cell level-3">Externa (cliente, fornecedor, produtor)</td>
+          </tr>
+          <tr>
+            <td><b>Construção</b></td>
+            <td class="level-cell level-1">SaaS consolidado de mercado</td>
+            <td class="level-cell level-2">Low-code / no-code (ex.: Base44)</td>
+            <td class="level-cell level-3">Código próprio via IA sem revisão (vibe-coding)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="matrix-note">
+    <b>Como o risco é calculado:</b> cada uma das quatro dimensões acima (construção, dado, criticidade, exposição) recebe uma pontuação de 1 a 3. O risco final da iniciativa é o <b>maior</b> valor entre as quatro — não a média. Um único fator crítico (ex.: tocar o ERP) já eleva a iniciativa a alto risco, mesmo que as demais dimensões estejam em nível baixo. Critério inspirado na abordagem de gestão de risco da ISO/IEC 23894 e na lógica de "sistema de alto risco" do PL 2338/2023.
+  </div>
+
+  <div class="footer-refs">
+    Referências técnicas utilizadas neste formulário: NIST AI 100-1 (AI RMF 1.0) — funções Govern/Map/Measure/Manage · ISO/IEC 42001:2023 (AIMS) · ISO/IEC 23894:2023 (gestão de risco em IA) · ISO/IEC 42005:2025 (avaliação de impacto de sistemas de IA) · Lei 13.709/2018 (LGPD) · PL 2338/2023 (Marco Legal da IA, Brasil) · OWASP Top 10 for LLM Applications (referência complementar no checklist técnico do núcleo).
+  </div>
+
+</div>
+</main>
+
+<div id="resultado">
+  <div class="result-inner">
+    <div class="result-row">
+      <span class="result-label">Classificação de risco</span>
+      <span class="result-level rl-1" id="nivel-risco">— preencha o formulário —</span>
+      <button type="button" class="btn" id="btn-calcular">Calcular e rotear</button>
+    </div>
+    <div class="result-detail" id="detalhe-risco"></div>
+  </div>
+</div>
+
+<script>
+const OPCOES = {
+  construcao: [
+    {v:1, w:1, label:'SaaS de mercado consolidado com IA embutida', desc:'Ferramenta pronta, fornecedor estabelecido (ex.: Copilot, ferramentas já homologadas).'},
+    {v:2, w:2, label:'Low-code / no-code com geração por IA', desc:'Ex.: Base44 e plataformas similares — código gerado, baixa rastreabilidade.'},
+    {v:3, w:3, label:'Código próprio via IA (vibe-coding) sem revisão', desc:'Gerado por área de negócio ou dev, fora do Git padrão, sem revisão técnica formal.'}
+  ],
+  dado: [
+    {v:1, w:1, label:'Público ou operacional interno', desc:'Sem dado pessoal ou financeiro identificável.'},
+    {v:2, w:2, label:'Dado pessoal não sensível (LGPD)', desc:'Nome, e-mail, telefone de colaborador/cliente/fornecedor.'},
+    {v:3, w:3, label:'Dado sensível, financeiro ou de crédito', desc:'Dado sensível LGPD, financeiro, crédito rural, folha de pagamento, dado de produtor/associado.'}
+  ],
+  criticidade: [
+    {v:1, w:1, label:'Uso isolado, não crítico', desc:'Não integra com nenhum sistema central; indisponibilidade não afeta operação.'},
+    {v:2, w:2, label:'Toca sistema satélite', desc:'Integra com sistema de apoio, mas não com o núcleo ERP.'},
+    {v:3, w:3, label:'Toca ERP, produção ou movimenta dinheiro', desc:'Falha ou erro impacta diretamente operação, finanças ou múltiplos estabelecimentos.'}
+  ],
+  exposicao: [
+    {v:1, w:1, label:'Interna, uso restrito a um time', desc:''},
+    {v:2, w:2, label:'Interna, multi-área', desc:'Usada por mais de uma diretoria/segmento.'},
+    {v:3, w:3, label:'Externa — cliente, fornecedor ou produtor', desc:'Pessoas fora da Cotripal interagem com a iniciativa.'}
+  ]
+};
+
+const container = document.getElementById('form-ia');
+document.querySelectorAll('.radio-row').forEach(row=>{
+  const name = row.dataset.name;
+  OPCOES[name].forEach((opt, i)=>{
+    const id = name+'-'+i;
+    const label = document.createElement('label');
+    label.className = 'radio-opt';
+    label.innerHTML = `
+      <input type="radio" name="${name}" value="${opt.v}" id="${id}" ${i===0 && name==='exposicao' ? '' : ''}>
+      <span>
+        <span class="opt-label">${opt.label}</span>
+        ${opt.desc ? `<span class="opt-desc">${opt.desc}</span>` : ''}
+      </span>
+      <span class="risk-badge rb-${opt.v}">nível ${opt.v}</span>
+    `;
+    row.appendChild(label);
+    label.querySelector('input').addEventListener('change', ()=>{
+      row.querySelectorAll('.radio-opt').forEach(o=>o.classList.remove('checked'));
+      label.classList.add('checked');
+    });
+  });
+});
+
+function calcular(){
+  const dims = ['construcao','dado','criticidade','exposicao'];
+  let vals = {};
+  let faltando = [];
+  dims.forEach(d=>{
+    const checked = document.querySelector(`input[name="${d}"]:checked`);
+    if(!checked){ faltando.push(d); return; }
+    vals[d] = parseInt(checked.value);
+  });
+
+  const nivelEl = document.getElementById('nivel-risco');
+  const detEl = document.getElementById('detalhe-risco');
+
+  if(faltando.length){
+    nivelEl.textContent = 'Responda todas as dimensões de risco (seções 02, 03, 04 e 05)';
+    nivelEl.className = 'result-level rl-2';
+    detEl.innerHTML = '';
+    return;
+  }
+
+  const maxVal = Math.max(vals.construcao, vals.dado, vals.criticidade, vals.exposicao);
+  const dimNomes = {construcao:'Natureza técnica/construção', dado:'Dados tratados', criticidade:'Integração e criticidade', exposicao:'Exposição'};
+  const dimCritica = Object.keys(vals).filter(k=>vals[k]===maxVal).map(k=>dimNomes[k]);
+
+  let nivelTexto, classe, roteamento;
+  if(maxVal===1){
+    nivelTexto = 'BAIXO RISCO';
+    classe = 'rl-1';
+    roteamento = `<b>Roteamento:</b> aprovação simplificada pelo núcleo técnico, sem necessidade de reunião do comitê. SLA sugerido: até 3 dias úteis. Registro do parecer segue direto para a Aevo.`;
+  } else if(maxVal===2){
+    nivelTexto = 'MÉDIO RISCO';
+    classe = 'rl-2';
+    roteamento = `<b>Roteamento:</b> avaliação em reunião do comitê (cadência quinzenal). Aprovação final: Gestor de TI + Gestor de Inovação, com parecer técnico do núcleo. Convocação de Segurança/Auditoria conforme dimensão crítica identificada.`;
+  } else {
+    nivelTexto = 'ALTO RISCO';
+    classe = 'rl-3';
+    roteamento = `<b>Roteamento:</b> avaliação obrigatória em comitê + validação da Diretoria da área envolvida (Grãos, Pecuária, Varejo ou Administrativo-Financeiro). Se a iniciativa cruzar mais de uma diretoria ou envolver dado sensível/crédito, aval da Presidência é exigido. Núcleo técnico deve produzir plano de adequação antes de qualquer autorização de produção.`;
+  }
+
+  nivelEl.textContent = nivelTexto;
+  nivelEl.className = 'result-level '+classe;
+  detEl.innerHTML = `Dimensão(ões) que determinaram o nível: <b>${dimCritica.join(', ')}</b>. Regra: o risco final é sempre o maior valor entre as quatro dimensões (nunca a média) — um único fator crítico já eleva o nível de toda a iniciativa.<br><br>${roteamento}`;
+}
+
+document.getElementById('btn-calcular').addEventListener('click', calcular);
+</script>
+
+</body>
+</html>
